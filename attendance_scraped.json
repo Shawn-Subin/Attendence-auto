@@ -1,0 +1,105 @@
+{
+    "Timestamp":  "2026-09-17 11:58:48",
+    "Student":  {
+                    "Name":  "SHAWN SUBIN PHILIP",
+                    "RollNo":  "65",
+                    "RegNo":  "MITS25UCA065"
+                },
+    "Overall":  {
+                    "TotalAttended":  229,
+                    "TotalHeld":  243,
+                    "Percentage":  94.2,
+                    "BunkTill90":  11,
+                    "BunkTill75":  62
+                },
+    "Subjects":  [
+                     {
+                         "CourseId":  "B250904/MA300A",
+                         "Code":  "MA300A",
+                         "Attended":  36,
+                         "Held":  39,
+                         "Percentage":  92,
+                         "BunkTill90":  1,
+                         "BunkTill75":  9,
+                         "NeededFor90":  1,
+                         "NeededFor75":  1
+                     },
+                     {
+                         "CourseId":  "B250802/CN320D",
+                         "Code":  "CN320D",
+                         "Attended":  27,
+                         "Held":  30,
+                         "Percentage":  90,
+                         "BunkTill90":  0,
+                         "BunkTill75":  6,
+                         "NeededFor90":  1,
+                         "NeededFor75":  1
+                     },
+                     {
+                         "CourseId":  "B250006/AI300E",
+                         "Code":  "AI300E",
+                         "Attended":  34,
+                         "Held":  36,
+                         "Percentage":  94,
+                         "BunkTill90":  1,
+                         "BunkTill75":  9,
+                         "NeededFor90":  1,
+                         "NeededFor75":  1
+                     },
+                     {
+                         "CourseId":  "B250908/HU900F",
+                         "Code":  "HU900F",
+                         "Attended":  25,
+                         "Held":  27,
+                         "Percentage":  93,
+                         "BunkTill90":  0,
+                         "BunkTill75":  6,
+                         "NeededFor90":  1,
+                         "NeededFor75":  1
+                     },
+                     {
+                         "CourseId":  "B250802/CN310B",
+                         "Code":  "CN310B",
+                         "Attended":  48,
+                         "Held":  51,
+                         "Percentage":  94,
+                         "BunkTill90":  2,
+                         "BunkTill75":  13,
+                         "NeededFor90":  1,
+                         "NeededFor75":  1
+                     },
+                     {
+                         "CourseId":  "B250802/CN310C",
+                         "Code":  "CN310C",
+                         "Attended":  44,
+                         "Held":  45,
+                         "Percentage":  98,
+                         "BunkTill90":  3,
+                         "BunkTill75":  13,
+                         "NeededFor90":  1,
+                         "NeededFor75":  1
+                     },
+                     {
+                         "CourseId":  "AMH",
+                         "Code":  "AMH",
+                         "Attended":  8,
+                         "Held":  8,
+                         "Percentage":  100,
+                         "BunkTill90":  0,
+                         "BunkTill75":  2,
+                         "NeededFor90":  1,
+                         "NeededFor75":  1
+                     },
+                     {
+                         "CourseId":  "AD_H",
+                         "Code":  "AD_H",
+                         "Attended":  7,
+                         "Held":  7,
+                         "Percentage":  100,
+                         "BunkTill90":  0,
+                         "BunkTill75":  2,
+                         "NeededFor90":  1,
+                         "NeededFor75":  1
+                     }
+                 ]
+}

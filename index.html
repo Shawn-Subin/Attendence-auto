@@ -1,0 +1,2898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>MITS Campus Hub | S3 CS AI Attendance & Timetable</title>
+  
+  <meta name="description" content="Muthoot Institute of Technology and Science (MITS) S3 CS AI student utility app with 90% (5 Marks) and 75% (Eligibility) bunk calculation." />
+  <meta name="theme-color" content="#0b1e3d" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="MITS Hub" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg" />
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+
+  <!-- Google Fonts: Plus Jakarta Sans & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
+            mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
+          },
+          colors: {
+            mits: {
+              navy: '#0b1e3d',
+              blue: '#1e3a8a',
+              accent: '#f59e0b',
+              gold: '#fbbf24',
+              surface: '#0f172a'
+            }
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.25s ease-out',
+            'scale-up': 'scaleUp 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+            'pulse-subtle': 'pulseSubtle 2s infinite',
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0', transform: 'translateY(4px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            },
+            scaleUp: {
+              '0%': { opacity: '0', transform: 'scale(0.96)' },
+              '100%': { opacity: '1', transform: 'scale(1)' },
+            },
+            pulseSubtle: {
+              '0%, 100%': { opacity: '1' },
+              '50%': { opacity: '0.6' },
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    input, textarea, select {
+      user-select: text;
+    }
+  </style>
+
+  <!-- React 18 & Babel Standalone -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+
+<body class="bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen">
+  <div id="root">
+    <div class="flex flex-col items-center justify-center min-h-screen p-6 text-center space-y-6">
+      
+      <!-- Brand Crest -->
+      <div class="relative">
+        <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-900 via-indigo-950 to-amber-500 p-1 shadow-2xl animate-pulse">
+          <div class="w-full h-full bg-slate-900 rounded-xl flex items-center justify-center font-black text-amber-400 text-base shadow-inner">
+            MITS
+          </div>
+        </div>
+        <span class="absolute -bottom-1 -right-1 flex h-4 w-4">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-4 w-4 bg-emerald-500 border-2 border-white dark:border-slate-950"></span>
+        </span>
+      </div>
+
+      <div>
+        <h2 class="text-xl font-black text-slate-900 dark:text-white tracking-tight">MITS Campus Hub</h2>
+        <p class="text-xs font-semibold text-amber-600 dark:text-amber-400 mt-1">S3 CS AI • Autonomous Portal</p>
+      </div>
+
+      <!-- Animated Loading Progress Bar -->
+      <div class="w-72 max-w-xs space-y-2">
+        <div class="w-full h-2.5 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden p-0.5 shadow-inner">
+          <div id="loading-bar-fill" class="h-full bg-gradient-to-r from-blue-600 via-amber-500 to-emerald-500 rounded-full transition-all duration-300" style="width: 20%"></div>
+        </div>
+        <div class="flex justify-between items-center text-[11px] text-slate-500 dark:text-slate-400 font-mono">
+          <span id="loading-status-text">Loading attendance & timetable...</span>
+          <span id="loading-pct-text">20%</span>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      var pct = 20;
+      var fill = document.getElementById('loading-bar-fill');
+      var pctText = document.getElementById('loading-pct-text');
+      var statusText = document.getElementById('loading-status-text');
+      var msgs = [
+        "Connecting to student database...",
+        "Loading S3 CS AI courses...",
+        "Applying 90% attendance rules...",
+        "Finalizing campus dashboard..."
+      ];
+      var idx = 0;
+      var t = setInterval(function() {
+        if (!fill || !pctText) {
+          clearInterval(t);
+          return;
+        }
+        pct += Math.floor(Math.random() * 20) + 15;
+        if (pct >= 95) {
+          pct = 95;
+          clearInterval(t);
+        }
+        fill.style.width = pct + '%';
+        pctText.textContent = pct + '%';
+        if (msgs[idx]) {
+          statusText.textContent = msgs[idx];
+          idx++;
+        }
+      }, 160);
+    })();
+  </script>
+
+  <script type="text/babel">
+    const { useState, useEffect, useMemo } = React;
+
+    // ==========================================
+    // ATTENDANCE MATH UTILITIES
+    // Tier 1: 90% Threshold (Full 5 Internal Marks)
+    // Tier 2: 75% Threshold (University Exam Eligibility)
+    // ==========================================
+    function calculatePercentage(attended, held) {
+      if (!held || held <= 0) return 100;
+      const pct = (attended / held) * 100;
+      return Math.round(pct * 10) / 10;
+    }
+
+    function getClassesToReachTarget(attended, held, targetPct = 90, strictlyOver = false) {
+      if (held <= 0) return 0;
+      const currentPct = (attended / held) * 100;
+      
+      if (strictlyOver) {
+        if (currentPct > targetPct) return 0;
+        const diff = (targetPct * held - 100 * attended) / (100 - targetPct);
+        return Math.max(1, Math.floor(diff) + 1);
+      }
+
+      if (currentPct >= targetPct) return 0;
+      const needed = Math.ceil((targetPct * held - 100 * attended) / (100 - targetPct));
+      return Math.max(1, needed);
+    }
+
+    function getAttendanceStatus(percentage) {
+      if (percentage >= 90) {
+        return {
+          status: 'full-marks',
+          label: '⭐ 5 Marks Zone (≥90%)',
+          color: 'amber',
+          ringColor: '#f59e0b', // Gold / Amber
+          bgColor: 'bg-amber-500/10 dark:bg-amber-950/30',
+          textColor: 'text-amber-600 dark:text-amber-400',
+          borderColor: 'border-amber-500/30',
+          badgeBg: 'bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-300'
+        };
+      } else if (percentage >= 75) {
+        return {
+          status: 'eligible',
+          label: 'Safe (75-89%)',
+          color: 'emerald',
+          ringColor: '#10b981', // Green
+          bgColor: 'bg-emerald-500/10 dark:bg-emerald-950/30',
+          textColor: 'text-emerald-600 dark:text-emerald-400',
+          borderColor: 'border-emerald-500/30',
+          badgeBg: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300'
+        };
+      } else if (percentage >= 70) {
+        return {
+          status: 'warning',
+          label: 'Near Boundary (70-74%)',
+          color: 'orange',
+          ringColor: '#f97316',
+          bgColor: 'bg-orange-500/10 dark:bg-orange-950/30',
+          textColor: 'text-orange-600 dark:text-orange-400',
+          borderColor: 'border-orange-500/30',
+          badgeBg: 'bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300'
+        };
+      } else {
+        return {
+          status: 'critical',
+          label: 'Shortage (<70%)',
+          color: 'rose',
+          ringColor: '#f43f5e',
+          bgColor: 'bg-rose-500/10 dark:bg-rose-950/30',
+          textColor: 'text-rose-600 dark:text-rose-400',
+          borderColor: 'border-rose-500/30',
+          badgeBg: 'bg-rose-100 text-rose-800 dark:bg-rose-900/40 dark:text-rose-300'
+        };
+      }
+    }
+
+    function calculateBunkInfo(attended, held) {
+      if (held === 0) {
+        return { type: 'initial', tier: 90, count: 0, message: 'No classes conducted yet' };
+      }
+      const pct = (attended / held) * 100;
+
+      // Tier 1: Attendance is AT OR ABOVE 90% (Securing 5 Internal Marks)
+      if (pct >= 90) {
+        // bunk90 = floor((10 * attended - 9 * held) / 9)
+        const bunk90 = Math.floor((10 * attended - 9 * held) / 9);
+        const bunk75 = Math.floor((4 * attended - 3 * held) / 3);
+
+        if (bunk90 === 0) {
+          return {
+            type: 'edge-90',
+            tier: 90,
+            count: 0,
+            bunksTo75: bunk75,
+            message: '⭐ 5 Marks Edge: Missing the next class drops attendance below 90%!'
+          };
+        }
+        return {
+          type: 'safe-90',
+          tier: 90,
+          count: bunk90,
+          bunksTo75: bunk75,
+          message: `⭐ 5 Marks Safe: You can bunk ${bunk90} ${bunk90 === 1 ? 'class' : 'classes'} till you drop below 90%`
+        };
+      }
+
+      // Tier 2: Attendance is BELOW 90% but AT OR ABOVE 75% (Show bunks till 75% eligibility)
+      if (pct >= 75) {
+        const bunk75 = Math.floor((4 * attended - 3 * held) / 3);
+        const neededFor90 = Math.max(1, 9 * held - 10 * attended);
+
+        if (bunk75 === 0) {
+          return {
+            type: 'edge-75',
+            tier: 75,
+            count: 0,
+            neededFor90,
+            message: '⚡ 75% Boundary: Missing the next class drops attendance below 75% exam threshold!'
+          };
+        }
+        return {
+          type: 'bunk-to-75',
+          tier: 75,
+          count: bunk75,
+          neededFor90,
+          message: `⚠️ Below 90%: You can bunk ${bunk75} ${bunk75 === 1 ? 'class' : 'classes'} till you drop below 75%`
+        };
+      }
+
+      // Tier 3: Attendance is BELOW 75% (Exam Shortage Recovery)
+      const needed75 = Math.max(1, (3 * held) - (4 * attended));
+      return {
+        type: 'recovery-75',
+        tier: 75,
+        count: needed75,
+        message: `🚨 Shortage Alert: Must attend next ${needed75} consecutive ${needed75 === 1 ? 'class' : 'classes'} to reach 75%`
+      };
+    }
+
+    // ==========================================
+    // STUDENT PROFILE & OFFICIAL ATTENDANCE RECORD
+    // Shawn Subin Philip (Roll No: 65 | MITS25UCA065)
+    // ==========================================
+    const STUDENT_PROFILE = {
+      name: 'Shawn Subin Philip',
+      rollNo: '65',
+      regNo: 'MITS25UCA065',
+      semester: 'S3 CS AI',
+      department: 'Computer Science & Engineering (AI)'
+    };
+
+    const DEFAULT_SUBJECTS = [
+      {
+        id: 'sub-lsd',
+        code: 'CN310B',
+        courseId: 'B250802/CN310B',
+        name: 'Logic System Design (LSD)',
+        shortName: 'LSD',
+        faculty: 'Angel B John (ABJ)',
+        color: '#3b82f6',
+        attended: 48,
+        held: 51,
+        room: 'Room 512'
+      },
+      {
+        id: 'sub-fods',
+        code: 'CN310C',
+        courseId: 'B250802/CN310C',
+        name: 'Fundamentals of Data Structures (FoDS)',
+        shortName: 'FoDS',
+        faculty: 'Dr. Parvathy Jyothi (Dr PJ) / Sheena Y',
+        color: '#06b6d4',
+        attended: 44,
+        held: 45,
+        room: 'Room 512'
+      },
+      {
+        id: 'sub-mis3',
+        code: 'MA300A',
+        courseId: 'B250904/MA300A',
+        name: 'Mathematics for Information Science-3 (MIS3)',
+        shortName: 'MIS3',
+        faculty: 'Dr. S. Babu / Dr. J. Thomas',
+        color: '#8b5cf6',
+        attended: 36,
+        held: 39,
+        room: 'Room 512'
+      },
+      {
+        id: 'sub-for',
+        code: 'AI300E',
+        courseId: 'B250006/AI300E',
+        name: 'Foundations of Robotics (FoR)',
+        shortName: 'FoR',
+        faculty: 'Anitha S (AS)',
+        color: '#10b981',
+        attended: 34,
+        held: 36,
+        room: 'Room 512'
+      },
+      {
+        id: 'sub-aoop',
+        code: 'CN320D',
+        courseId: 'B250802/CN320D',
+        name: 'Advanced Object Oriented Programming (AOOP)',
+        shortName: 'AOOP',
+        faculty: 'Remya V (RV)',
+        color: '#f59e0b',
+        attended: 27,
+        held: 30,
+        room: 'Room 512'
+      },
+      {
+        id: 'sub-ee',
+        code: 'HU900F',
+        courseId: 'B250908/HU900F',
+        name: 'Engineering Economics (EE)',
+        shortName: 'EE',
+        faculty: 'Reshma S (RS)',
+        color: '#ec4899',
+        attended: 25,
+        held: 27,
+        room: 'Room 512'
+      },
+      {
+        id: 'sub-amh',
+        code: 'AMH',
+        courseId: 'AMH',
+        name: 'Academic Mentoring Hour',
+        shortName: 'AMH',
+        faculty: 'Faculty Mentor',
+        color: '#6366f1',
+        attended: 8,
+        held: 8,
+        room: 'Room 512'
+      },
+      {
+        id: 'sub-adh',
+        code: 'AD_H',
+        courseId: 'AD_H',
+        name: 'Department Hour',
+        shortName: 'AD_H',
+        faculty: 'CSE (AI) HOD & Staff',
+        color: '#14b8a6',
+        attended: 7,
+        held: 7,
+        room: 'Room 512'
+      }
+    ];
+
+    const TIME_SLOTS = [
+      { id: 'p1', time: '08:00 - 08:55', start: '08:00', end: '08:55', label: 'Period 1' },
+      { id: 'rec1', isBreak: true, time: '08:55 - 09:15', label: 'Morning Recess (20m)' },
+      { id: 'p2', time: '09:15 - 10:05', start: '09:15', end: '10:05', label: 'Period 2' },
+      { id: 'p3', time: '10:05 - 10:55', start: '10:05', end: '10:55', label: 'Period 3' },
+      { id: 'p4', time: '10:55 - 11:45', start: '10:55', end: '11:45', label: 'Period 4' },
+      { id: 'lunch', isBreak: true, time: '11:45 - 12:00', label: 'Midday Recess (15m)' },
+      { id: 'p5', time: '12:00 - 12:50', start: '12:00', end: '12:50', label: 'Period 5' },
+      { id: 'p6', time: '12:50 - 13:40', start: '12:50', end: '13:40', label: 'Period 6' }
+    ];
+
+    const DAYS_OF_WEEK = [
+      { id: 'mon', short: 'Mon', full: 'Monday' },
+      { id: 'tue', short: 'Tue', full: 'Tuesday' },
+      { id: 'wed', short: 'Wed', full: 'Wednesday' },
+      { id: 'thu', short: 'Thu', full: 'Thursday' },
+      { id: 'fri', short: 'Fri', full: 'Friday' }
+    ];
+
+    const DEFAULT_TIMETABLE = {
+      mon: [
+        { slotId: 'p1', subjectId: 'sub-lsd', room: 'Room 512' },
+        { slotId: 'p2', subjectId: 'sub-aoop', room: 'Room 512' },
+        { slotId: 'p3', subjectId: 'sub-fods', room: 'Room 512' },
+        { slotId: 'p4', subjectId: 'sub-for', room: 'Room 512' },
+        { slotId: 'p5', subjectId: 'sub-mis3', room: 'Room 512' },
+        { slotId: 'p6', subjectId: 'sub-ee', room: 'Room 512' }
+      ],
+      tue: [
+        { slotId: 'p1', subjectId: 'sub-aoop', room: 'Room 512' },
+        { slotId: 'p2', subjectId: 'sub-for', room: 'Room 512' },
+        { slotId: 'p3', subjectId: 'sub-mis3', room: 'Room 512' },
+        { slotId: 'p4', subjectId: 'sub-ee', room: 'Room 512' },
+        { slotId: 'p5', subjectId: 'sub-adh', room: 'Room 512' },
+        { slotId: 'p6', subjectId: 'sub-lsd', room: 'Room 512' }
+      ],
+      wed: [
+        { slotId: 'p1', subjectId: 'sub-fods', room: 'Room 512' },
+        { slotId: 'p2', subjectId: 'sub-for', room: 'Room 512' },
+        { slotId: 'p3', subjectId: 'sub-amh', room: 'Room 512' },
+        { slotId: 'p4', subjectId: 'sub-fods', room: 'Room 512 / Lovelace Lab' },
+        { slotId: 'p5', subjectId: 'sub-aoop', room: 'Room 512 / Turing Lab' },
+        { slotId: 'p6', subjectId: 'sub-aoop', room: 'Room 512 / Turing Lab' }
+      ],
+      thu: [
+        { slotId: 'p1', subjectId: 'sub-aoop', room: 'Room 512' },
+        { slotId: 'p2', subjectId: 'sub-fods', room: 'Room 512' },
+        { slotId: 'p3', subjectId: 'sub-for', room: 'Room 512' },
+        { slotId: 'p4', subjectId: 'sub-mis3', room: 'Room 512' },
+        { slotId: 'p5', subjectId: 'sub-lsd', room: 'Room 512' },
+        { slotId: 'p6', subjectId: 'sub-ee', room: 'Room 512' }
+      ],
+      fri: [
+        { slotId: 'p1', subjectId: 'sub-lsd', room: 'Room 512' },
+        { slotId: 'p2', subjectId: 'sub-mis3', room: 'Room 512' },
+        { slotId: 'p4', subjectId: 'sub-aoop', room: 'Room 512 / Turing Lab' },
+        { slotId: 'p5', subjectId: 'sub-fods', room: 'Room 512 / Lovelace Lab' },
+        { slotId: 'p6', subjectId: 'sub-fods', room: 'Room 512 / Lovelace Lab' }
+      ]
+    };
+
+    // ==========================================
+    // PROGRESS RING COMPONENT
+    // ==========================================
+    function AttendanceRing({ 
+      percentage, 
+      size = 68, 
+      strokeWidth = 6, 
+      color,
+      textColor = 'text-slate-900 dark:text-white',
+      trackColor = 'text-slate-100 dark:text-slate-800'
+    }) {
+      const radius = (size - strokeWidth) / 2;
+      const circumference = 2 * Math.PI * radius;
+      const validPct = Math.min(100, Math.max(0, percentage));
+      const strokeDashoffset = circumference - (validPct / 100) * circumference;
+
+      return (
+        <div className="relative flex items-center justify-center flex-shrink-0" style={{ width: size, height: size }}>
+          <svg className="w-full h-full transform -rotate-90">
+            <circle
+              cx={size / 2}
+              cy={size / 2}
+              r={radius}
+              stroke="currentColor"
+              strokeWidth={strokeWidth}
+              className={trackColor}
+              fill="none"
+            />
+            <circle
+              cx={size / 2}
+              cy={size / 2}
+              r={radius}
+              stroke={color}
+              strokeWidth={strokeWidth}
+              strokeDasharray={circumference}
+              strokeDashoffset={strokeDashoffset}
+              strokeLinecap="round"
+              className="transition-all duration-700 ease-out"
+              fill="none"
+            />
+          </svg>
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+            <span className={`text-xs sm:text-sm font-black tracking-tight leading-none ${textColor}`}>
+              {percentage}%
+            </span>
+          </div>
+        </div>
+      );
+    }
+
+    // ==========================================
+    // HEADER COMPONENT
+    // ==========================================
+    function Header({ currentTab, onResetData, isPhoneFrame, setIsPhoneFrame, todayDayName, currentDateFormatted, syncInfo }) {
+      return (
+        <header className="sticky top-0 z-30 bg-slate-900 text-white shadow-md border-b border-slate-800">
+          <div className="max-w-md mx-auto px-4 py-3 sm:max-w-xl md:max-w-4xl">
+            <div className="flex items-center justify-between gap-3">
+              
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-700 to-amber-500 p-0.5 shadow-lg flex items-center justify-center flex-shrink-0">
+                  <div className="w-full h-full bg-slate-900 rounded-[10px] flex items-center justify-center font-black text-amber-400 text-xs tracking-tighter">
+                    MITS
+                  </div>
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h1 className="text-sm sm:text-base font-bold tracking-tight text-white flex items-center gap-1.5">
+                      MITS Campus Hub
+                    </h1>
+                    <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/40">
+                      S3 CS AI
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-400 flex items-center gap-1.5">
+                    <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span>{todayDayName}, {currentDateFormatted}</span>
+                    <span className="text-slate-500">•</span>
+                    <span className="text-amber-400 font-semibold">Room 512</span>
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                {syncInfo && syncInfo.timestamp && (
+                  <div 
+                    title={`Last Synced with ETLAB: ${syncInfo.timestamp}`}
+                    className="flex items-center gap-1.5 px-2 py-1 text-[10px] font-bold text-emerald-400 bg-emerald-950/40 border border-emerald-700/50 rounded-lg select-none"
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span className="hidden sm:inline text-slate-300">ETLAB</span>
+                    <span>{syncInfo.timestamp.split(' ')[1] ? syncInfo.timestamp.split(' ')[1].substring(0, 5) : 'Synced'}</span>
+                  </div>
+                )}
+                <button
+                  onClick={() => setIsPhoneFrame(!isPhoneFrame)}
+                  title={isPhoneFrame ? "Expand to Full Width" : "Switch to Mobile Phone Frame"}
+                  className="hidden md:flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg transition"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <rect x="5" y="2" width="14" height="20" rx="2" strokeWidth="2" />
+                    <path d="M12 18h.01" strokeWidth="2" strokeLinecap="round" />
+                  </svg>
+                  <span>{isPhoneFrame ? "Full Width" : "Phone Frame"}</span>
+                </button>
+
+                <button
+                  onClick={onResetData}
+                  title="Reset to official student attendance report (214/228, 94%)"
+                  className="p-1.5 text-xs text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-700 border border-slate-700 rounded-lg transition flex items-center gap-1"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  <span className="hidden sm:inline text-[11px]">Reset</span>
+                </button>
+              </div>
+
+            </div>
+          </div>
+        </header>
+      );
+    }
+
+    // ==========================================
+    // BOTTOM NAVIGATION
+    // ==========================================
+    function BottomNav({ activeTab, setActiveTab, attendanceWarningCount = 0 }) {
+      const tabs = [
+        {
+          id: 'timetable',
+          label: 'Timetable',
+          icon: (isActive) => (
+            <svg className={`w-5 h-5 transition-transform duration-200 ${isActive ? 'scale-110 text-amber-500' : 'text-slate-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={isActive ? 2.5 : 2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          )
+        },
+        {
+          id: 'attendance',
+          label: 'Attendance',
+          badge: attendanceWarningCount > 0 ? attendanceWarningCount : null,
+          icon: (isActive) => (
+            <svg className={`w-5 h-5 transition-transform duration-200 ${isActive ? 'scale-110 text-amber-500' : 'text-slate-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={isActive ? 2.5 : 2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          )
+        }
+      ];
+
+      return (
+        <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 shadow-[0_-4px_12px_rgba(0,0,0,0.05)]">
+          <div className="max-w-md mx-auto sm:max-w-xl md:max-w-md">
+            <div className="grid grid-cols-2 h-16">
+              {tabs.map((tab) => {
+                const isActive = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    id={`nav-tab-${tab.id}`}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`relative flex flex-col items-center justify-center gap-1 transition-all duration-200 active:scale-95 select-none ${
+                      isActive 
+                        ? 'text-blue-950 dark:text-amber-400 font-semibold' 
+                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+                    }`}
+                  >
+                    {isActive && (
+                      <span className="absolute top-0 w-12 h-1 bg-amber-500 rounded-b-full transition-all duration-300 shadow-sm shadow-amber-500/50"></span>
+                    )}
+
+                    <div className="relative">
+                      {tab.icon(isActive)}
+                      {tab.badge && (
+                        <span className="absolute -top-1.5 -right-2.5 px-1.5 py-0.2 text-[10px] font-bold rounded-full bg-rose-500 text-white shadow-sm ring-2 ring-white dark:ring-slate-900 animate-pulse">
+                          {tab.badge}
+                        </span>
+                      )}
+                    </div>
+
+                    <span className={`text-[11px] tracking-tight transition-colors ${
+                      isActive ? 'font-bold text-slate-900 dark:text-white' : 'font-medium'
+                    }`}>
+                      {tab.label}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </nav>
+      );
+    }
+
+    // ==========================================
+    // TOAST COMPONENT
+    // ==========================================
+    function Toast({ toast, onClose }) {
+      if (!toast) return null;
+      const bgColors = {
+        success: 'bg-emerald-600 text-white',
+        info: 'bg-blue-600 text-white',
+        warning: 'bg-amber-500 text-slate-950',
+        error: 'bg-rose-600 text-white'
+      };
+
+      return (
+        <div className="fixed top-16 left-1/2 transform -translate-x-1/2 z-50 animate-fade-in">
+          <div className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl shadow-xl text-xs font-bold border border-white/20 ${bgColors[toast.type] || bgColors.info}`}>
+            <span>{toast.icon || 'ℹ️'}</span>
+            <span>{toast.message}</span>
+            <button onClick={onClose} className="ml-2 opacity-80 hover:opacity-100 p-0.5">✕</button>
+          </div>
+        </div>
+      );
+    }
+
+    // ==========================================
+    // TIMETABLE EDIT MODAL
+    // ==========================================
+    function EditTimetableModal({ isOpen, onClose, onSave, onDelete, slotData, subjects, timeSlots, daysOfWeek }) {
+      if (!isOpen) return null;
+
+      const [day, setDay] = useState(slotData?.day || 'mon');
+      const [slotId, setSlotId] = useState(slotData?.slotId || 'p1');
+      const [subjectId, setSubjectId] = useState(slotData?.subjectId || subjects[0]?.id || '');
+      const [room, setRoom] = useState(slotData?.room || 'Room 512');
+
+      const isEditing = Boolean(slotData?.isEditing);
+
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        if (!subjectId) return;
+        onSave({
+          day,
+          slotId,
+          subjectId,
+          room: room.trim() || 'Room 512'
+        });
+        onClose();
+      };
+
+      return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-sm w-full p-5 shadow-2xl border border-slate-200 dark:border-slate-800 animate-scale-up">
+            
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-2">
+                <span className="p-2 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400">
+                  📅
+                </span>
+                <h3 className="font-bold text-slate-900 dark:text-white">
+                  {isEditing ? 'Edit Class Slot' : 'Add Class Slot'}
+                </h3>
+              </div>
+              <button onClick={onClose} className="text-slate-400 hover:text-slate-600 p-1">✕</button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="mt-4 space-y-3.5">
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">
+                  Day of Week
+                </label>
+                <select
+                  value={day}
+                  onChange={(e) => setDay(e.target.value)}
+                  disabled={isEditing}
+                  className="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
+                >
+                  {daysOfWeek.map(d => (
+                    <option key={d.id} value={d.id}>{d.full}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">
+                  Period / Time Slot
+                </label>
+                <select
+                  value={slotId}
+                  onChange={(e) => setSlotId(e.target.value)}
+                  disabled={isEditing}
+                  className="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
+                >
+                  {timeSlots.filter(s => !s.isBreak).map(s => (
+                    <option key={s.id} value={s.id}>
+                      {s.label} ({s.time})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">
+                  Subject
+                </label>
+                <select
+                  value={subjectId}
+                  onChange={(e) => setSubjectId(e.target.value)}
+                  className="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
+                >
+                  {subjects.map(s => (
+                    <option key={s.id} value={s.id}>
+                      {s.code}: {s.name} ({s.faculty})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">
+                  Classroom / Lab
+                </label>
+                <input
+                  type="text"
+                  value={room}
+                  onChange={(e) => setRoom(e.target.value)}
+                  placeholder="e.g. Room 512"
+                  className="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
+                />
+              </div>
+
+              <div className="flex items-center gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
+                {isEditing && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (confirm('Delete this class entry from the schedule?')) {
+                        onDelete(day, slotId);
+                        onClose();
+                      }
+                    }}
+                    className="px-3 py-2 text-xs font-semibold text-rose-600 bg-rose-50 dark:bg-rose-950/40 rounded-xl"
+                  >
+                    Delete
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="flex-1 px-3 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded-xl"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 px-3 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-md shadow-blue-500/20"
+                >
+                  {isEditing ? 'Save Changes' : 'Add Class'}
+                </button>
+              </div>
+            </form>
+
+          </div>
+        </div>
+      );
+    }
+
+    // ==========================================
+    // TIMETABLE TAB
+    // ==========================================
+    function TimetableTab({ timetable, subjects, timeSlots, daysOfWeek, todayDayId, onSaveSlot, onDeleteSlot, onSwitchTab }) {
+      const [viewMode, setViewMode] = useState('today');
+      const [selectedDay, setSelectedDay] = useState(
+        daysOfWeek.some(d => d.id === todayDayId) ? todayDayId : 'mon'
+      );
+      const [editingSlot, setEditingSlot] = useState(null);
+      const [isModalOpen, setIsModalOpen] = useState(false);
+
+      const subjectsMap = useMemo(() => {
+        const map = {};
+        subjects.forEach(s => { map[s.id] = s; });
+        return map;
+      }, [subjects]);
+
+      const currentSlotStatus = useMemo(() => {
+        const now = new Date();
+        const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+        const parseTime = (tStr) => {
+          if (!tStr) return 0;
+          const [h, m] = tStr.split(':').map(Number);
+          return h * 60 + m;
+        };
+
+        let activeId = null;
+        let nextId = null;
+
+        for (const slot of timeSlots) {
+          if (slot.start && slot.end) {
+            const startMin = parseTime(slot.start);
+            const endMin = parseTime(slot.end);
+
+            if (currentMinutes >= startMin && currentMinutes <= endMin) {
+              activeId = slot.id;
+              break;
+            } else if (currentMinutes < startMin && !nextId) {
+              nextId = slot.id;
+            }
+          }
+        }
+        return { activeId, nextId };
+      }, [timeSlots]);
+
+      const handleSlotClick = (day, slotId, currentEntry) => {
+        setEditingSlot({
+          day,
+          slotId,
+          subjectId: currentEntry?.subjectId || subjects[0]?.id,
+          room: currentEntry?.room || 'Room 512',
+          isEditing: Boolean(currentEntry)
+        });
+        setIsModalOpen(true);
+      };
+
+      const handleAddNewClass = () => {
+        setEditingSlot({
+          day: selectedDay,
+          slotId: 'p1',
+          subjectId: subjects[0]?.id,
+          room: 'Room 512',
+          isEditing: false
+        });
+        setIsModalOpen(true);
+      };
+
+      const daySchedule = timetable[selectedDay] || [];
+
+      return (
+        <div className="space-y-4 pb-20 animate-fade-in">
+          
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex bg-slate-200/80 dark:bg-slate-800 p-1 rounded-xl text-xs font-semibold">
+              <button
+                id="btn-timetable-today"
+                onClick={() => setViewMode('today')}
+                className={`px-3 py-1.5 rounded-lg transition-all ${
+                  viewMode === 'today'
+                    ? 'bg-white dark:bg-blue-600 text-blue-900 dark:text-white shadow-sm'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                }`}
+              >
+                Today's Schedule
+              </button>
+              <button
+                id="btn-timetable-weekly"
+                onClick={() => setViewMode('weekly')}
+                className={`px-3 py-1.5 rounded-lg transition-all ${
+                  viewMode === 'weekly'
+                    ? 'bg-white dark:bg-blue-600 text-blue-900 dark:text-white shadow-sm'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                }`}
+              >
+                Weekly Grid
+              </button>
+            </div>
+
+            <button
+              id="btn-add-class"
+              onClick={handleAddNewClass}
+              className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 active:scale-95 rounded-xl transition shadow-sm shadow-blue-500/30"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4" />
+              </svg>
+              <span>Add Class</span>
+            </button>
+          </div>
+
+          {viewMode === 'today' && (
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+              {daysOfWeek.map((d) => {
+                const isToday = d.id === todayDayId;
+                const isSelected = d.id === selectedDay;
+                return (
+                  <button
+                    key={d.id}
+                    id={`day-pill-${d.id}`}
+                    onClick={() => setSelectedDay(d.id)}
+                    className={`flex-1 min-w-[56px] py-2 px-1 rounded-xl text-center transition-all ${
+                      isSelected
+                        ? 'bg-slate-900 text-white dark:bg-amber-500 dark:text-slate-950 font-bold shadow-md'
+                        : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-50'
+                    }`}
+                  >
+                    <div className="text-[10px] uppercase tracking-wider opacity-80">{d.short}</div>
+                    <div className="text-xs font-extrabold flex items-center justify-center gap-0.5 mt-0.5">
+                      {d.short}
+                      {isToday && (
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+
+          {/* VERTICAL TIMELINE LIST */}
+          {viewMode === 'today' && (
+            <div className="space-y-2.5">
+              <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 px-1">
+                <span className="font-semibold text-slate-700 dark:text-slate-200">
+                  {daysOfWeek.find(d => d.id === selectedDay)?.full} Schedule • Room 512
+                </span>
+                <span className="font-mono">{daySchedule.length} classes</span>
+              </div>
+
+              <div className="space-y-2">
+                {timeSlots.map((slot) => {
+                  if (slot.isBreak) {
+                    return (
+                      <div 
+                        key={slot.id} 
+                        className="flex items-center gap-3 py-1.5 px-3 bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200/50 dark:border-amber-800/30 rounded-xl text-amber-800 dark:text-amber-300 text-xs"
+                      >
+                        <span className="text-base">☕</span>
+                        <span className="font-semibold">{slot.label}</span>
+                        <span className="text-[11px] text-amber-600/80 dark:text-amber-400/80 ml-auto font-mono">
+                          {slot.time}
+                        </span>
+                      </div>
+                    );
+                  }
+
+                  const entry = daySchedule.find(e => e.slotId === slot.id);
+                  const subject = entry ? subjectsMap[entry.subjectId] : null;
+
+                  const isCurrent = selectedDay === todayDayId && currentSlotStatus.activeId === slot.id;
+                  const isNext = selectedDay === todayDayId && !currentSlotStatus.activeId && currentSlotStatus.nextId === slot.id;
+
+                  return (
+                    <div
+                      key={slot.id}
+                      onClick={() => handleSlotClick(selectedDay, slot.id, entry)}
+                      className={`group relative flex items-start gap-3 p-3.5 rounded-2xl border transition-all cursor-pointer select-none ${
+                        isCurrent
+                          ? 'bg-blue-50/90 dark:bg-blue-950/40 border-blue-500 shadow-md ring-2 ring-blue-500/30'
+                          : isNext
+                          ? 'bg-amber-50/80 dark:bg-amber-950/30 border-amber-400 shadow-sm'
+                          : entry
+                          ? 'bg-white dark:bg-slate-800/90 border-slate-200 dark:border-slate-700/80 hover:border-blue-300 dark:hover:border-slate-600 shadow-sm'
+                          : 'bg-slate-50/60 dark:bg-slate-900/40 border-dashed border-slate-200 dark:border-slate-800 hover:bg-white dark:hover:bg-slate-800/50'
+                      }`}
+                    >
+                      {subject && (
+                        <div 
+                          className="absolute left-0 top-3 bottom-3 w-1.5 rounded-r-full"
+                          style={{ backgroundColor: subject.color || '#3b82f6' }}
+                        />
+                      )}
+
+                      <div className="w-16 flex-shrink-0 text-left pl-1">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block font-mono">
+                          {slot.label}
+                        </span>
+                        <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 font-mono">
+                          {slot.start}
+                        </span>
+                        <span className="text-[10px] text-slate-400 block font-mono">
+                          to {slot.end}
+                        </span>
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        {entry && subject ? (
+                          <div>
+                            <div className="flex items-center justify-between gap-1">
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                <span 
+                                  className="px-2 py-0.5 text-[10px] font-bold rounded-md font-mono"
+                                  style={{ 
+                                    backgroundColor: `${subject.color}15`, 
+                                    color: subject.color,
+                                    border: `1px solid ${subject.color}35`
+                                  }}
+                                >
+                                  {subject.code}
+                                </span>
+
+                                {isCurrent && (
+                                  <span className="px-2 py-0.5 text-[10px] font-extrabold uppercase rounded-full bg-blue-600 text-white animate-pulse flex items-center gap-1">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
+                                    Ongoing Now
+                                  </span>
+                                )}
+
+                                {isNext && (
+                                  <span className="px-2 py-0.5 text-[10px] font-bold uppercase rounded-full bg-amber-500 text-slate-950">
+                                    Up Next
+                                  </span>
+                                )}
+                              </div>
+
+                              <span className="text-slate-400 group-hover:text-blue-600 text-xs transition">
+                                ✏️
+                              </span>
+                            </div>
+
+                            <h4 className="text-sm font-bold text-slate-900 dark:text-white mt-1 truncate">
+                              {subject.name}
+                            </h4>
+
+                            <div className="flex items-center justify-between mt-1 text-xs text-slate-500 dark:text-slate-400">
+                              <div className="flex items-center gap-1 truncate">
+                                <span>👤</span>
+                                <span className="truncate font-medium">{subject.faculty}</span>
+                              </div>
+                              <div className="flex items-center gap-1 font-bold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded-md flex-shrink-0 border border-amber-200/60 dark:border-amber-900/60 font-mono">
+                                <span>📍</span>
+                                <span>{entry.room || 'Room 512'}</span>
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex items-center justify-between py-2 text-slate-400 text-xs">
+                            <span className="italic">Free Period / Self Study</span>
+                            <span className="text-blue-600 dark:text-blue-400 font-semibold group-hover:underline">
+                              + Assign Class
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* WEEKLY FULL GRID VIEW (Mon - Fri) */}
+          {viewMode === 'weekly' && (
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+              
+              <div className="p-3 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                <div>
+                  <span className="text-xs font-bold text-slate-900 dark:text-white block">
+                    S3 CS AI • Weekly Time Table (Mon – Fri • Room 512)
+                  </span>
+                  <span className="text-[10px] text-slate-500">
+                    Recess: 8:55-9:15 AM & 11:45-12:00 PM (Mon-Thu)
+                  </span>
+                </div>
+                <span className="text-[10px] text-blue-600 dark:text-blue-400 font-semibold">
+                  Tap cell to edit
+                </span>
+              </div>
+
+              <div className="overflow-x-auto">
+                <div className="min-w-[620px]">
+                  <div className="grid grid-cols-6 border-b border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-800/70 text-[11px] font-bold text-slate-600 dark:text-slate-300 text-center">
+                    <div className="p-2 border-r border-slate-200 dark:border-slate-800">Period</div>
+                    {daysOfWeek.map(d => (
+                      <div 
+                        key={d.id} 
+                        className={`p-2 border-r border-slate-200 dark:border-slate-800 last:border-r-0 ${
+                          d.id === todayDayId ? 'bg-amber-100/60 dark:bg-amber-950/40 text-amber-900 dark:text-amber-300' : ''
+                        }`}
+                      >
+                        {d.short}
+                        {d.id === todayDayId && <span className="block text-[9px] text-amber-600 dark:text-amber-400">Today</span>}
+                      </div>
+                    ))}
+                  </div>
+
+                  {timeSlots.map((slot) => {
+                    if (slot.isBreak) {
+                      return (
+                        <div 
+                          key={slot.id} 
+                          className="py-1 px-4 bg-amber-50 dark:bg-amber-950/30 text-amber-800 dark:text-amber-300 text-[11px] font-semibold text-center border-b border-slate-200 dark:border-slate-800 font-mono"
+                        >
+                          ☕ {slot.label} ({slot.time})
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <div key={slot.id} className="grid grid-cols-6 border-b border-slate-200 dark:border-slate-800 text-xs">
+                        <div className="p-2 border-r border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 font-mono text-[10px] text-slate-500 dark:text-slate-400 flex flex-col justify-center">
+                          <span className="font-bold text-slate-700 dark:text-slate-300">{slot.label}</span>
+                          <span>{slot.time}</span>
+                        </div>
+
+                        {daysOfWeek.map((d) => {
+                          const entry = (timetable[d.id] || []).find(e => e.slotId === slot.id);
+                          const subject = entry ? subjectsMap[entry.subjectId] : null;
+
+                          return (
+                            <div
+                              key={d.id}
+                              onClick={() => handleSlotClick(d.id, slot.id, entry)}
+                              className={`p-1.5 border-r border-slate-200 dark:border-slate-800 last:border-r-0 cursor-pointer transition hover:bg-blue-50/40 dark:hover:bg-blue-950/20 min-h-[64px] flex flex-col justify-between ${
+                                d.id === todayDayId ? 'bg-amber-50/20 dark:bg-amber-950/10' : ''
+                              }`}
+                            >
+                              {entry && subject ? (
+                                <div 
+                                  className="h-full rounded-lg p-1.5 text-left border flex flex-col justify-between transition group hover:shadow-sm"
+                                  style={{ 
+                                    backgroundColor: `${subject.color}15`, 
+                                    borderColor: `${subject.color}40`
+                                  }}
+                                >
+                                  <div>
+                                    <div className="font-bold text-[11px] truncate" style={{ color: subject.color }}>
+                                      {subject.code}
+                                    </div>
+                                    <div className="text-[9px] text-slate-600 dark:text-slate-300 font-semibold truncate">
+                                      {subject.shortName}
+                                    </div>
+                                  </div>
+                                  <div className="text-[9px] font-bold text-amber-700 dark:text-amber-400 truncate mt-1">
+                                    {entry.room || 'Room 512'}
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="h-full rounded-lg border border-dashed border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-300 dark:text-slate-700 hover:border-slate-400 hover:text-slate-500 text-xs">
+                                  +
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+            </div>
+          )}
+
+          <EditTimetableModal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            onSave={onSaveSlot}
+            onDelete={onDeleteSlot}
+            slotData={editingSlot}
+            subjects={subjects}
+            timeSlots={timeSlots}
+            daysOfWeek={daysOfWeek}
+          />
+
+        </div>
+      );
+    }
+
+    // ==========================================
+    // MANAGE SUBJECTS MODAL
+    // ==========================================
+    function ManageSubjectsModal({ isOpen, onClose, subjects, onAddSubject, onUpdateSubject, onDeleteSubject }) {
+      if (!isOpen) return null;
+
+      const [mode, setMode] = useState('list');
+      const [selectedSub, setSelectedSub] = useState(null);
+
+      const [name, setName] = useState('');
+      const [code, setCode] = useState('');
+      const [faculty, setFaculty] = useState('');
+      const [attended, setAttended] = useState(20);
+      const [held, setHeld] = useState(25);
+      const [room, setRoom] = useState('Room 512');
+      const [color, setColor] = useState('#3b82f6');
+
+      const colorOptions = ['#3b82f6', '#8b5cf6', '#06b6d4', '#10b981', '#f59e0b', '#ec4899', '#6366f1', '#14b8a6'];
+
+      const handleStartAdd = () => {
+        setName('');
+        setCode('');
+        setFaculty('');
+        setAttended(20);
+        setHeld(25);
+        setRoom('Room 512');
+        setColor(colorOptions[Math.floor(Math.random() * colorOptions.length)]);
+        setMode('add');
+      };
+
+      const handleStartEdit = (sub) => {
+        setSelectedSub(sub);
+        setName(sub.name);
+        setCode(sub.code);
+        setFaculty(sub.faculty);
+        setAttended(sub.attended);
+        setHeld(sub.held);
+        setRoom(sub.room || 'Room 512');
+        setColor(sub.color || '#3b82f6');
+        setMode('edit');
+      };
+
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        if (!name.trim() || !code.trim()) return;
+
+        const attendedNum = Math.max(0, parseInt(attended, 10) || 0);
+        const heldNum = Math.max(attendedNum, parseInt(held, 10) || 0);
+
+        if (mode === 'add') {
+          onAddSubject({
+            id: 'sub-' + Date.now(),
+            code: code.trim().toUpperCase(),
+            name: name.trim(),
+            shortName: code.trim(),
+            faculty: faculty.trim() || 'Staff',
+            room: room.trim() || 'Room 512',
+            attended: attendedNum,
+            held: heldNum,
+            color
+          });
+        } else if (mode === 'edit' && selectedSub) {
+          onUpdateSubject({
+            ...selectedSub,
+            code: code.trim().toUpperCase(),
+            name: name.trim(),
+            faculty: faculty.trim() || 'Staff',
+            room: room.trim() || 'Room 512',
+            attended: attendedNum,
+            held: heldNum,
+            color
+          });
+        }
+        setMode('list');
+      };
+
+      return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full p-5 shadow-2xl border border-slate-200 dark:border-slate-800 max-h-[90vh] flex flex-col">
+            
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-2">
+                <span className="p-2 rounded-xl bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400">
+                  ⚙️
+                </span>
+                <h3 className="font-bold text-slate-900 dark:text-white">
+                  {mode === 'list' ? 'Manage S3 CS AI Courses' : mode === 'add' ? 'Add New Course' : 'Edit Course'}
+                </h3>
+              </div>
+              <button onClick={onClose} className="text-slate-400 hover:text-slate-600 p-1">✕</button>
+            </div>
+
+            <div className="overflow-y-auto py-3 flex-1 space-y-3">
+              {mode === 'list' && (
+                <div className="space-y-2">
+                  <button
+                    id="btn-modal-add-sub"
+                    onClick={handleStartAdd}
+                    className="w-full py-2.5 px-3 rounded-xl border-2 border-dashed border-blue-400 dark:border-blue-700 bg-blue-50/50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 text-xs font-bold hover:bg-blue-50 transition flex items-center justify-center gap-2"
+                  >
+                    <span>+ Add New Course</span>
+                  </button>
+
+                  <div className="divide-y divide-slate-100 dark:divide-slate-800">
+                    {subjects.map((sub) => {
+                      const pct = sub.held > 0 ? Math.round((sub.attended / sub.held) * 1000) / 10 : 100;
+                      return (
+                        <div key={sub.id} className="py-2.5 flex items-center justify-between gap-3">
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <span className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: sub.color }} />
+                            <div className="min-w-0">
+                              <p className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                                {sub.code}: {sub.name}
+                              </p>
+                              <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                                {sub.faculty} • {sub.room} • {sub.attended}/{sub.held} ({pct}%)
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={() => handleStartEdit(sub)}
+                              className="px-2 py-1 text-xs font-semibold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 rounded-lg"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => {
+                                if (confirm(`Remove ${sub.name}?`)) {
+                                  onDeleteSubject(sub.id);
+                                }
+                              }}
+                              className="p-1 text-rose-500 hover:bg-rose-50 rounded-lg"
+                            >
+                              🗑️
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {(mode === 'add' || mode === 'edit') && (
+                <form onSubmit={handleSubmit} className="space-y-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">
+                      Course Code
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={code}
+                      onChange={(e) => setCode(e.target.value)}
+                      placeholder="e.g. CN310B, MA300A"
+                      className="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">
+                      Course Name
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="e.g. Logic System Design"
+                      className="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">
+                      Faculty Name & Acronym
+                    </label>
+                    <input
+                      type="text"
+                      value={faculty}
+                      onChange={(e) => setFaculty(e.target.value)}
+                      placeholder="e.g. Angel B John (ABJ)"
+                      className="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">
+                      Classroom / Venue
+                    </label>
+                    <input
+                      type="text"
+                      value={room}
+                      onChange={(e) => setRoom(e.target.value)}
+                      placeholder="e.g. Room 512"
+                      className="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">
+                        Attended Classes
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={attended}
+                        onChange={(e) => setAttended(e.target.value)}
+                        className="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">
+                        Total Classes Held
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={held}
+                        onChange={(e) => setHeld(e.target.value)}
+                        className="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">
+                      Accent Color
+                    </label>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {colorOptions.map((c) => (
+                        <button
+                          key={c}
+                          type="button"
+                          onClick={() => setColor(c)}
+                          className={`w-7 h-7 rounded-full transition-transform ${
+                            color === c ? 'scale-125 ring-2 ring-offset-2 ring-slate-900 dark:ring-white' : 'hover:scale-110'
+                          }`}
+                          style={{ backgroundColor: c }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 pt-3">
+                    <button
+                      type="button"
+                      onClick={() => setMode('list')}
+                      className="flex-1 px-3 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded-xl"
+                    >
+                      Back to List
+                    </button>
+                    <button
+                      type="submit"
+                      className="flex-1 px-3 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-md shadow-blue-500/20"
+                    >
+                      Save Course
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
+
+          </div>
+        </div>
+      );
+    }
+
+    // ==========================================
+    // BUNK SCENARIO SIMULATOR COMPONENT
+    // Overview of attendance impact if taking:
+    // 1) 1st hour off (Period 1)
+    // 2) First 4 hours off (Periods 1 to 4)
+    // 3) Entire day off (All periods for the day)
+    // ==========================================
+    function BunkSimulatorCard({
+      timetable,
+      subjects,
+      timeSlots,
+      daysOfWeek,
+      todayDayId,
+      onApplyBatchAbsences,
+      onResetToOfficial,
+      isSimulated
+    }) {
+      const [isExpanded, setIsExpanded] = useState(true);
+      const [selectedDay, setSelectedDay] = useState(() => {
+        return daysOfWeek && daysOfWeek.some(d => d.id === todayDayId) ? todayDayId : 'tue';
+      });
+      const [selectedScenario, setSelectedScenario] = useState('1st-hour'); // '1st-hour' | 'first-4-hours' | 'full-day'
+
+      const subjectsMap = useMemo(() => {
+        const map = {};
+        (subjects || []).forEach(s => { map[s.id] = s; });
+        return map;
+      }, [subjects]);
+
+      const timeSlotsMap = useMemo(() => {
+        const map = {};
+        (timeSlots || []).forEach(t => { map[t.id] = t; });
+        return map;
+      }, [timeSlots]);
+
+      // Scheduled periods for selected day
+      const daySchedule = useMemo(() => {
+        const rawSlots = (timetable && timetable[selectedDay]) || [];
+        return rawSlots.filter(slot => slot.subjectId && slot.subjectId !== 'free' && subjectsMap[slot.subjectId]);
+      }, [timetable, selectedDay, subjectsMap]);
+
+      // Base overall attendance
+      const currentOverall = useMemo(() => {
+        const attended = (subjects || []).reduce((sum, s) => sum + s.attended, 0);
+        const held = (subjects || []).reduce((sum, s) => sum + s.held, 0);
+        const pct = calculatePercentage(attended, held);
+        const bunk90 = Math.floor((10 * attended - 9 * held) / 9);
+        const bunk75 = Math.floor((4 * attended - 3 * held) / 3);
+        const needed90 = getClassesToReachTarget(attended, held, 90);
+        const needed75 = getClassesToReachTarget(attended, held, 75);
+        return { 
+          attended, 
+          held, 
+          pct, 
+          bunk90: Math.max(0, bunk90), 
+          bunk75: Math.max(0, bunk75),
+          needed90,
+          needed75
+        };
+      }, [subjects]);
+
+      // Calculate outcome for any scenario
+      const getScenarioOutcome = (scenarioKey) => {
+        let missedSlots = [];
+        if (scenarioKey === '1st-hour') {
+          missedSlots = daySchedule.slice(0, 1);
+        } else if (scenarioKey === 'first-4-hours') {
+          missedSlots = daySchedule.slice(0, 4);
+        } else {
+          missedSlots = daySchedule.slice(0);
+        }
+
+        const missedCounts = {};
+        missedSlots.forEach(s => {
+          missedCounts[s.subjectId] = (missedCounts[s.subjectId] || 0) + 1;
+        });
+
+        const newHeld = currentOverall.held + missedSlots.length;
+        const newAttended = currentOverall.attended; // all missed = 0 attended
+        const newPct = calculatePercentage(newAttended, newHeld);
+        const delta = Math.round((newPct - currentOverall.pct) * 10) / 10;
+        const deltaFormatted = delta > 0 ? `+${delta}%` : `${delta}%`;
+
+        const bunk90 = Math.floor((10 * newAttended - 9 * newHeld) / 9);
+        const bunk75 = Math.floor((4 * newAttended - 3 * newHeld) / 3);
+        const neededOverall90 = getClassesToReachTarget(newAttended, newHeld, 90, false);
+        const neededOverallOver90 = getClassesToReachTarget(newAttended, newHeld, 90, true);
+        const neededOverall75 = getClassesToReachTarget(newAttended, newHeld, 75, false);
+
+        // Subject breakdown
+        const subjectBreakdown = missedSlots.map(slot => {
+          const sub = subjectsMap[slot.subjectId] || { name: 'Unknown', code: 'N/A', shortName: 'N/A', attended: 0, held: 0, faculty: '', color: '#3b82f6' };
+          const slotInfo = timeSlotsMap[slot.slotId];
+          const addHeld = missedCounts[slot.subjectId] || 1;
+          const curSubPct = calculatePercentage(sub.attended, sub.held);
+          const newSubHeld = sub.held + addHeld;
+          const newSubPct = calculatePercentage(sub.attended, newSubHeld);
+          const dropsBelow90 = curSubPct >= 90 && newSubPct < 90;
+          const dropsBelow75 = curSubPct >= 75 && newSubPct < 75;
+          const isBelow90 = newSubPct < 90;
+          const subClassesTo90 = isBelow90 ? getClassesToReachTarget(sub.attended, newSubHeld, 90, false) : 0;
+          const subClassesToOver90 = isBelow90 ? getClassesToReachTarget(sub.attended, newSubHeld, 90, true) : 0;
+          const subAttendedAfterOver90 = sub.attended + subClassesToOver90;
+          const subHeldAfterOver90 = newSubHeld + subClassesToOver90;
+          const subPctAfterOver90 = calculatePercentage(subAttendedAfterOver90, subHeldAfterOver90);
+          const subAttendedAfter90 = sub.attended + subClassesTo90;
+          const subHeldAfter90 = newSubHeld + subClassesTo90;
+          const subPctAfter90 = calculatePercentage(subAttendedAfter90, subHeldAfter90);
+          const subBunk90 = !isBelow90 ? Math.max(0, Math.floor((10 * sub.attended - 9 * newSubHeld) / 9)) : 0;
+
+          return {
+            slot,
+            slotInfo,
+            sub,
+            curSubPct,
+            newSubHeld,
+            newSubPct,
+            dropsBelow90,
+            dropsBelow75,
+            isBelow90,
+            subClassesTo90,
+            subClassesToOver90,
+            subAttendedAfterOver90,
+            subHeldAfterOver90,
+            subPctAfterOver90,
+            subAttendedAfter90,
+            subHeldAfter90,
+            subPctAfter90,
+            subBunk90
+          };
+        });
+
+        // Unique subjects impacted
+        const uniqueSubjectImpact = [];
+        const seenSubs = new Set();
+        subjectBreakdown.forEach(item => {
+          if (!seenSubs.has(item.sub.id)) {
+            seenSubs.add(item.sub.id);
+            uniqueSubjectImpact.push(item);
+          }
+        });
+
+        const anyDropBelow90 = uniqueSubjectImpact.some(s => s.dropsBelow90 || s.isBelow90);
+        const anyDropBelow75 = uniqueSubjectImpact.some(s => s.dropsBelow75);
+
+        return {
+          scenarioKey,
+          missedSlots,
+          missedCount: missedSlots.length,
+          missedSubjectIds: missedSlots.map(s => s.subjectId),
+          newAttended,
+          newHeld,
+          newPct,
+          deltaFormatted,
+          bunk90: Math.max(0, bunk90),
+          bunk75: Math.max(0, bunk75),
+          neededOverall90,
+          neededOverallOver90,
+          neededOverall75,
+          subjectBreakdown,
+          uniqueSubjectImpact,
+          anyDropBelow90,
+          anyDropBelow75
+        };
+      };
+
+      const scenarios = useMemo(() => {
+        return {
+          '1st-hour': getScenarioOutcome('1st-hour'),
+          'first-4-hours': getScenarioOutcome('first-4-hours'),
+          'full-day': getScenarioOutcome('full-day')
+        };
+      }, [daySchedule, currentOverall, subjectsMap, timeSlotsMap]);
+
+      const activeData = scenarios[selectedScenario];
+      const selectedDayObj = (daysOfWeek || []).find(d => d.id === selectedDay) || { full: 'Selected Day', short: 'Day' };
+
+      return (
+        <div className="bg-white dark:bg-slate-900 rounded-3xl p-4 sm:p-5 border border-slate-200/90 dark:border-slate-800 shadow-sm text-slate-900 dark:text-slate-100 relative overflow-hidden transition-all duration-300">
+          
+          {/* Header & Toggle */}
+          <div className="relative z-10 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200/80 dark:border-indigo-800 flex items-center justify-center flex-shrink-0 text-indigo-600 dark:text-indigo-400 shadow-xs">
+                <span className="text-base">🔮</span>
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-sm sm:text-base font-extrabold tracking-tight text-slate-900 dark:text-white truncate">
+                    Attendance What-If Simulator
+                  </h3>
+                  <span className="text-[9px] uppercase font-bold px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800 hidden xs:inline-block">
+                    Timetable Synced
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                  Predict your attendance & see classes needed to recover 90%
+                </p>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="p-1.5 text-xs text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl transition flex items-center gap-1 border border-slate-200 dark:border-slate-700 flex-shrink-0"
+              title={isExpanded ? "Collapse Simulator" : "Expand Simulator"}
+            >
+              <span className="text-[11px] hidden sm:inline font-semibold">{isExpanded ? 'Hide' : 'Show'}</span>
+              <span className="text-xs">{isExpanded ? '▲' : '▼'}</span>
+            </button>
+          </div>
+
+          {isExpanded && (
+            <div className="relative z-10 mt-4 space-y-4 animate-fade-in">
+              
+              {/* Day Selector Tabs */}
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                  <span>📅</span>
+                  <span>Day:</span>
+                </span>
+                
+                <div className="flex bg-slate-100 dark:bg-slate-800/80 p-1 rounded-xl border border-slate-200/80 dark:border-slate-700 gap-1">
+                  {(daysOfWeek || []).map(d => {
+                    const isToday = d.id === todayDayId;
+                    const isSelected = d.id === selectedDay;
+                    return (
+                      <button
+                        key={d.id}
+                        onClick={() => setSelectedDay(d.id)}
+                        className={`px-2.5 py-1 text-xs font-bold rounded-lg transition-all flex items-center gap-1 ${
+                          isSelected
+                            ? 'bg-blue-600 text-white shadow-sm'
+                            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/80 dark:hover:bg-slate-700'
+                        }`}
+                      >
+                        <span>{d.short}</span>
+                        {isToday && (
+                          <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-amber-300' : 'bg-amber-500 animate-pulse'}`}></span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* 3 Scenario Cards */}
+              <div className="grid grid-cols-3 gap-2">
+                
+                {/* 1. 1st Hour Off */}
+                <button
+                  onClick={() => setSelectedScenario('1st-hour')}
+                  className={`text-left p-2.5 sm:p-3 rounded-2xl border transition-all relative overflow-hidden flex flex-col justify-between ${
+                    selectedScenario === '1st-hour'
+                      ? 'bg-blue-50/70 dark:bg-blue-950/40 border-blue-500 shadow-sm ring-2 ring-blue-500/20'
+                      : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-slate-600 shadow-xs text-slate-700 dark:text-slate-300'
+                  }`}
+                >
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <span className={`text-[10px] uppercase font-bold ${
+                        selectedScenario === '1st-hour' ? 'text-blue-700 dark:text-blue-300' : 'text-slate-400 dark:text-slate-500'
+                      }`}>Option 1</span>
+                      <span className="text-xs font-mono font-bold text-amber-600 dark:text-amber-400">{scenarios['1st-hour'].deltaFormatted}</span>
+                    </div>
+                    <div className={`font-extrabold text-xs sm:text-sm mt-0.5 ${
+                      selectedScenario === '1st-hour' ? 'text-slate-900 dark:text-white' : 'text-slate-800 dark:text-slate-200'
+                    }`}>
+                      1st Hour Off
+                    </div>
+                    <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">
+                      Period 1 Only
+                    </div>
+                  </div>
+                  <div className={`mt-2 pt-1.5 flex items-baseline justify-between ${
+                    selectedScenario === '1st-hour' ? 'border-t border-blue-200/70 dark:border-blue-900/50' : 'border-t border-slate-100 dark:border-slate-700/60'
+                  }`}>
+                    <span className={`text-xs sm:text-base font-black ${
+                      selectedScenario === '1st-hour' ? 'text-blue-900 dark:text-blue-200' : 'text-slate-800 dark:text-slate-200'
+                    }`}>{scenarios['1st-hour'].newPct}%</span>
+                    <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400">1 class</span>
+                  </div>
+                </button>
+
+                {/* 2. First 4 Hours Off */}
+                <button
+                  onClick={() => setSelectedScenario('first-4-hours')}
+                  className={`text-left p-2.5 sm:p-3 rounded-2xl border transition-all relative overflow-hidden flex flex-col justify-between ${
+                    selectedScenario === 'first-4-hours'
+                      ? 'bg-blue-50/70 dark:bg-blue-950/40 border-blue-500 shadow-sm ring-2 ring-blue-500/20'
+                      : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-slate-600 shadow-xs text-slate-700 dark:text-slate-300'
+                  }`}
+                >
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <span className={`text-[10px] uppercase font-bold ${
+                        selectedScenario === 'first-4-hours' ? 'text-blue-700 dark:text-blue-300' : 'text-slate-400 dark:text-slate-500'
+                      }`}>Option 2</span>
+                      <span className="text-xs font-mono font-bold text-rose-600 dark:text-rose-400">{scenarios['first-4-hours'].deltaFormatted}</span>
+                    </div>
+                    <div className={`font-extrabold text-xs sm:text-sm mt-0.5 ${
+                      selectedScenario === 'first-4-hours' ? 'text-slate-900 dark:text-white' : 'text-slate-800 dark:text-slate-200'
+                    }`}>
+                      First 4 Hours
+                    </div>
+                    <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">
+                      Periods 1 to 4
+                    </div>
+                  </div>
+                  <div className={`mt-2 pt-1.5 flex items-baseline justify-between ${
+                    selectedScenario === 'first-4-hours' ? 'border-t border-blue-200/70 dark:border-blue-900/50' : 'border-t border-slate-100 dark:border-slate-700/60'
+                  }`}>
+                    <span className={`text-xs sm:text-base font-black ${
+                      selectedScenario === 'first-4-hours' ? 'text-blue-900 dark:text-blue-200' : 'text-slate-800 dark:text-slate-200'
+                    }`}>{scenarios['first-4-hours'].newPct}%</span>
+                    <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400">{scenarios['first-4-hours'].missedCount} classes</span>
+                  </div>
+                </button>
+
+                {/* 3. Entire Day Off */}
+                <button
+                  onClick={() => setSelectedScenario('full-day')}
+                  className={`text-left p-2.5 sm:p-3 rounded-2xl border transition-all relative overflow-hidden flex flex-col justify-between ${
+                    selectedScenario === 'full-day'
+                      ? 'bg-blue-50/70 dark:bg-blue-950/40 border-blue-500 shadow-sm ring-2 ring-blue-500/20'
+                      : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-slate-600 shadow-xs text-slate-700 dark:text-slate-300'
+                  }`}
+                >
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <span className={`text-[10px] uppercase font-bold ${
+                        selectedScenario === 'full-day' ? 'text-blue-700 dark:text-blue-300' : 'text-slate-400 dark:text-slate-500'
+                      }`}>Option 3</span>
+                      <span className="text-xs font-mono font-bold text-rose-600 dark:text-rose-400">{scenarios['full-day'].deltaFormatted}</span>
+                    </div>
+                    <div className={`font-extrabold text-xs sm:text-sm mt-0.5 ${
+                      selectedScenario === 'full-day' ? 'text-slate-900 dark:text-white' : 'text-slate-800 dark:text-slate-200'
+                    }`}>
+                      Entire Day Off
+                    </div>
+                    <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">
+                      All {daySchedule.length} Periods
+                    </div>
+                  </div>
+                  <div className={`mt-2 pt-1.5 flex items-baseline justify-between ${
+                    selectedScenario === 'full-day' ? 'border-t border-blue-200/70 dark:border-blue-900/50' : 'border-t border-slate-100 dark:border-slate-700/60'
+                  }`}>
+                    <span className={`text-xs sm:text-base font-black ${
+                      selectedScenario === 'full-day' ? 'text-blue-900 dark:text-blue-200' : 'text-slate-800 dark:text-slate-200'
+                    }`}>{scenarios['full-day'].newPct}%</span>
+                    <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400">{scenarios['full-day'].missedCount} classes</span>
+                  </div>
+                </button>
+
+              </div>
+
+              {/* Active Scenario Detail Box */}
+              <div className="bg-slate-50/80 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-700 rounded-2xl p-3.5 sm:p-4 space-y-3">
+                
+                {/* Status & Overall Impact Header */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-200 dark:border-slate-700">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-slate-900 dark:text-white">
+                        {selectedScenario === '1st-hour' ? '1st Hour Off' : selectedScenario === 'first-4-hours' ? 'First 4 Hours Off' : 'Entire Day Off'} on {selectedDayObj.full}
+                      </span>
+                      <span className="px-2 py-0.5 text-[10px] font-extrabold rounded-full bg-slate-200/80 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-mono">
+                        {activeData.missedCount} {activeData.missedCount === 1 ? 'class' : 'classes'} missed
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                      Current: <b className="text-slate-700 dark:text-slate-300 font-semibold">{currentOverall.pct}%</b> ({currentOverall.attended}/{currentOverall.held}) → Projected: <b className="text-slate-900 dark:text-white font-bold">{activeData.newPct}%</b> ({activeData.newAttended}/{activeData.newHeld})
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-2 self-start sm:self-auto">
+                    <div className="text-right">
+                      <span className="text-[10px] uppercase font-bold text-slate-400 block">Projected</span>
+                      <span className={`text-lg sm:text-xl font-black ${
+                        activeData.newPct >= 90 ? 'text-amber-600 dark:text-amber-400' : activeData.newPct >= 75 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
+                      }`}>
+                        {activeData.newPct}%
+                      </span>
+                    </div>
+                    <span className={`px-2 py-1 rounded-lg text-xs font-black font-mono ${
+                      activeData.newPct >= 90 
+                        ? 'bg-amber-100 text-amber-800 border border-amber-200 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-800' 
+                        : 'bg-rose-100 text-rose-800 border border-rose-200 dark:bg-rose-950/50 dark:text-rose-300 dark:border-rose-800'
+                    }`}>
+                      {activeData.deltaFormatted}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Buffer & Recovery Badges */}
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  
+                  {/* 5 Marks Zone (>=90%) or Recovery to 90% */}
+                  <div className="bg-amber-50/80 dark:bg-amber-950/30 p-2.5 rounded-xl border border-amber-200/80 dark:border-amber-800/40">
+                    <div className="text-[10px] uppercase font-bold text-amber-800 dark:text-amber-300 flex items-center gap-1">
+                      <span>⭐</span>
+                      <span>5 Marks Zone (≥90%)</span>
+                    </div>
+                    <div className="mt-1 font-extrabold text-slate-900 dark:text-white">
+                      {activeData.newPct >= 90 ? (
+                        <div>
+                          <span>Can still bunk <b className="text-amber-600 dark:text-amber-400 text-sm">{activeData.bunk90}</b> classes</span>
+                          <span className="text-[10px] font-normal text-slate-500 dark:text-slate-400 block">Overall attendance safe ({activeData.newPct}%)</span>
+                        </div>
+                      ) : (
+                        <div>
+                          <span className="text-rose-600 dark:text-rose-400 font-bold block">Overall drops to {activeData.newPct}% (&lt;90%)</span>
+                          <span className="text-[11px] font-extrabold text-amber-900 dark:text-amber-200 mt-0.5 block">
+                            Attend <b className="text-amber-600 dark:text-amber-400 text-sm underline">{activeData.neededOverallOver90}</b> classes to get over 90% ({activeData.neededOverall90} for 90.0%)
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Exam Minimum (>=75%) */}
+                  <div className="bg-emerald-50/80 dark:bg-emerald-950/30 p-2.5 rounded-xl border border-emerald-200/80 dark:border-emerald-800/40">
+                    <div className="text-[10px] uppercase font-bold text-emerald-800 dark:text-emerald-300 flex items-center gap-1">
+                      <span>🛡️</span>
+                      <span>Exam Minimum (≥75%)</span>
+                    </div>
+                    <div className="mt-1 font-extrabold text-slate-900 dark:text-white">
+                      {activeData.newPct >= 75 ? (
+                        <div>
+                          <span>Can still bunk <b className="text-emerald-600 dark:text-emerald-400 text-sm">{activeData.bunk75}</b> classes</span>
+                          <span className="text-[10px] font-normal text-slate-500 dark:text-slate-400 block">Safe from KTU exam shortage</span>
+                        </div>
+                      ) : (
+                        <div>
+                          <span className="text-rose-600 dark:text-rose-400 font-bold block">Shortage (&lt;75%)</span>
+                          <span className="text-[11px] font-extrabold text-emerald-900 dark:text-emerald-200 mt-0.5 block">
+                            Attend <b className="text-emerald-600 dark:text-emerald-400 text-sm underline">{activeData.neededOverall75}</b> classes to reach 75%
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Critical Warning & Subject Recovery Plan if any subject drops below 90% */}
+                {activeData.anyDropBelow90 && (
+                  <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-amber-900 dark:text-amber-200 text-xs space-y-2 shadow-xs">
+                    <div className="flex items-start gap-2">
+                      <span className="text-base flex-shrink-0">⚠️</span>
+                      <div>
+                        <span className="font-extrabold">Subject 90% Impact: </span>
+                        <span>
+                          Missing this drops {activeData.uniqueSubjectImpact.filter(s => s.isBelow90).map(s => (
+                            <b key={s.sub.id} className="text-slate-900 dark:text-white"> {s.sub.name} ({s.newSubPct}%)</b>
+                          ))} below 90%, risking full 5 internal marks!
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Exact classes to recover 90% breakdown */}
+                    <div className="bg-white/90 dark:bg-slate-900/90 rounded-lg p-2.5 border border-amber-200/80 dark:border-amber-800/40 text-[11px] space-y-2">
+                      <div className="font-bold text-amber-800 dark:text-amber-300 flex items-center justify-between">
+                        <span className="flex items-center gap-1">
+                          <span>🎯</span>
+                          <span>Classes required to get back over 90%:</span>
+                        </span>
+                      </div>
+                      {activeData.uniqueSubjectImpact.filter(s => s.isBelow90).map(s => (
+                        <div key={s.sub.id} className="pl-4 space-y-1 text-slate-700 dark:text-slate-300">
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold">• {s.sub.name} ({s.sub.code}):</span>
+                            <span className="font-mono font-bold text-amber-800 dark:text-amber-400">
+                              Attend next <b className="text-sm underline text-amber-600 dark:text-amber-300">{s.subClassesToOver90}</b> classes to get over 90%
+                            </span>
+                          </div>
+                          <div className="text-[10px] text-slate-500 dark:text-slate-400 pl-2 bg-slate-50 dark:bg-slate-800/60 p-1.5 rounded border border-slate-200/60 dark:border-slate-700/60">
+                            <span>Math check: </span>
+                            <span>Attend <b>{s.subClassesToOver90} classes</b> → {s.subAttendedAfterOver90}/{s.subHeldAfterOver90} = <b className="text-emerald-600 font-bold">{s.subPctAfterOver90}%</b> (over 90%) • </span>
+                            <span>Attend <b>{s.subClassesTo90} classes</b> → {s.subAttendedAfter90}/{s.subHeldAfter90} = <b className="text-amber-600 font-bold">{s.subPctAfter90}%</b> (exact 90.0%)</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Scheduled Classes Missed List */}
+                <div className="space-y-1.5 pt-1">
+                  <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 tracking-wider block">
+                    Specific Classes Missed ({activeData.missedSlots.length}):
+                  </span>
+
+                  <div className="space-y-1.5 max-h-52 overflow-y-auto pr-1">
+                    {activeData.subjectBreakdown.map((item, idx) => (
+                      <div
+                        key={idx}
+                        className="bg-white dark:bg-slate-800 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center justify-between gap-2 text-xs shadow-xs hover:border-slate-300 dark:hover:border-slate-600 transition"
+                      >
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-mono font-bold text-[10px] flex-shrink-0">
+                            {item.slotInfo ? item.slotInfo.label : `Period ${idx+1}`}
+                          </span>
+                          
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-1.5">
+                              <span 
+                                className="px-1.5 py-0.5 text-[10px] font-bold rounded"
+                                style={{ 
+                                  backgroundColor: `${item.sub.color || '#3b82f6'}15`, 
+                                  color: item.sub.color || '#3b82f6',
+                                  border: `1px solid ${item.sub.color || '#3b82f6'}35`
+                                }}
+                              >
+                                {item.sub.code}
+                              </span>
+                              <span className="font-bold text-slate-900 dark:text-white truncate block">
+                                {item.sub.name}
+                              </span>
+                            </div>
+                            <span className="text-[10px] text-slate-500 dark:text-slate-400 truncate block mt-0.5">
+                              {item.slotInfo ? item.slotInfo.time : ''} • {item.sub.faculty}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="text-right flex-shrink-0 flex items-center gap-2">
+                          <div>
+                            <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400 block">
+                              {item.sub.attended}/{item.sub.held} → <b className="text-slate-900 dark:text-white">{item.sub.attended}/{item.newSubHeld}</b>
+                            </span>
+                            <span className={`text-[11px] font-bold block ${
+                              item.newSubPct >= 90 ? 'text-amber-600 dark:text-amber-400' : 'text-rose-600 dark:text-rose-400'
+                            }`}>
+                              {item.curSubPct}% → {item.newSubPct}%
+                            </span>
+                          </div>
+
+                          <div className="flex flex-col items-end gap-0.5">
+                            {item.isBelow90 ? (
+                              <>
+                                <span className="px-1.5 py-0.5 rounded text-[9px] font-extrabold bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
+                                  &lt;90%
+                                </span>
+                                <span className="text-[10px] font-bold text-amber-700 dark:text-amber-400 whitespace-nowrap">
+                                  🎯 Attend {item.subClassesToOver90} to &gt;90%
+                                </span>
+                              </>
+                            ) : (
+                              <>
+                                <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                                  Safe
+                                </span>
+                                <span className="text-[10px] text-slate-400 whitespace-nowrap">
+                                  Bunks left: {item.subBunk90}
+                                </span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Simulator Action Buttons */}
+                <div className="pt-2 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between gap-2">
+                  <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                    Test in tracker or revert anytime
+                  </div>
+
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    {isSimulated && (
+                      <button
+                        onClick={onResetToOfficial}
+                        className="px-2.5 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 bg-white hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl transition border border-slate-200 dark:border-slate-700 flex items-center gap-1 shadow-xs"
+                        title="Restore original ETLAB attendance"
+                      >
+                        <span>🔄</span>
+                        <span>Restore Official</span>
+                      </button>
+                    )}
+
+                    <button
+                      onClick={() => onApplyBatchAbsences && onApplyBatchAbsences(activeData.missedSubjectIds)}
+                      className="px-3 py-1.5 text-xs font-bold text-slate-950 bg-amber-400 hover:bg-amber-300 active:scale-95 rounded-xl shadow-sm transition flex items-center gap-1.5"
+                      title="Apply these missed periods as absent in the attendance tracker"
+                    >
+                      <span>⚡</span>
+                      <span>Test Bunk in Tracker</span>
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+          )}
+
+        </div>
+      );
+    }
+
+    // ==========================================
+    // ATTENDANCE TAB
+    // ==========================================
+    function AttendanceTab({
+      subjects,
+      onMarkAttendance,
+      onUndoLastAction,
+      canUndo,
+      onAddSubject,
+      onUpdateSubject,
+      onDeleteSubject,
+      onResetToOfficial,
+      timetable,
+      timeSlots,
+      daysOfWeek,
+      todayDayId,
+      onApplyBatchAbsences,
+      syncInfo
+    }) {
+      const [isManageModalOpen, setIsManageModalOpen] = useState(false);
+      const [filter, setFilter] = useState('all');
+
+      const isSimulated = useMemo(() => {
+        if (subjects.length !== DEFAULT_SUBJECTS.length) return true;
+        return subjects.some(s => {
+          const orig = DEFAULT_SUBJECTS.find(d => d.id === s.id);
+          return !orig || orig.attended !== s.attended || orig.held !== s.held;
+        });
+      }, [subjects]);
+
+      const overallStats = useMemo(() => {
+        let totalAttended = 0;
+        let totalHeld = 0;
+        let fullMarksCount = 0; // >= 90%
+        let eligibleCount = 0;  // 75% - 89.9%
+        let shortageCount = 0;  // < 75%
+
+        subjects.forEach((s) => {
+          totalAttended += s.attended;
+          totalHeld += s.held;
+          const pct = calculatePercentage(s.attended, s.held);
+          if (pct >= 90) fullMarksCount++;
+          else if (pct >= 75) eligibleCount++;
+          else shortageCount++;
+        });
+
+        const overallPct = calculatePercentage(totalAttended, totalHeld);
+        const overallStatus = getAttendanceStatus(overallPct);
+        const overallBunk = calculateBunkInfo(totalAttended, totalHeld);
+
+        return {
+          totalAttended,
+          totalHeld,
+          overallPct,
+          overallStatus,
+          overallBunk,
+          fullMarksCount,
+          eligibleCount,
+          shortageCount,
+          totalSubjects: subjects.length
+        };
+      }, [subjects]);
+
+      const filteredSubjects = useMemo(() => {
+        if (filter === 'full-marks') {
+          return subjects.filter(s => calculatePercentage(s.attended, s.held) >= 90);
+        }
+        if (filter === 'below-90') {
+          return subjects.filter(s => calculatePercentage(s.attended, s.held) < 90);
+        }
+        return subjects;
+      }, [subjects, filter]);
+
+      return (
+        <div className="space-y-4 pb-20 animate-fade-in">
+
+          {/* LIVE CLOUD SYNC BANNER */}
+          {syncInfo && syncInfo.timestamp && (
+            <div className="bg-slate-900/90 border border-slate-800 rounded-2xl px-3.5 py-2.5 flex items-center justify-between gap-3 text-xs shadow-sm">
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse flex-shrink-0"></span>
+                <div className="min-w-0">
+                  <p className="font-bold text-white text-[11px] truncate">
+                    ETLAB Attendance Synced
+                  </p>
+                  <p className="text-slate-400 text-[10px] truncate">
+                    Last refreshed: <b className="text-slate-200">{syncInfo.timestamp}</b>
+                  </p>
+                </div>
+              </div>
+              <span className="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-blue-500/20 text-blue-300 border border-blue-500/30 flex-shrink-0">
+                Auto 7am • 3pm • 9pm
+              </span>
+            </div>
+          )}
+          
+          {/* SIMULATION ACTIVE NOTICE */}
+          {isSimulated && (
+            <div className="bg-amber-500/10 border border-amber-500/40 rounded-2xl p-3.5 flex items-center justify-between gap-3 text-xs shadow-sm">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <span className="text-xl flex-shrink-0">⚠️</span>
+                <div className="min-w-0">
+                  <p className="font-bold text-amber-600 dark:text-amber-400">Attendance Modified (Simulation Active)</p>
+                  <p className="text-slate-500 dark:text-slate-400 text-[11px] truncate">
+                    Manual/simulated absent or present marks applied. Official ETLAB: {DEFAULT_SUBJECTS.reduce((a,b)=>a+b.attended,0)}/{DEFAULT_SUBJECTS.reduce((a,b)=>a+b.held,0)} ({calculatePercentage(DEFAULT_SUBJECTS.reduce((a,b)=>a+b.attended,0), DEFAULT_SUBJECTS.reduce((a,b)=>a+b.held,0))}%)
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={onResetToOfficial}
+                className="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 active:scale-95 text-slate-950 font-bold text-xs rounded-xl shadow transition flex-shrink-0 flex items-center gap-1.5"
+              >
+                <span>🔄</span>
+                <span>Restore Official</span>
+              </button>
+            </div>
+          )}
+
+          {/* STUDENT PROFILE CARD */}
+          <div className="bg-white dark:bg-slate-900 rounded-2xl p-3.5 border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-500 to-orange-600 text-slate-950 font-black flex items-center justify-center text-sm flex-shrink-0 shadow-md">
+                SP
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <h3 className="font-bold text-slate-900 dark:text-white text-sm truncate">
+                    {STUDENT_PROFILE.name}
+                  </h3>
+                  <span className="px-1.5 py-0.2 rounded text-[10px] font-extrabold bg-amber-100 text-amber-900 dark:bg-amber-950/60 dark:text-amber-300">
+                    Roll #{STUDENT_PROFILE.rollNo}
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">
+                  Reg: <span className="font-semibold text-slate-700 dark:text-slate-300">{STUDENT_PROFILE.regNo}</span> • S3 CS AI
+                </p>
+              </div>
+            </div>
+
+            <div className="text-right flex-shrink-0">
+              <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Internal Marks</span>
+              <span className="text-xs font-black text-amber-600 dark:text-amber-400 flex items-center gap-1 justify-end">
+                <span>⭐</span>
+                <span>5 / 5 Marks Secured</span>
+              </span>
+            </div>
+          </div>
+
+          {/* OVERALL OVERVIEW CARD */}
+          <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 text-white rounded-3xl p-5 shadow-xl border border-blue-900/50">
+            <div className="absolute -top-12 -right-12 w-36 h-36 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
+            <div className="absolute -bottom-10 -left-10 w-36 h-36 bg-blue-500/10 rounded-full blur-2xl pointer-events-none"></div>
+
+            <div className="relative z-10 flex items-center justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-amber-400">
+                    Attendance Overview
+                  </span>
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${overallStats.overallStatus.badgeBg}`}>
+                    {overallStats.overallStatus.label}
+                  </span>
+                </div>
+
+                <div className="flex items-baseline gap-2 mt-1.5">
+                  <h2 className="text-3xl font-black tracking-tight text-white">
+                    {overallStats.overallPct}%
+                  </h2>
+                  <span className="text-xs text-slate-300 font-medium">
+                    ({overallStats.totalAttended} / {overallStats.totalHeld} classes)
+                  </span>
+                </div>
+
+                {/* DUAL TIER BUNKABLE DISPLAY */}
+                <div className="mt-2.5 space-y-1">
+                  {overallStats.overallPct >= 90 ? (
+                    <div>
+                      <p className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
+                        <span>⭐</span>
+                        <span>
+                          Can bunk <b>{overallStats.overallBunk.count}</b> classes before dropping below <b>90%</b> (5 marks).
+                        </span>
+                      </p>
+                      <p className="text-[11px] text-slate-300 font-medium pl-5">
+                        (Still have <b>{overallStats.overallBunk.bunksTo75}</b> bunks left before 75% exam eligibility)
+                      </p>
+                    </div>
+                  ) : (
+                    <div>
+                      <p className="text-xs font-bold text-emerald-300 flex items-center gap-1.5">
+                        <span>🏖️</span>
+                        <span>
+                          Can bunk <b>{overallStats.overallBunk.count}</b> classes before dropping below <b>75%</b>.
+                        </span>
+                      </p>
+                      <p className="text-[11px] text-amber-300 font-medium pl-5">
+                        (Need <b>{overallStats.overallBunk.neededFor90}</b> consecutive classes to reach 90% for 5 marks)
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+              </div>
+
+              <div className="flex-shrink-0">
+                <AttendanceRing
+                  percentage={overallStats.overallPct}
+                  size={76}
+                  strokeWidth={8}
+                  color={overallStats.overallStatus.ringColor}
+                  textColor="text-white font-extrabold"
+                  trackColor="text-white/20"
+                />
+              </div>
+            </div>
+
+            <div className="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-300">
+              <div className="flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-amber-400"></span>
+                <span>≥ 90% (5 Marks): <b>{overallStats.fullMarksCount}</b></span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                <span>75 - 89%: <b>{overallStats.eligibleCount}</b></span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-rose-400"></span>
+                <span>&lt; 75%: <b>{overallStats.shortageCount}</b></span>
+              </div>
+            </div>
+          </div>
+
+          {/* BUNK SCENARIO SIMULATOR CARD */}
+          <BunkSimulatorCard
+            timetable={timetable}
+            subjects={subjects}
+            timeSlots={timeSlots}
+            daysOfWeek={daysOfWeek}
+            todayDayId={todayDayId}
+            onApplyBatchAbsences={onApplyBatchAbsences}
+            onResetToOfficial={onResetToOfficial}
+            isSimulated={isSimulated}
+          />
+
+          {/* FILTER & ACTIONS */}
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex bg-slate-200/80 dark:bg-slate-800 p-1 rounded-xl text-xs font-semibold">
+              <button
+                id="filter-all"
+                onClick={() => setFilter('all')}
+                className={`px-3 py-1.5 rounded-lg transition-all ${
+                  filter === 'all'
+                    ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
+                    : 'text-slate-600 dark:text-slate-400'
+                }`}
+              >
+                All ({subjects.length})
+              </button>
+              <button
+                id="filter-full-marks"
+                onClick={() => setFilter('full-marks')}
+                className={`px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-1 ${
+                  filter === 'full-marks'
+                    ? 'bg-amber-500 text-slate-950 font-bold shadow-sm'
+                    : 'text-amber-600 dark:text-amber-400'
+                }`}
+              >
+                <span>≥ 90% ({overallStats.fullMarksCount})</span>
+              </button>
+              <button
+                id="filter-below-90"
+                onClick={() => setFilter('below-90')}
+                className={`px-2.5 py-1.5 rounded-lg transition-all ${
+                  filter === 'below-90'
+                    ? 'bg-blue-600 text-white shadow-sm'
+                    : 'text-slate-600 dark:text-slate-400'
+                }`}
+              >
+                &lt; 90% ({overallStats.eligibleCount + overallStats.shortageCount})
+              </button>
+            </div>
+
+            <div className="flex items-center gap-1.5">
+              {isSimulated && (
+                <button
+                  id="btn-restore-etlab"
+                  onClick={onResetToOfficial}
+                  title="Restore official ETLAB attendance record"
+                  className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold text-amber-900 dark:text-amber-300 bg-amber-100 dark:bg-amber-950/60 hover:bg-amber-200 dark:hover:bg-amber-900/80 rounded-xl transition border border-amber-300 dark:border-amber-800"
+                >
+                  <span>🔄</span>
+                  <span>Restore ETLAB</span>
+                </button>
+              )}
+
+              {canUndo && (
+                <button
+                  id="btn-undo-attendance"
+                  onClick={onUndoLastAction}
+                  title="Undo last attendance mark"
+                  className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 rounded-xl transition border border-slate-200 dark:border-slate-700"
+                >
+                  <span>↩</span>
+                  <span>Undo</span>
+                </button>
+              )}
+
+              <button
+                id="btn-manage-subjects"
+                onClick={() => setIsManageModalOpen(true)}
+                title="Add or edit courses"
+                className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 rounded-xl transition border border-blue-200 dark:border-blue-900"
+              >
+                <span>⚙️</span>
+                <span className="hidden sm:inline">Manage</span>
+              </button>
+            </div>
+          </div>
+
+          {/* COURSE CARDS */}
+          <div className="space-y-3">
+            {filteredSubjects.map((sub) => {
+              const pct = calculatePercentage(sub.attended, sub.held);
+              const status = getAttendanceStatus(pct);
+              const bunkInfo = calculateBunkInfo(sub.attended, sub.held);
+
+              return (
+                <div
+                  key={sub.id}
+                  id={`subject-card-${sub.id}`}
+                  className={`relative overflow-hidden bg-white dark:bg-slate-900 rounded-2xl p-4 shadow-sm border transition-all ${
+                    pct >= 90
+                      ? 'border-amber-300/80 dark:border-amber-900/50 bg-amber-50/10'
+                      : pct >= 75
+                      ? 'border-slate-200 dark:border-slate-800'
+                      : 'border-rose-300 dark:border-rose-900/60 bg-rose-50/20'
+                  }`}
+                >
+                  <div
+                    className="absolute left-0 top-0 bottom-0 w-1.5"
+                    style={{ backgroundColor: sub.color || status.ringColor }}
+                  />
+
+                  <div className="flex items-start justify-between gap-3 pl-1">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span 
+                          className="px-2 py-0.5 text-[10px] font-extrabold rounded-md font-mono"
+                          style={{ 
+                            backgroundColor: `${sub.color}18`, 
+                            color: sub.color,
+                            border: `1px solid ${sub.color}35`
+                          }}
+                        >
+                          {sub.code}
+                        </span>
+
+                        {sub.courseId && sub.courseId !== sub.code && (
+                          <span className="text-[10px] text-slate-400 font-mono">
+                            {sub.courseId}
+                          </span>
+                        )}
+
+                        <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full ${
+                          pct >= 90
+                            ? 'bg-amber-100 text-amber-900 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-300/40'
+                            : pct >= 75
+                            ? 'bg-emerald-100 text-emerald-900 dark:bg-emerald-950/60 dark:text-emerald-300'
+                            : 'bg-rose-100 text-rose-900 dark:bg-rose-950/60 dark:text-rose-300'
+                        }`}>
+                          {pct >= 90 ? '⭐ 5 Marks Zone' : pct >= 75 ? 'Eligible (75-89%)' : 'Shortage'}
+                        </span>
+                      </div>
+
+                      <h3 className="text-sm font-bold text-slate-900 dark:text-white mt-1 leading-snug">
+                        {sub.name}
+                      </h3>
+
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate font-medium">
+                        {sub.faculty}
+                      </p>
+
+                      <div className="mt-2.5 space-y-1">
+                        <div className="flex items-center justify-between text-xs text-slate-600 dark:text-slate-300 font-medium">
+                          <span>Attended: <b className="text-slate-900 dark:text-white">{sub.attended}</b> of {sub.held}</span>
+                          <span className="font-bold">{pct}%</span>
+                        </div>
+
+                        <div className="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden flex">
+                          <div
+                            className="h-full rounded-full transition-all duration-500"
+                            style={{
+                              width: `${Math.min(100, Math.max(0, pct))}%`,
+                              backgroundColor: status.ringColor
+                            }}
+                          />
+                        </div>
+                      </div>
+
+                      {/* DYNAMIC BUNK BADGE */}
+                      <div className={`mt-2.5 p-2 rounded-xl text-xs flex items-center justify-between gap-2 ${
+                        bunkInfo.tier === 90
+                          ? 'bg-amber-50 dark:bg-amber-950/30 text-amber-900 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800/40'
+                          : bunkInfo.type === 'bunk-to-75'
+                          ? 'bg-blue-50 dark:bg-blue-950/30 text-blue-900 dark:text-blue-300 border border-blue-200/80 dark:border-blue-800/40'
+                          : 'bg-rose-50 dark:bg-rose-950/30 text-rose-900 dark:text-rose-300 border border-rose-200/80 dark:border-rose-800/40'
+                      }`}>
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <span className="text-base flex-shrink-0">
+                            {bunkInfo.tier === 90 ? '⭐' : bunkInfo.type === 'bunk-to-75' ? '🏖️' : '🚨'}
+                          </span>
+                          <div className="min-w-0">
+                            <span className="font-semibold leading-snug block">
+                              {bunkInfo.message}
+                            </span>
+                            {bunkInfo.tier === 90 && bunkInfo.bunksTo75 !== undefined && (
+                              <span className="text-[10px] text-amber-700/80 dark:text-amber-400/80 block mt-0.5">
+                                ({bunkInfo.bunksTo75} bunks left before 75% exam eligibility)
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {bunkInfo.tier === 90 && (
+                          <span className="px-1.5 py-0.5 rounded text-[9px] font-black bg-amber-200/80 text-amber-950 uppercase tracking-tighter flex-shrink-0">
+                            5 Marks
+                          </span>
+                        )}
+                      </div>
+
+                    </div>
+
+                    <div className="flex flex-col items-center justify-start flex-shrink-0">
+                      <AttendanceRing
+                        percentage={pct}
+                        size={62}
+                        strokeWidth={5.5}
+                        color={status.ringColor}
+                      />
+                      <span className="text-[10px] text-slate-400 font-medium mt-1">
+                        {pct >= 90 ? 'Req: 90%' : 'Req: 75%'}
+                      </span>
+                    </div>
+                  </div>
+
+
+                </div>
+              );
+            })}
+          </div>
+
+          <ManageSubjectsModal
+            isOpen={isManageModalOpen}
+            onClose={() => setIsManageModalOpen(false)}
+            subjects={subjects}
+            onAddSubject={onAddSubject}
+            onUpdateSubject={onUpdateSubject}
+            onDeleteSubject={onDeleteSubject}
+          />
+
+        </div>
+      );
+    }
+
+
+
+    // ==========================================
+    // MAIN APP COMPONENT
+    // ==========================================
+    const STORAGE_KEYS = {
+      SUBJECTS: 'mits_s3_cs_ai_shawn_v1789626528',
+      TIMETABLE: 'mits_s3_cs_ai_timetable_v6',
+      ACTIVE_TAB: 'mits_s3_cs_ai_active_tab_v6',
+      PHONE_FRAME: 'mits_s3_cs_ai_phone_frame_v6'
+    };
+
+    function App() {
+      const [activeTab, setActiveTab] = useState(() => {
+        return localStorage.getItem(STORAGE_KEYS.ACTIVE_TAB) || 'attendance';
+      });
+
+      const [isPhoneFrame, setIsPhoneFrame] = useState(() => {
+        const saved = localStorage.getItem(STORAGE_KEYS.PHONE_FRAME);
+        return saved !== null ? JSON.parse(saved) : true;
+      });
+
+      const [subjects, setSubjects] = useState(() => {
+        const saved = localStorage.getItem(STORAGE_KEYS.SUBJECTS);
+        if (saved) {
+          try { return JSON.parse(saved); } catch (e) { console.error(e); }
+        }
+        return DEFAULT_SUBJECTS;
+      });
+
+      const [historyStack, setHistoryStack] = useState([]);
+
+      const [timetable, setTimetable] = useState(() => {
+        const saved = localStorage.getItem(STORAGE_KEYS.TIMETABLE);
+        if (saved) {
+          try { return JSON.parse(saved); } catch (e) { console.error(e); }
+        }
+        return DEFAULT_TIMETABLE;
+      });
+
+      const [toast, setToast] = useState(null);
+
+      const [syncInfo, setSyncInfo] = useState(() => {
+        const saved = localStorage.getItem('mits_last_synced_info');
+        if (saved) {
+          try { return JSON.parse(saved); } catch (e) {}
+        }
+        return null;
+      });
+
+      const showToast = (message, type = 'info', icon = '✨') => {
+        setToast({ message, type, icon });
+        setTimeout(() => setToast(null), 3200);
+      };
+
+      // Automatically fetch updated attendance on app load
+      useEffect(() => {
+        fetch('./attendance_scraped.json?t=' + Date.now())
+          .then(res => {
+            if (!res.ok) throw new Error('No scraped file');
+            return res.json();
+          })
+          .then(data => {
+            if (data && data.Subjects && data.Subjects.length > 0) {
+              const info = {
+                timestamp: data.Timestamp,
+                student: data.Student,
+                overall: data.Overall
+              };
+              setSyncInfo(info);
+              localStorage.setItem('mits_last_synced_info', JSON.stringify(info));
+
+              // If new sync timestamp arrived, update subjects
+              const lastApplied = localStorage.getItem('mits_applied_sync_timestamp');
+              if (lastApplied !== data.Timestamp) {
+                setSubjects(prevSubjects => {
+                  return prevSubjects.map(sub => {
+                    const match = data.Subjects.find(s => s.Code && s.Code.toUpperCase() === sub.code.toUpperCase());
+                    if (match) {
+                      return {
+                        ...sub,
+                        attended: match.Attended,
+                        held: match.Held
+                      };
+                    }
+                    return sub;
+                  });
+                });
+                localStorage.setItem('mits_applied_sync_timestamp', data.Timestamp);
+                showToast(`ETLAB Synced: ${data.Timestamp}`, 'success', '⚡');
+              }
+            }
+          })
+          .catch(err => {
+            // Local standalone mode fallback
+          });
+      }, []);
+
+      useEffect(() => {
+        localStorage.setItem(STORAGE_KEYS.ACTIVE_TAB, activeTab);
+      }, [activeTab]);
+
+      useEffect(() => {
+        localStorage.setItem(STORAGE_KEYS.PHONE_FRAME, JSON.stringify(isPhoneFrame));
+      }, [isPhoneFrame]);
+
+      useEffect(() => {
+        localStorage.setItem(STORAGE_KEYS.SUBJECTS, JSON.stringify(subjects));
+      }, [subjects]);
+
+      useEffect(() => {
+        localStorage.setItem(STORAGE_KEYS.TIMETABLE, JSON.stringify(timetable));
+      }, [timetable]);
+
+      const { todayDayId, todayDayName, currentDateFormatted } = useMemo(() => {
+        const now = new Date();
+        const dayIndex = now.getDay();
+        const map = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+        const names = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const options = { month: 'short', day: 'numeric', year: 'numeric' };
+        return {
+          todayDayId: map[dayIndex],
+          todayDayName: names[dayIndex],
+          currentDateFormatted: now.toLocaleDateString('en-US', options)
+        };
+      }, []);
+
+      const attendanceWarningCount = useMemo(() => {
+        return subjects.filter(s => calculatePercentage(s.attended, s.held) < 75).length;
+      }, [subjects]);
+
+      const handleMarkAttendance = (subjectId, action) => {
+        const targetSub = subjects.find(s => s.id === subjectId);
+        if (!targetSub) return;
+
+        setHistoryStack(prev => [...prev, {
+          subjects: JSON.parse(JSON.stringify(subjects)),
+          actionDescription: `${action.toUpperCase()} for ${targetSub.code}`
+        }]);
+
+        setSubjects(prev => prev.map(s => {
+          if (s.id !== subjectId) return s;
+          if (action === 'present') {
+            return { ...s, attended: s.attended + 1, held: s.held + 1 };
+          } else if (action === 'absent') {
+            return { ...s, held: s.held + 1 };
+          }
+          return s;
+        }));
+
+        if (action === 'present') {
+          showToast(`Marked Present for ${targetSub.code}`, 'success', '✓');
+        } else if (action === 'absent') {
+          showToast(`Marked Absent for ${targetSub.code}`, 'warning', '⚠️');
+        } else {
+          showToast(`Class marked Cancelled for ${targetSub.code}`, 'info', 'ℹ️');
+        }
+      };
+
+      const handleUndoLastAction = () => {
+        if (historyStack.length === 0) return;
+        const lastItem = historyStack[historyStack.length - 1];
+        setSubjects(lastItem.subjects);
+        setHistoryStack(prev => prev.slice(0, prev.length - 1));
+        showToast(`Undone: ${lastItem.actionDescription}`, 'info', '↩');
+      };
+
+      const handleAddSubject = (newSubject) => {
+        setSubjects(prev => [...prev, newSubject]);
+        showToast(`Added ${newSubject.code}`, 'success', '📚');
+      };
+
+      const handleUpdateSubject = (updated) => {
+        setSubjects(prev => prev.map(s => s.id === updated.id ? updated : s));
+        showToast(`Updated ${updated.code}`, 'success', '✏️');
+      };
+
+      const handleDeleteSubject = (id) => {
+        setSubjects(prev => prev.filter(s => s.id !== id));
+        showToast('Subject removed', 'info', '🗑️');
+      };
+
+      const handleSaveSlot = ({ day, slotId, subjectId, room }) => {
+        setTimetable(prev => {
+          const daySlots = prev[day] || [];
+          const filtered = daySlots.filter(s => s.slotId !== slotId);
+          return {
+            ...prev,
+            [day]: [...filtered, { slotId, subjectId, room: room || 'Room 512' }]
+          };
+        });
+        showToast('Timetable schedule updated', 'success', '📅');
+      };
+
+      const handleDeleteSlot = (day, slotId) => {
+        setTimetable(prev => {
+          const daySlots = prev[day] || [];
+          return {
+            ...prev,
+            [day]: daySlots.filter(s => s.slotId !== slotId)
+          };
+        });
+        showToast('Class removed', 'info', '🗑️');
+      };
+
+      const handleResetData = () => {
+        const defAttended = DEFAULT_SUBJECTS.reduce((sum, s) => sum + s.attended, 0);
+        const defHeld = DEFAULT_SUBJECTS.reduce((sum, s) => sum + s.held, 0);
+        const defPct = calculatePercentage(defAttended, defHeld);
+        if (confirm(`Reset attendance & timetable to official student record for Shawn Subin Philip (${defAttended}/${defHeld}, ${defPct}%)?`)) {
+          localStorage.removeItem(STORAGE_KEYS.SUBJECTS);
+          localStorage.removeItem(STORAGE_KEYS.TIMETABLE);
+          setSubjects(DEFAULT_SUBJECTS);
+          setTimetable(DEFAULT_TIMETABLE);
+          setHistoryStack([]);
+          showToast(`Reset to Shawn Subin Philip official attendance (${defAttended}/${defHeld}, ${defPct}%)`, 'info', '🔄');
+        }
+      };
+
+      const handleResetToOfficialAttendance = () => {
+        const defAttended = DEFAULT_SUBJECTS.reduce((sum, s) => sum + s.attended, 0);
+        const defHeld = DEFAULT_SUBJECTS.reduce((sum, s) => sum + s.held, 0);
+        const defPct = calculatePercentage(defAttended, defHeld);
+        localStorage.removeItem(STORAGE_KEYS.SUBJECTS);
+        setSubjects(DEFAULT_SUBJECTS);
+        setHistoryStack([]);
+        showToast(`Restored official ETLAB attendance (${defAttended}/${defHeld}, ${defPct}%)`, 'success', '🔄');
+      };
+
+      const handleApplyBatchAbsences = (subjectIds) => {
+        if (!subjectIds || subjectIds.length === 0) return;
+
+        setHistoryStack(prev => [...prev, {
+          subjects: JSON.parse(JSON.stringify(subjects)),
+          actionDescription: `Simulated bunk: ${subjectIds.length} classes`
+        }]);
+
+        const counts = {};
+        subjectIds.forEach(id => { counts[id] = (counts[id] || 0) + 1; });
+
+        setSubjects(prev => prev.map(s => {
+          if (counts[s.id]) {
+            return { ...s, held: s.held + counts[s.id] };
+          }
+          return s;
+        }));
+
+        showToast(`Simulating ${subjectIds.length} missed classes in tracker`, 'warning', '⚠️');
+      };
+
+      return (
+        <div className="min-h-screen bg-slate-100 dark:bg-slate-950 font-sans text-slate-900 dark:text-slate-100 flex flex-col items-center justify-start antialiased selection:bg-amber-400 selection:text-slate-900">
+          
+          <Toast toast={toast} onClose={() => setToast(null)} />
+
+          <div className={`w-full transition-all duration-300 ${
+            isPhoneFrame 
+              ? 'max-w-md my-0 sm:my-5 sm:rounded-[40px] sm:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.35)] sm:border-[8px] sm:border-slate-800 dark:sm:border-slate-800 overflow-hidden bg-white dark:bg-slate-900 min-h-screen sm:min-h-[850px] relative'
+              : 'max-w-xl md:max-w-3xl bg-white dark:bg-slate-900 min-h-screen relative shadow-lg'
+          }`}>
+            
+            {isPhoneFrame && (
+              <div className="hidden sm:flex justify-center pt-2.5 pb-1 bg-slate-900">
+                <div className="w-24 h-4 bg-slate-950 rounded-full flex items-center justify-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-slate-800"></span>
+                  <span className="w-10 h-1 bg-slate-800 rounded-full"></span>
+                </div>
+              </div>
+            )}
+
+            <Header
+              currentTab={activeTab}
+              onResetData={handleResetData}
+              isPhoneFrame={isPhoneFrame}
+              setIsPhoneFrame={setIsPhoneFrame}
+              todayDayName={todayDayName}
+              currentDateFormatted={currentDateFormatted}
+              syncInfo={syncInfo}
+            />
+
+            <main className="p-4 overflow-y-auto">
+              {activeTab === 'timetable' && (
+                <TimetableTab
+                  timetable={timetable}
+                  subjects={subjects}
+                  timeSlots={TIME_SLOTS}
+                  daysOfWeek={DAYS_OF_WEEK}
+                  todayDayId={todayDayId}
+                  onSaveSlot={handleSaveSlot}
+                  onDeleteSlot={handleDeleteSlot}
+                  onSwitchTab={setActiveTab}
+                />
+              )}
+
+              {activeTab === 'attendance' && (
+                <AttendanceTab
+                  subjects={subjects}
+                  onMarkAttendance={handleMarkAttendance}
+                  onUndoLastAction={handleUndoLastAction}
+                  canUndo={historyStack.length > 0}
+                  onAddSubject={handleAddSubject}
+                  onUpdateSubject={handleUpdateSubject}
+                  onDeleteSubject={handleDeleteSubject}
+                  onResetToOfficial={handleResetToOfficialAttendance}
+                  timetable={timetable}
+                  timeSlots={TIME_SLOTS}
+                  daysOfWeek={DAYS_OF_WEEK}
+                  todayDayId={todayDayId}
+                  onApplyBatchAbsences={handleApplyBatchAbsences}
+                  syncInfo={syncInfo}
+                />
+              )}
+            </main>
+
+            <BottomNav
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
+              attendanceWarningCount={attendanceWarningCount}
+            />
+
+          </div>
+
+        </div>
+      );
+    }
+
+    const rootElement = document.getElementById('root');
+    const root = ReactDOM.createRoot(rootElement);
+    root.render(<App />);
+
+    // Register Service Worker for PWA (Add to Home Screen)
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(err => {
+          console.log('Service worker not registered in this environment:', err);
+        });
+      });
+    }
+  </script>
+</body>
+</html>

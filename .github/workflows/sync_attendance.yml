@@ -1,0 +1,46 @@
+name: Live ETLAB Attendance Sync
+
+on:
+  schedule:
+    # 7:00 AM IST (01:30 UTC), 3:00 PM IST (09:30 UTC), 9:00 PM IST (15:30 UTC)
+    - cron: '30 1,9,15 * * *'
+  workflow_dispatch: # Allows manual one-tap trigger from GitHub app / browser anytime
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-attendance
+  cancel-in-progress: false
+
+jobs:
+  scrape-and-update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Run ETLAB Attendance Scraper
+        shell: pwsh
+        env:
+          ETLAB_USERNAME: ${{ secrets.ETLAB_USERNAME }}
+          ETLAB_PASSWORD: ${{ secrets.ETLAB_PASSWORD }}
+        run: |
+          ./scrape_attendance.ps1 -NoBrowser
+
+      - name: Check for Changes & Push Updates
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
+          if [ -n "$(git status --porcelain attendance_scraped.json index.html src/data/defaultData.js)" ]; then
+            git add attendance_scraped.json index.html src/data/defaultData.js
+            git commit -m "chore: live ETLAB sync [$(date -u +'%Y-%m-%d %H:%M UTC')] [skip ci]"
+            git push
+            echo "Successfully synced and pushed new attendance records to repository!"
+          else
+            echo "No changes in attendance records detected. Nothing to commit."
+          fi

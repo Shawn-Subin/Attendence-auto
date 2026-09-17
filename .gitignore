@@ -1,0 +1,14 @@
+# Operating System files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE & Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Antigravity Brain / Temp
+.gemini/
+*.tmp
