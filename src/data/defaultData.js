@@ -171,5 +171,5 @@ export const DEFAULT_TIMETABLE = {
   ]
 };
 
-export const ATTENDANCE_STORAGE_KEY = 'mits_s3_cs_ai_shawn_v1789823747';
+export const ATTENDANCE_STORAGE_KEY = 'mits_s3_cs_ai_shawn_v1789841337';
 export const TIMETABLE_STORAGE_KEY = 'mits_s3_timetable_cs_ai_v7';
