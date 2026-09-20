@@ -390,7 +390,7 @@ export function AttendanceTab({
                         ? 'bg-emerald-100 text-emerald-900 dark:bg-emerald-950/60 dark:text-emerald-300'
                         : 'bg-rose-100 text-rose-900 dark:bg-rose-950/60 dark:text-rose-300'
                     }`}>
-                      {pct >= 90 ? '⭐ 5 Marks Zone' : pct >= 75 ? 'Eligible (75-89%)' : 'Shortage'}
+                      {pct >= 90 ? 'Safe (≥90%)' : pct >= 75 ? 'Eligible (75-89%)' : 'Shortage'}
                     </span>
                   </div>
 
@@ -429,9 +429,11 @@ export function AttendanceTab({
                       : 'bg-rose-50 dark:bg-rose-950/30 text-rose-900 dark:text-rose-300 border border-rose-200/80 dark:border-rose-800/40'
                   }`}>
                     <div className="flex items-center gap-1.5 min-w-0">
-                      <span className="text-base flex-shrink-0">
-                        {bunkInfo.tier === 90 ? '⭐' : bunkInfo.type === 'bunk-to-75' ? '🏖️' : '🚨'}
-                      </span>
+                      {bunkInfo.tier !== 90 && (
+                        <span className="text-base flex-shrink-0">
+                          {bunkInfo.type === 'bunk-to-75' ? '🏖️' : '🚨'}
+                        </span>
+                      )}
                       <div className="min-w-0">
                         <span className="font-semibold leading-snug block">
                           {bunkInfo.message}
@@ -443,12 +445,6 @@ export function AttendanceTab({
                         )}
                       </div>
                     </div>
-
-                    {bunkInfo.tier === 90 && (
-                      <span className="px-1.5 py-0.5 rounded text-[9px] font-black bg-amber-200/80 text-amber-950 uppercase tracking-tighter flex-shrink-0">
-                        5 Marks
-                      </span>
-                    )}
                   </div>
 
                 </div>

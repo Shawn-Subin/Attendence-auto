@@ -123,7 +123,7 @@ export function calculateBunkInfo(attended, held) {
         tier: 90,
         count: 0,
         bunksTo75: bunk75,
-        message: '⭐ 5 Marks Edge: Missing the next class drops attendance below 90%!'
+        message: 'Missing the next class drops attendance below 90%!'
       };
     }
 
@@ -132,7 +132,7 @@ export function calculateBunkInfo(attended, held) {
       tier: 90,
       count: bunk90,
       bunksTo75: bunk75,
-      message: `⭐ 5 Marks Safe: You can bunk ${bunk90} ${bunk90 === 1 ? 'class' : 'classes'} till you drop below 90%`
+      message: `You can bunk ${bunk90} ${bunk90 === 1 ? 'class' : 'classes'} till you drop below 90%`
     };
   }
 
