@@ -356,30 +356,30 @@ export function BunkSimulator({
 
           </div>
 
-          {/* Active Scenario Detail Box */}
-          <div className="bg-slate-50/80 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-700 rounded-2xl p-3.5 sm:p-4 space-y-3">
+          {/* Active Scenario Detail Surface (Clean, Flat, Non-nested) */}
+          <div className="bg-slate-50/70 dark:bg-[#15131b] border border-slate-200/80 dark:border-white/[0.08] rounded-2xl p-3.5 sm:p-4 space-y-3.5">
             
             {/* Status & Overall Impact Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-200 dark:border-slate-700">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-200/80 dark:border-white/[0.06]">
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold text-slate-900 dark:text-white">
+                  <span className="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white">
                     {selectedScenario === '1st-hour' ? '1st Hour Off' : selectedScenario === 'first-4-hours' ? 'First 4 Hours Off' : 'Entire Day Off'} on {selectedDayObj.full}
                   </span>
-                  <span className="px-2 py-0.5 text-[10px] font-extrabold rounded-full bg-slate-200/80 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-mono">
-                    {activeData.missedCount} {activeData.missedCount === 1 ? 'class' : 'classes'} missed
+                  <span className="px-2 py-0.5 text-[10px] font-extrabold rounded-full bg-slate-200/80 dark:bg-white/[0.08] text-slate-700 dark:text-slate-300 font-mono">
+                    {activeData.missedCount} {activeData.missedCount === 1 ? 'class' : 'classes'}
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
                   Current: <b className="text-slate-700 dark:text-slate-300 font-semibold">{currentOverall.pct}%</b> ({currentOverall.attended}/{currentOverall.held}) → Projected: <b className="text-slate-900 dark:text-white font-bold">{activeData.newPct}%</b> ({activeData.newAttended}/{activeData.newHeld})
                 </p>
               </div>
 
               <div className="flex items-center gap-2 self-start sm:self-auto">
                 <div className="text-right">
-                  <span className="text-[10px] uppercase font-bold text-slate-400 block">Projected</span>
-                  <span className={`text-lg sm:text-xl font-black ${
-                    activeData.newPct >= 90 ? 'text-amber-600 dark:text-amber-400' : activeData.newPct >= 75 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Projected</span>
+                  <span className={`text-xl font-black ${
+                    activeData.newPct >= 90 ? 'text-amber-500 dark:text-amber-400' : activeData.newPct >= 75 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
                   }`}>
                     {activeData.newPct}%
                   </span>
@@ -394,91 +394,86 @@ export function BunkSimulator({
               </div>
             </div>
 
-            {/* Buffer & Recovery Badges */}
+            {/* Buffer & Recovery Stat Tiles (Soft, flat, not heavy boxes) */}
             <div className="grid grid-cols-2 gap-2 text-xs">
-              
-              {/* 5 Marks Zone (>=90%) or Recovery to 90% */}
-              <div className="bg-amber-50/80 dark:bg-amber-950/30 p-2.5 rounded-xl border border-amber-200/80 dark:border-amber-800/40">
-                <div className="text-[10px] uppercase font-bold text-amber-800 dark:text-amber-300 flex items-center gap-1">
+              {/* 5 Marks Zone */}
+              <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-slate-900 dark:text-white">
+                <div className="text-[10px] uppercase font-extrabold text-amber-700 dark:text-amber-400 flex items-center gap-1 tracking-wider">
                   <span>⭐</span>
-                  <span>5 Marks Zone (≥90%)</span>
+                  <span>5 Marks (≥90%)</span>
                 </div>
-                <div className="mt-1 font-extrabold text-slate-900 dark:text-white">
+                <div className="mt-1">
                   {activeData.newPct >= 90 ? (
                     <div>
-                      <span>Can still bunk <b className="text-amber-600 dark:text-amber-400 text-sm">{activeData.bunk90}</b> classes</span>
-                      <span className="text-[10px] font-normal text-slate-500 dark:text-slate-400 block">Overall attendance safe ({activeData.newPct}%)</span>
+                      <div className="font-extrabold text-xs sm:text-sm">
+                        Can bunk <span className="text-amber-600 dark:text-amber-400 font-black text-sm sm:text-base">{activeData.bunk90}</span> classes
+                      </div>
+                      <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Overall safe ({activeData.newPct}%)</div>
                     </div>
                   ) : (
                     <div>
-                      <span className="text-rose-600 dark:text-rose-400 font-bold block">Overall drops to {activeData.newPct}% (&lt;90%)</span>
-                      <span className="text-[11px] font-extrabold text-amber-900 dark:text-amber-200 mt-0.5 block">
-                        Attend <b className="text-amber-600 dark:text-amber-400 text-sm underline">{activeData.neededOverallOver90}</b> classes to get over 90% ({activeData.neededOverall90} for 90.0%)
-                      </span>
+                      <div className="font-bold text-rose-600 dark:text-rose-400 text-xs">Drops to {activeData.newPct}% (&lt;90%)</div>
+                      <div className="text-[10px] text-amber-800 dark:text-amber-300 font-bold mt-0.5">
+                        Attend {activeData.neededOverallOver90} classes to recover
+                      </div>
                     </div>
                   )}
                 </div>
               </div>
 
-              {/* Exam Minimum (>=75%) */}
-              <div className="bg-emerald-50/80 dark:bg-emerald-950/30 p-2.5 rounded-xl border border-emerald-200/80 dark:border-emerald-800/40">
-                <div className="text-[10px] uppercase font-bold text-emerald-800 dark:text-emerald-300 flex items-center gap-1">
+              {/* Exam Minimum (≥75%) */}
+              <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-slate-900 dark:text-white">
+                <div className="text-[10px] uppercase font-extrabold text-emerald-700 dark:text-emerald-400 flex items-center gap-1 tracking-wider">
                   <span>🛡️</span>
-                  <span>Exam Minimum (≥75%)</span>
+                  <span>Exam Min (≥75%)</span>
                 </div>
-                <div className="mt-1 font-extrabold text-slate-900 dark:text-white">
+                <div className="mt-1">
                   {activeData.newPct >= 75 ? (
                     <div>
-                      <span>Can still bunk <b className="text-emerald-600 dark:text-emerald-400 text-sm">{activeData.bunk75}</b> classes</span>
-                      <span className="text-[10px] font-normal text-slate-500 dark:text-slate-400 block">Safe from KTU exam shortage</span>
+                      <div className="font-extrabold text-xs sm:text-sm">
+                        Can bunk <span className="text-emerald-600 dark:text-emerald-400 font-black text-sm sm:text-base">{activeData.bunk75}</span> classes
+                      </div>
+                      <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Safe from shortage</div>
                     </div>
                   ) : (
                     <div>
-                      <span className="text-rose-600 dark:text-rose-400 font-bold block">Shortage (&lt;75%)</span>
-                      <span className="text-[11px] font-extrabold text-emerald-900 dark:text-emerald-200 mt-0.5 block">
-                        Attend <b className="text-emerald-600 dark:text-emerald-400 text-sm underline">{activeData.neededOverall75}</b> classes to reach 75%
-                      </span>
+                      <div className="font-bold text-rose-600 dark:text-rose-400 text-xs">Shortage (&lt;75%)</div>
+                      <div className="text-[10px] text-emerald-800 dark:text-emerald-300 font-bold mt-0.5">
+                        Attend {activeData.neededOverall75} classes to reach 75%
+                      </div>
                     </div>
                   )}
                 </div>
               </div>
             </div>
 
-            {/* Critical Warning & Subject Recovery Plan if any subject drops below 90% */}
+            {/* Subject 90% Impact Alert (Single sleek callout, NO nested boxes!) */}
             {activeData.anyDropBelow90 && (
-              <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-amber-900 dark:text-amber-200 text-xs space-y-2 shadow-xs">
+              <div className="border-l-4 border-amber-500 bg-amber-500/10 dark:bg-amber-500/[0.08] rounded-r-xl p-3 text-xs space-y-2">
                 <div className="flex items-start gap-2">
                   <span className="text-base flex-shrink-0">⚠️</span>
                   <div>
-                    <span className="font-extrabold">Subject 90% Impact: </span>
-                    <span>
+                    <span className="font-extrabold text-amber-900 dark:text-amber-300">Subject 90% Impact: </span>
+                    <span className="text-slate-800 dark:text-slate-200">
                       Missing this drops {activeData.uniqueSubjectImpact.filter(s => s.isBelow90).map(s => (
-                        <b key={s.sub.id} className="text-slate-900 dark:text-white"> {s.sub.name} ({s.newSubPct}%)</b>
+                        <b key={s.sub.id} className="text-slate-900 dark:text-white font-bold"> {s.sub.name} ({s.newSubPct}%)</b>
                       ))} below 90%, risking full 5 internal marks!
                     </span>
                   </div>
                 </div>
 
-                {/* Exact classes to recover 90% breakdown */}
-                <div className="bg-white/90 dark:bg-slate-900/90 rounded-lg p-2.5 border border-amber-200/80 dark:border-amber-800/40 text-[11px] space-y-2">
-                  <div className="font-bold text-amber-800 dark:text-amber-300 flex items-center justify-between">
-                    <span className="flex items-center gap-1">
-                      <span>🎯</span>
-                      <span>Classes required to get back over 90%:</span>
-                    </span>
-                  </div>
+                {/* Clean Recovery Target (NO nested sub-boxes!) */}
+                <div className="space-y-1 pt-1.5 border-t border-amber-500/20">
                   {activeData.uniqueSubjectImpact.filter(s => s.isBelow90).map(s => (
-                    <div key={s.sub.id} className="pl-4 space-y-1 text-slate-700 dark:text-slate-300">
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold">• {s.sub.name} ({s.sub.code}):</span>
-                        <span className="font-mono font-bold text-amber-800 dark:text-amber-400">
-                          Attend next <b className="text-sm underline text-amber-600 dark:text-amber-300">{s.subClassesToOver90}</b> classes to get over 90%
+                    <div key={s.sub.id} className="text-[11px] text-slate-800 dark:text-slate-200">
+                      <div className="font-bold flex items-center justify-between flex-wrap gap-1">
+                        <span>• {s.sub.name} ({s.sub.code}):</span>
+                        <span className="text-amber-800 dark:text-amber-300 font-extrabold">
+                          🎯 Attend next <span className="underline decoration-amber-500 font-black text-xs">{s.subClassesToOver90}</span> classes to get over 90%
                         </span>
                       </div>
-                      <div className="text-[10px] text-slate-500 dark:text-slate-400 pl-2 bg-slate-50 dark:bg-slate-800/60 p-1.5 rounded border border-slate-200/60 dark:border-slate-700/60">
-                        <span>Math check: </span>
-                        <span>Attend <b>{s.subClassesToOver90} classes</b> → {s.subAttendedAfterOver90}/{s.subHeldAfterOver90} = <b className="text-emerald-600 font-bold">{s.subPctAfterOver90}%</b> (over 90%) • </span>
-                        <span>Attend <b>{s.subClassesTo90} classes</b> → {s.subAttendedAfter90}/{s.subHeldAfter90} = <b className="text-amber-600 font-bold">{s.subPctAfter90}%</b> (exact 90.0%)</span>
+                      <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 pl-3">
+                        Math check: Attend {s.subClassesToOver90} classes → {s.subAttendedAfterOver90}/{s.subHeldAfterOver90} = <b className="text-emerald-600 dark:text-emerald-400 font-bold">{s.subPctAfterOver90}%</b> (over 90%)
                       </div>
                     </div>
                   ))}
@@ -486,86 +481,91 @@ export function BunkSimulator({
               </div>
             )}
 
-            {/* Scheduled Classes Missed List */}
-            <div className="space-y-1.5 pt-1">
-              <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 tracking-wider block">
-                Specific Classes Missed ({activeData.missedSlots.length}):
-              </span>
+            {/* Scheduled Classes Missed List (Zero text overlap, mobile-first card design) */}
+            <div className="space-y-2 pt-1">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 tracking-wider">
+                  Specific Classes Missed ({activeData.missedSlots.length})
+                </span>
+              </div>
 
-              <div className="space-y-1.5 max-h-52 overflow-y-auto pr-1">
+              <div className="space-y-2 max-h-64 overflow-y-auto pr-0.5">
                 {activeData.subjectBreakdown.map((item, idx) => (
                   <div
                     key={idx}
-                    className="bg-white dark:bg-slate-800 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center justify-between gap-2 text-xs shadow-xs hover:border-slate-300 dark:hover:border-slate-600 transition"
+                    className="bg-white dark:bg-[#1a1921] p-3 rounded-xl border border-slate-200/80 dark:border-white/[0.08] shadow-xs space-y-2"
                   >
-                    <div className="flex items-center gap-2 min-w-0">
-                      <span className="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-mono font-bold text-[10px] flex-shrink-0">
-                        {item.slotInfo ? item.slotInfo.label : `Period ${idx+1}`}
-                      </span>
-                      
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-1.5">
-                          <span 
-                            className="px-1.5 py-0.5 text-[10px] font-bold rounded"
-                            style={{ 
-                              backgroundColor: `${item.sub.color || '#3b82f6'}15`, 
-                              color: item.sub.color || '#3b82f6',
-                              border: `1px solid ${item.sub.color || '#3b82f6'}35`
-                            }}
-                          >
-                            {item.sub.code}
-                          </span>
-                          <span className="font-bold text-slate-900 dark:text-white truncate block">
-                            {item.sub.name}
-                          </span>
-                        </div>
-                        <span className="text-[10px] text-slate-500 dark:text-slate-400 truncate block mt-0.5">
-                          {item.slotInfo ? item.slotInfo.time : ''} • {item.sub.faculty}
+                    {/* Line 1: Period + Time & Impact Badge */}
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-white/[0.06] text-slate-700 dark:text-slate-300 font-mono font-bold text-[10px]">
+                          {item.slotInfo ? item.slotInfo.label : `Period ${idx+1}`}
                         </span>
+                        {item.slotInfo?.time && (
+                          <span className="text-[10px] text-slate-400 dark:text-slate-400 font-mono">
+                            {item.slotInfo.time}
+                          </span>
+                        )}
                       </div>
+
+                      {item.isBelow90 ? (
+                        <span className="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30">
+                          &lt;90% Warning
+                        </span>
+                      ) : (
+                        <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
+                          Safe (≥90%)
+                        </span>
+                      )}
                     </div>
 
-                    <div className="text-right flex-shrink-0 flex items-center gap-2">
-                      <div>
-                        <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400 block">
-                          {item.sub.attended}/{item.sub.held} → <b className="text-slate-900 dark:text-white">{item.sub.attended}/{item.newSubHeld}</b>
-                        </span>
-                        <span className={`text-[11px] font-bold block ${
-                          item.newSubPct >= 90 ? 'text-amber-600 dark:text-amber-400' : 'text-rose-600 dark:text-rose-400'
-                        }`}>
-                          {item.curSubPct}% → {item.newSubPct}%
+                    {/* Line 2: Subject Code Badge & Full Subject Name */}
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span 
+                        className="px-1.5 py-0.5 text-[10px] font-extrabold rounded-md flex-shrink-0"
+                        style={{ 
+                              backgroundColor: `${item.sub.color || '#3b82f6'}18`, 
+                              color: item.sub.color || '#3b82f6',
+                              border: `1px solid ${item.sub.color || '#3b82f6'}40`
+                        }}
+                      >
+                        {item.sub.code}
+                      </span>
+                      <span className="font-bold text-xs text-slate-900 dark:text-white truncate">
+                        {item.sub.name}
+                      </span>
+                    </div>
+
+                    {/* Line 3: Attended/Held shift and recovery action */}
+                    <div className="flex items-center justify-between pt-1.5 border-t border-slate-100 dark:border-white/[0.05] text-[11px] gap-2">
+                      <div className="text-slate-500 dark:text-slate-400 flex items-center gap-1.5 flex-wrap">
+                        <span>{item.sub.attended}/{item.sub.held} → <b className="text-slate-900 dark:text-white font-bold">{item.sub.attended}/{item.newSubHeld}</b></span>
+                        <span className={`font-bold ${item.newSubPct >= 90 ? 'text-amber-600 dark:text-amber-400' : 'text-rose-600 dark:text-rose-400'}`}>
+                          ({item.curSubPct}% → {item.newSubPct}%)
                         </span>
                       </div>
 
-                      <div className="flex flex-col items-end gap-0.5">
+                      <div className="flex-shrink-0">
                         {item.isBelow90 ? (
-                          <>
-                            <span className="px-1.5 py-0.5 rounded text-[9px] font-extrabold bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
-                              &lt;90%
-                            </span>
-                            <span className="text-[10px] font-bold text-amber-700 dark:text-amber-400 whitespace-nowrap">
-                              🎯 Attend {item.subClassesToOver90} to &gt;90%
-                            </span>
-                          </>
+                          <span className="text-[10px] font-extrabold text-amber-600 dark:text-amber-400 flex items-center gap-1">
+                            <span>🎯</span>
+                            <span>Need {item.subClassesToOver90} classes</span>
+                          </span>
                         ) : (
-                          <>
-                            <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
-                              Safe
-                            </span>
-                            <span className="text-[10px] text-slate-400 whitespace-nowrap">
-                              Bunks left: {item.subBunk90}
-                            </span>
-                          </>
+                          <span className="text-[10px] text-slate-400">
+                            {item.subBunk90} bunks left
+                          </span>
                         )}
                       </div>
                     </div>
+
                   </div>
                 ))}
               </div>
             </div>
 
             {/* Simulator Action Buttons */}
-            <div className="pt-2 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between gap-2">
+            <div className="pt-2 border-t border-slate-200/80 dark:border-white/[0.08] flex items-center justify-between gap-2">
               <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
                 Test in tracker or revert anytime
               </div>
@@ -574,7 +574,7 @@ export function BunkSimulator({
                 {isSimulated && (
                   <button
                     onClick={onResetToOfficial}
-                    className="px-2.5 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 bg-white hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl transition border border-slate-200 dark:border-slate-700 flex items-center gap-1 shadow-xs"
+                    className="px-2.5 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 bg-white hover:bg-slate-50 dark:bg-[#221f29] dark:hover:bg-[#2b2736] rounded-xl transition border border-slate-200 dark:border-white/[0.08] flex items-center gap-1 shadow-xs"
                     title="Restore original ETLAB attendance"
                   >
                     <span>🔄</span>
@@ -584,7 +584,7 @@ export function BunkSimulator({
 
                 <button
                   onClick={() => onApplyBatchAbsences && onApplyBatchAbsences(activeData.missedSubjectIds)}
-                  className="px-3 py-1.5 text-xs font-bold text-slate-950 bg-amber-400 hover:bg-amber-300 active:scale-95 rounded-xl shadow-sm transition flex items-center gap-1.5"
+                  className="px-3.5 py-2 text-xs font-black text-slate-950 bg-amber-400 hover:bg-amber-300 active:scale-95 rounded-xl shadow-sm transition flex items-center gap-1.5"
                   title="Apply these missed periods as absent in the attendance tracker"
                 >
                   <span>⚡</span>
