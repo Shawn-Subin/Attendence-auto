@@ -59,6 +59,33 @@ export function App() {
   // Toast notifications
   const [toast, setToast] = React.useState(null);
 
+  // Theme State: Dark Mode (Image 4 Helios) or Light Mode (Image 3 Dashboard)
+  const [isDarkMode, setIsDarkMode] = React.useState(() => {
+    const saved = localStorage.getItem('mits_theme');
+    if (saved !== null) {
+      return saved === 'dark';
+    }
+    return true; // Default to dark mode (Helios)
+  });
+
+  React.useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('mits_theme', 'dark');
+      const metaTheme = document.querySelector('meta[name="theme-color"]');
+      if (metaTheme) metaTheme.setAttribute('content', '#121114');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('mits_theme', 'light');
+      const metaTheme = document.querySelector('meta[name="theme-color"]');
+      if (metaTheme) metaTheme.setAttribute('content', '#dbe4f3');
+    }
+  }, [isDarkMode]);
+
+  const toggleTheme = () => {
+    setIsDarkMode(prev => !prev);
+  };
+
   const [syncInfo, setSyncInfo] = React.useState(() => {
     const saved = localStorage.getItem('mits_last_synced_info');
     if (saved) {
@@ -293,7 +320,7 @@ export function App() {
 
   // Container wrapper: Full screen or centered mobile device frame
   return (
-    <div className="min-h-screen bg-slate-100 dark:bg-slate-950 font-sans text-slate-900 dark:text-slate-100 flex flex-col items-center justify-start antialiased selection:bg-amber-400 selection:text-slate-900">
+    <div className="min-h-screen bg-[#dbe4f3] dark:bg-[#121114] font-sans text-slate-900 dark:text-slate-100 flex flex-col items-center justify-start antialiased selection:bg-blue-600 dark:selection:bg-pink-500 selection:text-white transition-colors duration-300">
       
       {/* Toast Notification */}
       <Toast toast={toast} onClose={() => setToast(null)} />
@@ -301,16 +328,16 @@ export function App() {
       {/* Main Container */}
       <div className={`w-full transition-all duration-300 ${
         isPhoneFrame 
-          ? 'max-w-md my-0 sm:my-4 sm:rounded-[36px] sm:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.3)] sm:border-[8px] sm:border-slate-800 dark:sm:border-slate-800 overflow-hidden bg-white dark:bg-slate-900 min-h-screen sm:min-h-[850px] relative'
-          : 'max-w-xl md:max-w-3xl bg-white dark:bg-slate-900 min-h-screen relative shadow-lg'
+          ? 'max-w-md my-0 sm:my-5 sm:rounded-[42px] sm:shadow-[0_25px_65px_-15px_rgba(71,85,105,0.25)] dark:sm:shadow-[0_25px_70px_-15px_rgba(0,0,0,0.85)] sm:border-[8px] sm:border-white/90 dark:sm:border-[#221f29] overflow-hidden bg-[#edf3fc] dark:bg-[#16141c] min-h-screen sm:min-h-[860px] relative'
+          : 'max-w-xl md:max-w-3xl bg-[#edf3fc] dark:bg-[#16141c] min-h-screen relative shadow-2xl'
       }`}>
         
         {/* Phone Frame Speaker/Camera Notch (visible in phone frame on desktop) */}
         {isPhoneFrame && (
-          <div className="hidden sm:flex justify-center pt-2 pb-1 bg-slate-900">
-            <div className="w-24 h-4 bg-slate-950 rounded-full flex items-center justify-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-slate-800"></span>
-              <span className="w-10 h-1 bg-slate-800 rounded-full"></span>
+          <div className="hidden sm:flex justify-center pt-2.5 pb-1 bg-[#dbe4f3] dark:bg-[#121114] transition-colors">
+            <div className="w-24 h-4 bg-[#cbd5e1] dark:bg-[#221f29] rounded-full flex items-center justify-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-[#94a3b8] dark:bg-[#121114]"></span>
+              <span className="w-10 h-1 bg-[#94a3b8] dark:bg-[#121114] rounded-full"></span>
             </div>
           </div>
         )}
@@ -324,6 +351,8 @@ export function App() {
           todayDayName={todayDayName}
           currentDateFormatted={currentDateFormatted}
           syncInfo={syncInfo}
+          isDarkMode={isDarkMode}
+          onToggleTheme={toggleTheme}
         />
 
         {/* Dynamic Tab Content */}

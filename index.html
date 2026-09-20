@@ -38,7 +38,36 @@
               accent: '#f59e0b',
               gold: '#fbbf24',
               surface: '#0f172a'
+            },
+            // Helios Dark Palette (Image 4)
+            helios: {
+              bg: '#121114',
+              card: '#1a1921',
+              cardHover: '#221f2b',
+              surface: '#16141c',
+              border: 'rgba(255, 255, 255, 0.08)',
+              pink: '#f472b6',
+              rose: '#fb7185',
+              plum: '#d946ef',
+              subtext: '#9ca3af',
+              muted: '#a79fae'
+            },
+            // Soft Dashboard Light Palette (Image 3)
+            dashboard: {
+              canvas: '#dbe4f3',
+              content: '#edf3fc',
+              card: '#ffffff',
+              border: '#e2e8f0',
+              blue: '#2563eb',
+              blueLight: '#dbeafe',
+              text: '#0f172a',
+              subtext: '#64748b'
             }
+          },
+          boxShadow: {
+            'light-card': '0 10px 25px -5px rgba(148, 163, 184, 0.18), 0 4px 6px -2px rgba(148, 163, 184, 0.08)',
+            'dark-card': '0 10px 30px -5px rgba(0, 0, 0, 0.6)',
+            'helios-glow': '0 0 20px rgba(244, 114, 182, 0.25)',
           },
           animation: {
             'fade-in': 'fadeIn 0.25s ease-out',
@@ -69,6 +98,7 @@
       font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       -webkit-tap-highlight-color: transparent;
       user-select: none;
+      transition: background-color 0.25s ease, color 0.25s ease;
     }
     .no-scrollbar::-webkit-scrollbar {
       display: none;
@@ -522,63 +552,86 @@
     // ==========================================
     // HEADER COMPONENT
     // ==========================================
-    function Header({ currentTab, onResetData, isPhoneFrame, setIsPhoneFrame, todayDayName, currentDateFormatted, syncInfo }) {
+    function Header({ currentTab, onResetData, isPhoneFrame, setIsPhoneFrame, todayDayName, currentDateFormatted, syncInfo, isDarkMode, onToggleTheme }) {
       return (
-        <header className="sticky top-0 z-30 bg-slate-900 text-white shadow-md border-b border-slate-800">
+        <header className="sticky top-0 z-30 bg-white/95 dark:bg-[#16141c]/95 backdrop-blur-md text-slate-800 dark:text-white shadow-xs border-b border-slate-200/80 dark:border-white/[0.08] transition-colors duration-300">
           <div className="max-w-md mx-auto px-4 py-3 sm:max-w-xl md:max-w-4xl">
-            <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center justify-between gap-2.5">
               
-              <div className="flex items-center gap-2.5">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-700 to-amber-500 p-0.5 shadow-lg flex items-center justify-center flex-shrink-0">
-                  <div className="w-full h-full bg-slate-900 rounded-[10px] flex items-center justify-center font-black text-amber-400 text-xs tracking-tighter">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 dark:from-purple-700 dark:via-pink-600 dark:to-amber-500 p-0.5 shadow-md flex items-center justify-center flex-shrink-0">
+                  <div className="w-full h-full bg-white dark:bg-[#16141c] rounded-[14px] flex items-center justify-center font-black text-blue-600 dark:text-amber-400 text-xs tracking-tighter">
                     MITS
                   </div>
                 </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h1 className="text-sm sm:text-base font-bold tracking-tight text-white flex items-center gap-1.5">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <h1 className="text-sm sm:text-base font-extrabold tracking-tight text-slate-900 dark:text-white truncate">
                       MITS Campus Hub
                     </h1>
-                    <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/40">
+                    <span className="text-[10px] uppercase font-extrabold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 dark:bg-pink-500/15 dark:text-pink-300 dark:border-pink-500/30">
                       S3 CS AI
                     </span>
                   </div>
-                  <p className="text-[11px] text-slate-400 flex items-center gap-1.5">
-                    <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5 truncate">
+                    <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse"></span>
                     <span>{todayDayName}, {currentDateFormatted}</span>
-                    <span className="text-slate-500">•</span>
-                    <span className="text-amber-400 font-semibold">Room 512</span>
+                    <span className="text-slate-300 dark:text-slate-600">•</span>
+                    <span className="text-blue-600 dark:text-amber-400 font-semibold">Room 512</span>
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 flex-shrink-0">
                 {syncInfo && syncInfo.timestamp && (
                   <div 
                     title={`Last Synced with ETLAB: ${syncInfo.timestamp}`}
-                    className="flex items-center gap-1.5 px-2 py-1 text-[10px] font-bold text-emerald-400 bg-emerald-950/40 border border-emerald-700/50 rounded-lg select-none"
+                    className="hidden xs:flex items-center gap-1.5 px-2 py-1 text-[10px] font-bold text-blue-700 dark:text-emerald-300 bg-blue-50 dark:bg-emerald-950/40 border border-blue-200 dark:border-emerald-700/50 rounded-xl select-none"
                   >
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                    <span className="hidden sm:inline text-slate-300">ETLAB</span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-emerald-400 animate-pulse"></span>
+                    <span className="hidden sm:inline text-slate-600 dark:text-slate-300">ETLAB</span>
                     <span>{syncInfo.timestamp.split(' ')[1] ? syncInfo.timestamp.split(' ')[1].substring(0, 5) : 'Synced'}</span>
                   </div>
                 )}
+
+                {/* THEME TOGGLE BUTTON (Sun for Dark, Moon for Light) */}
+                <button
+                  onClick={onToggleTheme}
+                  title={isDarkMode ? "Switch to Soft Light Mode (Dashboard)" : "Switch to Helios Dark Mode"}
+                  className="p-1.5 text-xs rounded-xl transition-all active:scale-90 flex items-center gap-1 border shadow-xs select-none bg-slate-100 hover:bg-indigo-50 border-slate-200 text-slate-700 dark:bg-[#221f29] dark:hover:bg-[#2b2736] dark:border-white/[0.08] dark:text-amber-300"
+                  aria-label="Toggle Theme"
+                >
+                  {isDarkMode ? (
+                    <svg className="w-4 h-4 text-amber-300 transition-transform hover:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <circle cx="12" cy="12" r="4" strokeWidth="2" fill="currentColor" fillOpacity="0.2"/>
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+                    </svg>
+                  ) : (
+                    <svg className="w-4 h-4 text-indigo-600 transition-transform hover:-rotate-12" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/>
+                    </svg>
+                  )}
+                  <span className="hidden sm:inline text-[11px] font-bold">
+                    {isDarkMode ? 'Light' : 'Dark'}
+                  </span>
+                </button>
+
                 <button
                   onClick={() => setIsPhoneFrame(!isPhoneFrame)}
                   title={isPhoneFrame ? "Expand to Full Width" : "Switch to Mobile Phone Frame"}
-                  className="hidden md:flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg transition"
+                  className="hidden md:flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-slate-700 dark:text-slate-300 bg-slate-100 hover:bg-slate-200 dark:bg-[#221f29] dark:hover:bg-[#2b2736] border border-slate-200 dark:border-white/[0.08] rounded-xl transition"
                 >
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <rect x="5" y="2" width="14" height="20" rx="2" strokeWidth="2" />
                     <path d="M12 18h.01" strokeWidth="2" strokeLinecap="round" />
                   </svg>
-                  <span>{isPhoneFrame ? "Full Width" : "Phone Frame"}</span>
+                  <span>{isPhoneFrame ? "Full" : "Frame"}</span>
                 </button>
 
                 <button
                   onClick={onResetData}
                   title="Reset to official student attendance report (214/228, 94%)"
-                  className="p-1.5 text-xs text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-700 border border-slate-700 rounded-lg transition flex items-center gap-1"
+                  className="p-1.5 text-xs text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white bg-slate-100 hover:bg-slate-200 dark:bg-[#221f29] dark:hover:bg-[#2b2736] border border-slate-200 dark:border-white/[0.08] rounded-xl transition flex items-center gap-1"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -620,7 +673,7 @@
       ];
 
       return (
-        <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 shadow-[0_-4px_12px_rgba(0,0,0,0.05)]">
+        <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#141318]/95 backdrop-blur-md border-t border-slate-200/80 dark:border-white/[0.08] shadow-[0_-8px_25px_rgba(148,163,184,0.15)] dark:shadow-[0_-8px_30px_rgba(0,0,0,0.8)] transition-colors duration-300">
           <div className="max-w-md mx-auto sm:max-w-xl md:max-w-md">
             <div className="grid grid-cols-2 h-16">
               {tabs.map((tab) => {
@@ -632,25 +685,25 @@
                     onClick={() => setActiveTab(tab.id)}
                     className={`relative flex flex-col items-center justify-center gap-1 transition-all duration-200 active:scale-95 select-none ${
                       isActive 
-                        ? 'text-blue-950 dark:text-amber-400 font-semibold' 
-                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+                        ? 'text-blue-600 dark:text-amber-400 font-bold' 
+                        : 'text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
                     }`}
                   >
                     {isActive && (
-                      <span className="absolute top-0 w-12 h-1 bg-amber-500 rounded-b-full transition-all duration-300 shadow-sm shadow-amber-500/50"></span>
+                      <span className="absolute top-0 w-12 h-1 bg-blue-600 dark:bg-amber-400 rounded-b-full transition-all duration-300 shadow-sm shadow-blue-500/40 dark:shadow-amber-400/60"></span>
                     )}
 
                     <div className="relative">
                       {tab.icon(isActive)}
                       {tab.badge && (
-                        <span className="absolute -top-1.5 -right-2.5 px-1.5 py-0.2 text-[10px] font-bold rounded-full bg-rose-500 text-white shadow-sm ring-2 ring-white dark:ring-slate-900 animate-pulse">
+                        <span className="absolute -top-1.5 -right-2.5 px-1.5 py-0.2 text-[10px] font-bold rounded-full bg-rose-500 text-white shadow-sm ring-2 ring-white dark:ring-[#141318] animate-pulse">
                           {tab.badge}
                         </span>
                       )}
                     </div>
 
                     <span className={`text-[11px] tracking-tight transition-colors ${
-                      isActive ? 'font-bold text-slate-900 dark:text-white' : 'font-medium'
+                      isActive ? 'font-extrabold text-slate-900 dark:text-white' : 'font-medium'
                     }`}>
                       {tab.label}
                     </span>
@@ -2169,19 +2222,19 @@
 
           {/* LIVE CLOUD SYNC BANNER */}
           {syncInfo && syncInfo.timestamp && (
-            <div className="bg-slate-900/90 border border-slate-800 rounded-2xl px-3.5 py-2.5 flex items-center justify-between gap-3 text-xs shadow-sm">
+            <div className="bg-white dark:bg-[#1a1921] border border-slate-200/80 dark:border-white/[0.08] rounded-2xl px-3.5 py-2.5 flex items-center justify-between gap-3 text-xs shadow-xs transition-colors">
               <div className="flex items-center gap-2 min-w-0">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse flex-shrink-0"></span>
+                <span className="w-2 h-2 rounded-full bg-blue-600 dark:bg-emerald-400 animate-pulse flex-shrink-0"></span>
                 <div className="min-w-0">
-                  <p className="font-bold text-white text-[11px] truncate">
+                  <p className="font-extrabold text-slate-900 dark:text-white text-[11px] truncate">
                     ETLAB Attendance Synced
                   </p>
-                  <p className="text-slate-400 text-[10px] truncate">
-                    Last refreshed: <b className="text-slate-200">{syncInfo.timestamp}</b>
+                  <p className="text-slate-500 dark:text-slate-400 text-[10px] truncate">
+                    Last refreshed: <b className="text-slate-700 dark:text-slate-200">{syncInfo.timestamp}</b>
                   </p>
                 </div>
               </div>
-              <span className="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-blue-500/20 text-blue-300 border border-blue-500/30 flex-shrink-0">
+              <span className="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-blue-50 text-blue-700 border border-blue-200/60 dark:bg-pink-500/15 dark:text-pink-300 dark:border-pink-500/30 flex-shrink-0">
                 Auto 7am • 3pm • 9pm
               </span>
             </div>
@@ -2209,84 +2262,88 @@
             </div>
           )}
 
-          {/* STUDENT PROFILE CARD */}
-          <div className="bg-white dark:bg-slate-900 rounded-2xl p-3.5 border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between gap-3">
+          {/* STUDENT PROFILE CARD (Image 3 Light & Image 4 Dark) */}
+          <div className="bg-white dark:bg-[#1a1921] rounded-3xl p-4 border border-slate-200/80 dark:border-white/[0.08] shadow-[0_10px_25px_-5px_rgba(148,163,184,0.18)] dark:shadow-[0_12px_30px_-5px_rgba(0,0,0,0.6)] flex items-center justify-between gap-3 transition-all">
             <div className="flex items-center gap-3 min-w-0">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-500 to-orange-600 text-slate-950 font-black flex items-center justify-center text-sm flex-shrink-0 shadow-md">
+              <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 dark:from-pink-600 dark:via-purple-600 dark:to-indigo-700 text-white font-black flex items-center justify-center text-sm flex-shrink-0 shadow-md shadow-blue-500/20 dark:shadow-pink-500/20">
                 SP
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5 flex-wrap">
-                  <h3 className="font-bold text-slate-900 dark:text-white text-sm truncate">
+                  <h3 className="font-extrabold text-slate-900 dark:text-white text-sm truncate">
                     {STUDENT_PROFILE.name}
                   </h3>
-                  <span className="px-1.5 py-0.2 rounded text-[10px] font-extrabold bg-amber-100 text-amber-900 dark:bg-amber-950/60 dark:text-amber-300">
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-blue-50 text-blue-700 border border-blue-200/60 dark:bg-pink-500/15 dark:text-pink-300 dark:border-pink-500/30">
                     Roll #{STUDENT_PROFILE.rollNo}
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-0.5 truncate">
                   Reg: <span className="font-semibold text-slate-700 dark:text-slate-300">{STUDENT_PROFILE.regNo}</span> • S3 CS AI
                 </p>
               </div>
             </div>
 
             <div className="text-right flex-shrink-0">
-              <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Internal Marks</span>
+              <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-[#a79fae] block tracking-wider">Internal Marks</span>
               <span className="text-xs font-black text-amber-600 dark:text-amber-400 flex items-center gap-1 justify-end">
                 <span>⭐</span>
-                <span>5 / 5 Marks Secured</span>
+                <span>5 / 5 Marks</span>
               </span>
             </div>
           </div>
 
           {/* OVERALL OVERVIEW CARD */}
-          <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 text-white rounded-3xl p-5 shadow-xl border border-blue-900/50">
-            <div className="absolute -top-12 -right-12 w-36 h-36 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
-            <div className="absolute -bottom-10 -left-10 w-36 h-36 bg-blue-500/10 rounded-full blur-2xl pointer-events-none"></div>
+          <div className="relative overflow-hidden bg-white dark:bg-gradient-to-b dark:from-[#231f2c] dark:to-[#1a1921] text-slate-900 dark:text-white rounded-3xl p-5 sm:p-6 shadow-[0_12px_28px_-6px_rgba(148,163,184,0.2)] dark:shadow-[0_18px_40px_-10px_rgba(0,0,0,0.7)] border border-slate-200/80 dark:border-white/[0.08] transition-all">
+            {/* Helios signature ambient glow (Dark mode) */}
+            <div className="hidden dark:block absolute -bottom-10 left-1/2 -translate-x-1/2 w-48 h-20 bg-fuchsia-500/15 rounded-full blur-2xl pointer-events-none"></div>
 
             <div className="relative z-10 flex items-center justify-between gap-4">
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-amber-400">
+                  <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-amber-400">
                     Attendance Overview
                   </span>
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${overallStats.overallStatus.badgeBg}`}>
+                  <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full ${
+                    overallStats.overallPct >= 90
+                      ? 'bg-amber-100 text-amber-900 border border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-700/40'
+                      : 'bg-emerald-100 text-emerald-900 border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-700/40'
+                  }`}>
                     {overallStats.overallStatus.label}
                   </span>
                 </div>
 
-                <div className="flex items-baseline gap-2 mt-1.5">
-                  <h2 className="text-3xl font-black tracking-tight text-white">
+                <div className="flex items-baseline gap-2 mt-2">
+                  <h2 className="text-3xl sm:text-4xl font-black tracking-tight text-slate-900 dark:text-white">
                     {overallStats.overallPct}%
                   </h2>
-                  <span className="text-xs text-slate-300 font-medium">
+                  <span className="text-xs text-slate-500 dark:text-slate-300 font-medium">
                     ({overallStats.totalAttended} / {overallStats.totalHeld} classes)
                   </span>
                 </div>
 
                 {/* DUAL TIER BUNKABLE DISPLAY */}
-                <div className="mt-2.5 space-y-1">
+                <div className="mt-3 p-2.5 rounded-2xl bg-slate-50 dark:bg-[#15131a]/80 border border-slate-200/70 dark:border-white/[0.06] space-y-1">
                   {overallStats.overallPct >= 90 ? (
                     <div>
-                      <p className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
+                      <p className="text-xs font-bold text-amber-600 dark:text-amber-300 flex items-center gap-1.5">
                         <span>⭐</span>
                         <span>
                           Can bunk <b>{overallStats.overallBunk.count}</b> classes before dropping below <b>90%</b> (5 marks).
                         </span>
                       </p>
-                      <p className="text-[11px] text-slate-300 font-medium pl-5">
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium pl-5">
                         (Still have <b>{overallStats.overallBunk.bunksTo75}</b> bunks left before 75% exam eligibility)
                       </p>
                     </div>
                   ) : (
                     <div>
-                      <p className="text-xs font-bold text-emerald-300 flex items-center gap-1.5">
+                      <p className="text-xs font-bold text-emerald-600 dark:text-emerald-300 flex items-center gap-1.5">
                         <span>🏖️</span>
                         <span>
                           Can bunk <b>{overallStats.overallBunk.count}</b> classes before dropping below <b>75%</b>.
                         </span>
                       </p>
-                      <p className="text-[11px] text-amber-300 font-medium pl-5">
+                      <p className="text-[11px] text-amber-600 dark:text-amber-300 font-medium pl-5">
                         (Need <b>{overallStats.overallBunk.neededFor90}</b> consecutive classes to reach 90% for 5 marks)
                       </p>
                     </div>
@@ -2301,24 +2358,24 @@
                   size={76}
                   strokeWidth={8}
                   color={overallStats.overallStatus.ringColor}
-                  textColor="text-white font-extrabold"
-                  trackColor="text-white/20"
+                  textColor="text-slate-900 dark:text-white font-extrabold"
+                  trackColor="text-slate-100 dark:text-white/[0.08]"
                 />
               </div>
             </div>
 
-            <div className="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-300">
+            <div className="mt-4 pt-3 border-t border-slate-100 dark:border-white/[0.08] flex items-center justify-between text-[11px] text-slate-600 dark:text-slate-400 font-medium">
               <div className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-amber-400"></span>
-                <span>≥ 90% (5 Marks): <b>{overallStats.fullMarksCount}</b></span>
+                <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+                <span>≥ 90%: <b className="text-slate-900 dark:text-white">{overallStats.fullMarksCount}</b></span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-                <span>75 - 89%: <b>{overallStats.eligibleCount}</b></span>
+                <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                <span>75 - 89%: <b className="text-slate-900 dark:text-white">{overallStats.eligibleCount}</b></span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-rose-400"></span>
-                <span>&lt; 75%: <b>{overallStats.shortageCount}</b></span>
+                <span className="w-2 h-2 rounded-full bg-rose-500"></span>
+                <span>&lt; 75%: <b className="text-slate-900 dark:text-white">{overallStats.shortageCount}</b></span>
               </div>
             </div>
           </div>
@@ -2336,15 +2393,15 @@
           />
 
           {/* FILTER & ACTIONS */}
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex bg-slate-200/80 dark:bg-slate-800 p-1 rounded-xl text-xs font-semibold">
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <div className="flex bg-slate-100 dark:bg-[#141318] p-1 rounded-2xl border border-slate-200/80 dark:border-white/[0.08] text-xs font-semibold">
               <button
                 id="filter-all"
                 onClick={() => setFilter('all')}
-                className={`px-3 py-1.5 rounded-lg transition-all ${
+                className={`px-3 py-1.5 rounded-xl transition-all ${
                   filter === 'all'
-                    ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
-                    : 'text-slate-600 dark:text-slate-400'
+                    ? 'bg-blue-600 dark:bg-[#2c2438] text-white dark:text-pink-300 font-bold shadow-sm shadow-blue-500/25 dark:border dark:border-pink-500/50'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
                 }`}
               >
                 All ({subjects.length})
@@ -2352,10 +2409,10 @@
               <button
                 id="filter-full-marks"
                 onClick={() => setFilter('full-marks')}
-                className={`px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-1 ${
+                className={`px-2.5 py-1.5 rounded-xl transition-all flex items-center gap-1 ${
                   filter === 'full-marks'
-                    ? 'bg-amber-500 text-slate-950 font-bold shadow-sm'
-                    : 'text-amber-600 dark:text-amber-400'
+                    ? 'bg-amber-500 dark:bg-[#2c221a] text-slate-950 dark:text-amber-300 font-bold shadow-sm dark:border dark:border-amber-500/50'
+                    : 'text-amber-700 dark:text-amber-400/90'
                 }`}
               >
                 <span>≥ 90% ({overallStats.fullMarksCount})</span>
@@ -2363,10 +2420,10 @@
               <button
                 id="filter-below-90"
                 onClick={() => setFilter('below-90')}
-                className={`px-2.5 py-1.5 rounded-lg transition-all ${
+                className={`px-2.5 py-1.5 rounded-xl transition-all ${
                   filter === 'below-90'
-                    ? 'bg-blue-600 text-white shadow-sm'
-                    : 'text-slate-600 dark:text-slate-400'
+                    ? 'bg-blue-600 dark:bg-[#201d2a] text-white dark:text-blue-300 font-bold shadow-sm dark:border dark:border-blue-500/50'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
                 }`}
               >
                 &lt; 90% ({overallStats.eligibleCount + overallStats.shortageCount})
@@ -2391,7 +2448,7 @@
                   id="btn-undo-attendance"
                   onClick={onUndoLastAction}
                   title="Undo last attendance mark"
-                  className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 rounded-xl transition border border-slate-200 dark:border-slate-700"
+                  className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 bg-white hover:bg-slate-50 dark:bg-[#1a1921] dark:hover:bg-[#221f2b] rounded-xl transition border border-slate-200/80 dark:border-white/[0.08] shadow-2xs"
                 >
                   <span>↩</span>
                   <span>Undo</span>
@@ -2402,7 +2459,7 @@
                 id="btn-manage-subjects"
                 onClick={() => setIsManageModalOpen(true)}
                 title="Add or edit courses"
-                className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 rounded-xl transition border border-blue-200 dark:border-blue-900"
+                className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold text-blue-700 dark:text-pink-300 bg-blue-50 dark:bg-pink-500/15 hover:bg-blue-100 dark:hover:bg-pink-500/25 rounded-xl transition border border-blue-200/80 dark:border-pink-500/30 shadow-2xs"
               >
                 <span>⚙️</span>
                 <span className="hidden sm:inline">Manage</span>
@@ -2421,16 +2478,16 @@
                 <div
                   key={sub.id}
                   id={`subject-card-${sub.id}`}
-                  className={`relative overflow-hidden bg-white dark:bg-slate-900 rounded-2xl p-4 shadow-sm border transition-all ${
+                  className={`relative overflow-hidden bg-white dark:bg-[#1a1921] rounded-3xl p-4 sm:p-5 shadow-[0_8px_20px_-4px_rgba(148,163,184,0.15)] dark:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.5)] border border-slate-200/80 dark:border-white/[0.08] hover:shadow-md hover:dark:border-white/[0.14] transition-all ${
                     pct >= 90
-                      ? 'border-amber-300/80 dark:border-amber-900/50 bg-amber-50/10'
+                      ? 'border-amber-300/80 dark:border-amber-900/40'
                       : pct >= 75
-                      ? 'border-slate-200 dark:border-slate-800'
-                      : 'border-rose-300 dark:border-rose-900/60 bg-rose-50/20'
+                      ? 'border-slate-200/80 dark:border-white/[0.08]'
+                      : 'border-rose-300/80 dark:border-rose-900/50'
                   }`}
                 >
                   <div
-                    className="absolute left-0 top-0 bottom-0 w-1.5"
+                    className="absolute left-0 top-0 bottom-0 w-1.5 rounded-l-3xl"
                     style={{ backgroundColor: sub.color || status.ringColor }}
                   />
 
@@ -2458,14 +2515,14 @@
                           pct >= 90
                             ? 'bg-amber-100 text-amber-900 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-300/40'
                             : pct >= 75
-                            ? 'bg-emerald-100 text-emerald-900 dark:bg-emerald-950/60 dark:text-emerald-300'
-                            : 'bg-rose-100 text-rose-900 dark:bg-rose-950/60 dark:text-rose-300'
+                            ? 'bg-emerald-100 text-emerald-900 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-300/40'
+                            : 'bg-rose-100 text-rose-900 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-300/40'
                         }`}>
                           {pct >= 90 ? '⭐ 5 Marks Zone' : pct >= 75 ? 'Eligible (75-89%)' : 'Shortage'}
                         </span>
                       </div>
 
-                      <h3 className="text-sm font-bold text-slate-900 dark:text-white mt-1 leading-snug">
+                      <h3 className="text-sm font-bold text-slate-900 dark:text-white mt-1.5 leading-snug">
                         {sub.name}
                       </h3>
 
@@ -2473,13 +2530,13 @@
                         {sub.faculty}
                       </p>
 
-                      <div className="mt-2.5 space-y-1">
+                      <div className="mt-3 space-y-1.5">
                         <div className="flex items-center justify-between text-xs text-slate-600 dark:text-slate-300 font-medium">
-                          <span>Attended: <b className="text-slate-900 dark:text-white">{sub.attended}</b> of {sub.held}</span>
-                          <span className="font-bold">{pct}%</span>
+                          <span>Attended: <b className="text-slate-900 dark:text-white font-bold">{sub.attended}</b> of {sub.held}</span>
+                          <span className="font-extrabold text-slate-900 dark:text-white">{pct}%</span>
                         </div>
 
-                        <div className="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden flex">
+                        <div className="w-full h-2 bg-slate-100 dark:bg-white/[0.08] rounded-full overflow-hidden flex">
                           <div
                             className="h-full rounded-full transition-all duration-500"
                             style={{
@@ -2596,6 +2653,33 @@
       });
 
       const [toast, setToast] = useState(null);
+
+      // Theme State: Dark Mode (Image 4 Helios) or Light Mode (Image 3 Dashboard)
+      const [isDarkMode, setIsDarkMode] = useState(() => {
+        const saved = localStorage.getItem('mits_theme');
+        if (saved !== null) {
+          return saved === 'dark';
+        }
+        return true; // Default to dark mode (matches existing look or Helios)
+      });
+
+      useEffect(() => {
+        if (isDarkMode) {
+          document.documentElement.classList.add('dark');
+          localStorage.setItem('mits_theme', 'dark');
+          const metaTheme = document.querySelector('meta[name="theme-color"]');
+          if (metaTheme) metaTheme.setAttribute('content', '#121114');
+        } else {
+          document.documentElement.classList.remove('dark');
+          localStorage.setItem('mits_theme', 'light');
+          const metaTheme = document.querySelector('meta[name="theme-color"]');
+          if (metaTheme) metaTheme.setAttribute('content', '#dbe4f3');
+        }
+      }, [isDarkMode]);
+
+      const toggleTheme = () => {
+        setIsDarkMode(prev => !prev);
+      };
 
       const [syncInfo, setSyncInfo] = useState(() => {
         const saved = localStorage.getItem('mits_last_synced_info');
@@ -2806,21 +2890,21 @@
       };
 
       return (
-        <div className="min-h-screen bg-slate-100 dark:bg-slate-950 font-sans text-slate-900 dark:text-slate-100 flex flex-col items-center justify-start antialiased selection:bg-amber-400 selection:text-slate-900">
+        <div className="min-h-screen bg-[#dbe4f3] dark:bg-[#121114] font-sans text-slate-900 dark:text-slate-100 flex flex-col items-center justify-start antialiased selection:bg-blue-600 dark:selection:bg-pink-500 selection:text-white transition-colors duration-300">
           
           <Toast toast={toast} onClose={() => setToast(null)} />
 
           <div className={`w-full transition-all duration-300 ${
             isPhoneFrame 
-              ? 'max-w-md my-0 sm:my-5 sm:rounded-[40px] sm:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.35)] sm:border-[8px] sm:border-slate-800 dark:sm:border-slate-800 overflow-hidden bg-white dark:bg-slate-900 min-h-screen sm:min-h-[850px] relative'
-              : 'max-w-xl md:max-w-3xl bg-white dark:bg-slate-900 min-h-screen relative shadow-lg'
+              ? 'max-w-md my-0 sm:my-5 sm:rounded-[42px] sm:shadow-[0_25px_65px_-15px_rgba(71,85,105,0.25)] dark:sm:shadow-[0_25px_70px_-15px_rgba(0,0,0,0.85)] sm:border-[8px] sm:border-white/90 dark:sm:border-[#221f29] overflow-hidden bg-[#edf3fc] dark:bg-[#16141c] min-h-screen sm:min-h-[860px] relative'
+              : 'max-w-xl md:max-w-3xl bg-[#edf3fc] dark:bg-[#16141c] min-h-screen relative shadow-2xl'
           }`}>
             
             {isPhoneFrame && (
-              <div className="hidden sm:flex justify-center pt-2.5 pb-1 bg-slate-900">
-                <div className="w-24 h-4 bg-slate-950 rounded-full flex items-center justify-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-slate-800"></span>
-                  <span className="w-10 h-1 bg-slate-800 rounded-full"></span>
+              <div className="hidden sm:flex justify-center pt-2.5 pb-1 bg-[#dbe4f3] dark:bg-[#121114] transition-colors">
+                <div className="w-24 h-4 bg-[#cbd5e1] dark:bg-[#221f29] rounded-full flex items-center justify-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-[#94a3b8] dark:bg-[#121114]"></span>
+                  <span className="w-10 h-1 bg-[#94a3b8] dark:bg-[#121114] rounded-full"></span>
                 </div>
               </div>
             )}
@@ -2833,6 +2917,8 @@
               todayDayName={todayDayName}
               currentDateFormatted={currentDateFormatted}
               syncInfo={syncInfo}
+              isDarkMode={isDarkMode}
+              onToggleTheme={toggleTheme}
             />
 
             <main className="p-4 overflow-y-auto">
