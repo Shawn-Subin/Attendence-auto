@@ -169,7 +169,7 @@ export function AttendanceTab({
           <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Internal Marks</span>
           <span className="text-xs font-black text-amber-600 dark:text-amber-400 flex items-center gap-1 justify-end">
             <span>⭐</span>
-            <span>5 / 5 Marks Secured</span>
+            <span>{overallStats.percentage >= 90 ? 5 : overallStats.percentage >= 85 ? 4 : overallStats.percentage >= 80 ? 3 : overallStats.percentage >= 75 ? 2 : 0} / 5 Marks</span>
           </span>
         </div>
       </div>
@@ -383,14 +383,8 @@ export function AttendanceTab({
                       </span>
                     )}
 
-                    <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full ${
-                      pct >= 90
-                        ? 'bg-amber-100 text-amber-900 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-300/40'
-                        : pct >= 75
-                        ? 'bg-emerald-100 text-emerald-900 dark:bg-emerald-950/60 dark:text-emerald-300'
-                        : 'bg-rose-100 text-rose-900 dark:bg-rose-950/60 dark:text-rose-300'
-                    }`}>
-                      {pct >= 90 ? 'Safe (≥90%)' : pct >= 75 ? 'Eligible (75-89%)' : 'Shortage'}
+                    <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full ${status.badgeBg}`}>
+                      {status.marksLabel || (pct >= 90 ? '5 Mark' : pct >= 85 ? '4 Mark' : pct >= 80 ? '3 Mark' : pct >= 75 ? '2 Mark' : '0 Mark')}
                     </span>
                   </div>
 
@@ -424,15 +418,17 @@ export function AttendanceTab({
                   <div className={`mt-2.5 p-2 rounded-xl text-xs flex items-center justify-between gap-2 ${
                     bunkInfo.tier === 90
                       ? 'bg-amber-50 dark:bg-amber-950/30 text-amber-900 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800/40'
-                      : bunkInfo.type === 'bunk-to-75'
+                      : bunkInfo.tier === 85
                       ? 'bg-blue-50 dark:bg-blue-950/30 text-blue-900 dark:text-blue-300 border border-blue-200/80 dark:border-blue-800/40'
+                      : bunkInfo.tier === 80
+                      ? 'bg-teal-50 dark:bg-teal-950/30 text-teal-900 dark:text-teal-300 border border-teal-200/80 dark:border-teal-800/40'
+                      : bunkInfo.tier === 75
+                      ? 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-900 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/40'
                       : 'bg-rose-50 dark:bg-rose-950/30 text-rose-900 dark:text-rose-300 border border-rose-200/80 dark:border-rose-800/40'
                   }`}>
                     <div className="flex items-center gap-1.5 min-w-0">
-                      {bunkInfo.tier !== 90 && (
-                        <span className="text-base flex-shrink-0">
-                          {bunkInfo.type === 'bunk-to-75' ? '🏖️' : '🚨'}
-                        </span>
+                      {bunkInfo.tier === 0 && (
+                        <span className="text-base flex-shrink-0">🚨</span>
                       )}
                       <div className="min-w-0">
                         <span className="font-semibold leading-snug block">
@@ -441,6 +437,21 @@ export function AttendanceTab({
                         {bunkInfo.tier === 90 && bunkInfo.bunksTo75 !== undefined && (
                           <span className="text-[10px] text-amber-700/80 dark:text-amber-400/80 block mt-0.5">
                             ({bunkInfo.bunksTo75} bunks left before 75% exam eligibility)
+                          </span>
+                        )}
+                        {bunkInfo.tier === 85 && (
+                          <span className="text-[10px] text-blue-700/80 dark:text-blue-400/80 block mt-0.5">
+                            (Need {bunkInfo.neededForNext} {bunkInfo.neededForNext === 1 ? 'class' : 'classes'} for 5 Mark • {bunkInfo.bunksTo75} bunks before 75%)
+                          </span>
+                        )}
+                        {bunkInfo.tier === 80 && (
+                          <span className="text-[10px] text-teal-700/80 dark:text-teal-400/80 block mt-0.5">
+                            (Need {bunkInfo.neededForNext} {bunkInfo.neededForNext === 1 ? 'class' : 'classes'} for 4 Mark • {bunkInfo.bunksTo75} bunks before 75%)
+                          </span>
+                        )}
+                        {bunkInfo.tier === 75 && (
+                          <span className="text-[10px] text-emerald-700/80 dark:text-emerald-400/80 block mt-0.5">
+                            (Need {bunkInfo.neededForNext} {bunkInfo.neededForNext === 1 ? 'class' : 'classes'} for 3 Mark)
                           </span>
                         )}
                       </div>
