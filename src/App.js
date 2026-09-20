@@ -17,9 +17,9 @@ import { calculatePercentage } from './utils/attendanceMath.js';
 
 const STORAGE_KEYS = {
   SUBJECTS: ATTENDANCE_STORAGE_KEY || 'mits_s3_cs_ai_shawn_v1789446779',
-  TIMETABLE: 'mits_s3_cs_ai_timetable_v3',
-  ACTIVE_TAB: 'mits_s3_cs_ai_active_tab_v3',
-  PHONE_FRAME: 'mits_s3_cs_ai_phone_frame_v3'
+  TIMETABLE: 'mits_s3_cs_ai_timetable_v8',
+  ACTIVE_TAB: 'mits_s3_cs_ai_active_tab_v8',
+  PHONE_FRAME: 'mits_s3_cs_ai_phone_frame_v8'
 };
 
 export function App() {

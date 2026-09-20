@@ -120,6 +120,16 @@ export const TIME_SLOTS = [
   { id: 'p6', time: '12:50 - 13:40', start: '12:50', end: '13:40', label: 'Period 6' }
 ];
 
+// Friday Schedule: Recess after Period 2 (20m), Period 5 lasts till 12:40 only
+export const FRIDAY_TIME_SLOTS = [
+  { id: 'p1', time: '08:00 - 08:55', start: '08:00', end: '08:55', label: 'Period 1' },
+  { id: 'p2', time: '08:55 - 09:45', start: '08:55', end: '09:45', label: 'Period 2' },
+  { id: 'rec_fri', isBreak: true, time: '09:45 - 10:05', label: 'Friday Recess (20m)' },
+  { id: 'p3', time: '10:05 - 10:55', start: '10:05', end: '10:55', label: 'Period 3' },
+  { id: 'p4', time: '10:55 - 11:45', start: '10:55', end: '11:45', label: 'Period 4' },
+  { id: 'p5', time: '11:45 - 12:40', start: '11:45', end: '12:40', label: 'Period 5 (Final)' }
+];
+
 export const DAYS_OF_WEEK = [
   { id: 'mon', short: 'Mon', full: 'Monday' },
   { id: 'tue', short: 'Tue', full: 'Tuesday' },
@@ -149,9 +159,9 @@ export const DEFAULT_TIMETABLE = {
     { slotId: 'p1', subjectId: 'sub-aoop', room: 'Room 512' },
     { slotId: 'p2', subjectId: 'sub-lsd', room: 'Room 512' },
     { slotId: 'p3', subjectId: 'sub-for', room: 'Room 512' },
-    { slotId: 'p4', subjectId: 'sub-fods', room: 'Room 512' },
-    { slotId: 'p5', subjectId: 'sub-mis3', room: 'Room 512' },
-    { slotId: 'p6', subjectId: 'sub-amh', room: 'Room 512' }
+    { slotId: 'p4', subjectId: 'sub-aoop', room: 'Room 512 / Turing Lab' },
+    { slotId: 'p5', subjectId: 'sub-aoop', room: 'Room 512 / Turing Lab' },
+    { slotId: 'p6', subjectId: 'sub-aoop', room: 'Room 512 / Turing Lab' }
   ],
   thu: [
     { slotId: 'p1', subjectId: 'sub-for', room: 'Room 512' },
@@ -164,12 +174,11 @@ export const DEFAULT_TIMETABLE = {
   fri: [
     { slotId: 'p1', subjectId: 'sub-mis3', room: 'Room 512' },
     { slotId: 'p2', subjectId: 'sub-aoop', room: 'Room 512' },
-    { slotId: 'p3', subjectId: 'sub-fods', room: 'Room 512' },
-    { slotId: 'p4', subjectId: 'sub-lsd', room: 'Room 512' },
-    { slotId: 'p5', subjectId: 'sub-for', room: 'Room 512' },
-    { slotId: 'p6', subjectId: 'sub-ee', room: 'Room 512' }
+    { slotId: 'p3', subjectId: 'sub-fods', room: 'Room 512 / Lovelace Lab' },
+    { slotId: 'p4', subjectId: 'sub-fods', room: 'Room 512 / Lovelace Lab' },
+    { slotId: 'p5', subjectId: 'sub-fods', room: 'Room 512 / Lovelace Lab' }
   ]
 };
 
 export const ATTENDANCE_STORAGE_KEY = 'mits_s3_cs_ai_shawn_v1789911516';
-export const TIMETABLE_STORAGE_KEY = 'mits_s3_timetable_cs_ai_v7';
+export const TIMETABLE_STORAGE_KEY = 'mits_s3_timetable_cs_ai_v8';

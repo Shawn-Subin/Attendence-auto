@@ -449,6 +449,16 @@
       { id: 'p6', time: '12:50 - 13:40', start: '12:50', end: '13:40', label: 'Period 6' }
     ];
 
+    // Friday Schedule: Recess after Period 2 (20m), Period 5 lasts till 12:40 only
+    const FRIDAY_TIME_SLOTS = [
+      { id: 'p1', time: '08:00 - 08:55', start: '08:00', end: '08:55', label: 'Period 1' },
+      { id: 'p2', time: '08:55 - 09:45', start: '08:55', end: '09:45', label: 'Period 2' },
+      { id: 'rec_fri', isBreak: true, time: '09:45 - 10:05', label: 'Friday Recess (20m)' },
+      { id: 'p3', time: '10:05 - 10:55', start: '10:05', end: '10:55', label: 'Period 3' },
+      { id: 'p4', time: '10:55 - 11:45', start: '10:55', end: '11:45', label: 'Period 4' },
+      { id: 'p5', time: '11:45 - 12:40', start: '11:45', end: '12:40', label: 'Period 5 (Final)' }
+    ];
+
     const DAYS_OF_WEEK = [
       { id: 'mon', short: 'Mon', full: 'Monday' },
       { id: 'tue', short: 'Tue', full: 'Tuesday' },
@@ -478,7 +488,7 @@
         { slotId: 'p1', subjectId: 'sub-fods', room: 'Room 512' },
         { slotId: 'p2', subjectId: 'sub-for', room: 'Room 512' },
         { slotId: 'p3', subjectId: 'sub-amh', room: 'Room 512' },
-        { slotId: 'p4', subjectId: 'sub-fods', room: 'Room 512 / Lovelace Lab' },
+        { slotId: 'p4', subjectId: 'sub-aoop', room: 'Room 512 / Turing Lab' },
         { slotId: 'p5', subjectId: 'sub-aoop', room: 'Room 512 / Turing Lab' },
         { slotId: 'p6', subjectId: 'sub-aoop', room: 'Room 512 / Turing Lab' }
       ],
@@ -493,9 +503,9 @@
       fri: [
         { slotId: 'p1', subjectId: 'sub-lsd', room: 'Room 512' },
         { slotId: 'p2', subjectId: 'sub-mis3', room: 'Room 512' },
-        { slotId: 'p4', subjectId: 'sub-aoop', room: 'Room 512 / Turing Lab' },
-        { slotId: 'p5', subjectId: 'sub-fods', room: 'Room 512 / Lovelace Lab' },
-        { slotId: 'p6', subjectId: 'sub-fods', room: 'Room 512 / Lovelace Lab' }
+        { slotId: 'p3', subjectId: 'sub-fods', room: 'Room 512 / Lovelace Lab' },
+        { slotId: 'p4', subjectId: 'sub-fods', room: 'Room 512 / Lovelace Lab' },
+        { slotId: 'p5', subjectId: 'sub-fods', room: 'Room 512 / Lovelace Lab' }
       ]
     };
 
@@ -898,9 +908,15 @@
         return map;
       }, [subjects]);
 
+      // Active slots for selected day (Friday has custom schedule)
+      const activeTimeSlots = useMemo(() => {
+        return selectedDay === 'fri' ? FRIDAY_TIME_SLOTS : timeSlots;
+      }, [selectedDay, timeSlots]);
+
       const currentSlotStatus = useMemo(() => {
         const now = new Date();
         const currentMinutes = now.getHours() * 60 + now.getMinutes();
+        const activeSlots = todayDayId === 'fri' ? FRIDAY_TIME_SLOTS : timeSlots;
 
         const parseTime = (tStr) => {
           if (!tStr) return 0;
@@ -911,7 +927,7 @@
         let activeId = null;
         let nextId = null;
 
-        for (const slot of timeSlots) {
+        for (const slot of activeSlots) {
           if (slot.start && slot.end) {
             const startMin = parseTime(slot.start);
             const endMin = parseTime(slot.end);
@@ -925,7 +941,7 @@
           }
         }
         return { activeId, nextId };
-      }, [timeSlots]);
+      }, [timeSlots, todayDayId]);
 
       const handleSlotClick = (day, slotId, currentEntry) => {
         setEditingSlot({
@@ -1033,7 +1049,7 @@
               </div>
 
               <div className="space-y-2">
-                {timeSlots.map((slot) => {
+                {activeTimeSlots.map((slot) => {
                   if (slot.isBreak) {
                     return (
                       <div 
@@ -1164,7 +1180,7 @@
                     S3 CS AI • Weekly Time Table (Mon – Fri • Room 512)
                   </span>
                   <span className="text-[10px] text-slate-500">
-                    Recess: 8:55-9:15 AM & 11:45-12:00 PM (Mon-Thu)
+                    Mon-Thu Recess: 8:55-9:15 & 11:45-12:00 • Fri Recess: 9:45-10:05 (Ends 12:40)
                   </span>
                 </div>
                 <span className="text-[10px] text-blue-600 dark:text-blue-400 font-semibold">
@@ -1206,9 +1222,26 @@
                         <div className="p-2 border-r border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 font-mono text-[10px] text-slate-500 dark:text-slate-400 flex flex-col justify-center">
                           <span className="font-bold text-slate-700 dark:text-slate-300">{slot.label}</span>
                           <span>{slot.time}</span>
+                          {slot.id === 'p2' && (
+                            <span className="text-[8px] text-amber-600 dark:text-amber-400 font-sans block">Fri: 08:55-09:45</span>
+                          )}
+                          {slot.id === 'p5' && (
+                            <span className="text-[8px] text-amber-600 dark:text-amber-400 font-sans block">Fri: 11:45-12:40</span>
+                          )}
                         </div>
 
                         {daysOfWeek.map((d) => {
+                          if (d.id === 'fri' && slot.id === 'p6') {
+                            return (
+                              <div
+                                key={d.id}
+                                className="p-1.5 border-r border-slate-200 dark:border-slate-800 last:border-r-0 min-h-[64px] flex items-center justify-center bg-slate-50/40 dark:bg-slate-800/20 text-slate-400 text-[10px] italic text-center"
+                              >
+                                Dismissed at 12:40
+                              </div>
+                            );
+                          }
+
                           const entry = (timetable[d.id] || []).find(e => e.slotId === slot.id);
                           const subject = entry ? subjectsMap[entry.subjectId] : null;
 
@@ -1237,7 +1270,7 @@
                                     </div>
                                   </div>
                                   <div className="text-[9px] font-bold text-amber-700 dark:text-amber-400 truncate mt-1">
-                                    {entry.room || 'Room 512'}
+                                    {d.id === 'fri' && slot.id === 'p5' ? 'Till 12:40' : entry.room || 'Room 512'}
                                   </div>
                                 </div>
                               ) : (
@@ -1578,6 +1611,12 @@
         return map;
       }, [timeSlots]);
 
+      const fridayTimeSlotsMap = useMemo(() => {
+        const map = {};
+        (FRIDAY_TIME_SLOTS || []).forEach(t => { map[t.id] = t; });
+        return map;
+      }, []);
+
       // Scheduled periods for selected day
       const daySchedule = useMemo(() => {
         const rawSlots = (timetable && timetable[selectedDay]) || [];
@@ -1635,7 +1674,7 @@
         // Subject breakdown
         const subjectBreakdown = missedSlots.map(slot => {
           const sub = subjectsMap[slot.subjectId] || { name: 'Unknown', code: 'N/A', shortName: 'N/A', attended: 0, held: 0, faculty: '', color: '#3b82f6' };
-          const slotInfo = timeSlotsMap[slot.slotId];
+          const slotInfo = (selectedDay === 'fri' ? fridayTimeSlotsMap : timeSlotsMap)[slot.slotId];
           const addHeld = missedCounts[slot.subjectId] || 1;
           const curSubPct = calculatePercentage(sub.attended, sub.held);
           const newSubHeld = sub.held + addHeld;
@@ -2619,9 +2658,9 @@
     // ==========================================
     const STORAGE_KEYS = {
       SUBJECTS: 'mits_s3_cs_ai_shawn_v1789911516',
-      TIMETABLE: 'mits_s3_cs_ai_timetable_v6',
-      ACTIVE_TAB: 'mits_s3_cs_ai_active_tab_v6',
-      PHONE_FRAME: 'mits_s3_cs_ai_phone_frame_v6'
+      TIMETABLE: 'mits_s3_cs_ai_timetable_v8',
+      ACTIVE_TAB: 'mits_s3_cs_ai_active_tab_v8',
+      PHONE_FRAME: 'mits_s3_cs_ai_phone_frame_v8'
     };
 
     function App() {

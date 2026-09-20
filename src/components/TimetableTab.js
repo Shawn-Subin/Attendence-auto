@@ -1,5 +1,6 @@
 // TimetableTab component - Today's Schedule & Weekly Grid view
 import { calculatePercentage } from '../utils/attendanceMath.js';
+import { FRIDAY_TIME_SLOTS } from '../data/defaultData.js';
 
 export function TimetableTab({
   timetable,
@@ -23,10 +24,16 @@ export function TimetableTab({
     return map;
   }, [subjects]);
 
+  // Active slots for selected day (Friday has custom schedule)
+  const activeTimeSlots = React.useMemo(() => {
+    return selectedDay === 'fri' ? FRIDAY_TIME_SLOTS : timeSlots;
+  }, [selectedDay, timeSlots]);
+
   // Determine current active or upcoming slot based on current time
   const currentSlotStatus = React.useMemo(() => {
     const now = new Date();
     const currentMinutes = now.getHours() * 60 + now.getMinutes();
+    const activeSlots = todayDayId === 'fri' ? FRIDAY_TIME_SLOTS : timeSlots;
 
     // Parse time strings like "09:00" to minutes
     const parseTime = (tStr) => {
@@ -38,7 +45,7 @@ export function TimetableTab({
     let activeId = null;
     let nextId = null;
 
-    for (const slot of timeSlots) {
+    for (const slot of activeSlots) {
       if (slot.start && slot.end) {
         const startMin = parseTime(slot.start);
         const endMin = parseTime(slot.end);
@@ -53,7 +60,7 @@ export function TimetableTab({
     }
 
     return { activeId, nextId };
-  }, [timeSlots]);
+  }, [timeSlots, todayDayId]);
 
   // Handle slot click for editing
   const handleSlotClick = (day, slotId, currentEntry) => {
@@ -161,7 +168,7 @@ export function TimetableTab({
           </div>
 
           <div className="space-y-2">
-            {timeSlots.map((slot) => {
+            {activeTimeSlots.map((slot) => {
               // Check if break
               if (slot.isBreak) {
                 return (
@@ -291,9 +298,14 @@ export function TimetableTab({
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
           
           <div className="p-3 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-700 dark:text-slate-200">
-              Weekly Master Grid (Mon – Fri • Room 512)
-            </span>
+            <div>
+              <span className="text-xs font-bold text-slate-700 dark:text-slate-200 block">
+                Weekly Master Grid (Mon – Fri • Room 512)
+              </span>
+              <span className="text-[10px] text-slate-500 dark:text-slate-400">
+                Mon-Thu Recess: 8:55-9:15 & 11:45-12:00 • Fri Recess: 9:45-10:05 (Ends 12:40)
+              </span>
+            </div>
             <span className="text-[11px] text-slate-500 dark:text-slate-400">
               Tap any block to edit
             </span>
@@ -337,10 +349,27 @@ export function TimetableTab({
                     <div className="p-2 border-r border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 font-mono text-[10px] text-slate-500 dark:text-slate-400 flex flex-col justify-center">
                       <span className="font-bold text-slate-700 dark:text-slate-300">{slot.label}</span>
                       <span>{slot.time}</span>
+                      {slot.id === 'p2' && (
+                        <span className="text-[8px] text-amber-600 dark:text-amber-400 font-sans">Fri: 08:55-09:45</span>
+                      )}
+                      {slot.id === 'p5' && (
+                        <span className="text-[8px] text-amber-600 dark:text-amber-400 font-sans">Fri: 11:45-12:40</span>
+                      )}
                     </div>
 
                     {/* Day Cells */}
                     {daysOfWeek.map((d) => {
+                      if (d.id === 'fri' && slot.id === 'p6') {
+                        return (
+                          <div
+                            key={d.id}
+                            className="p-1.5 border-r border-slate-200 dark:border-slate-800 last:border-r-0 min-h-[64px] flex items-center justify-center bg-slate-50/40 dark:bg-slate-800/20 text-slate-400 text-[10px] italic text-center"
+                          >
+                            Dismissed at 12:40
+                          </div>
+                        );
+                      }
+
                       const entry = (timetable[d.id] || []).find(e => e.slotId === slot.id);
                       const subject = entry ? subjectsMap[entry.subjectId] : null;
 
@@ -369,7 +398,7 @@ export function TimetableTab({
                                 </div>
                               </div>
                               <div className="text-[9px] font-semibold text-slate-600 dark:text-slate-300 mt-1">
-                                {entry.room || 'Faraday'}
+                                {d.id === 'fri' && slot.id === 'p5' ? 'Till 12:40' : entry.room || 'Faraday'}
                               </div>
                             </div>
                           ) : (

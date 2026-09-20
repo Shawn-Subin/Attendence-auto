@@ -7,6 +7,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { calculatePercentage, getClassesToReachTarget } from '../utils/attendanceMath.js';
+import { FRIDAY_TIME_SLOTS } from '../data/defaultData.js';
 
 export function BunkSimulator({
   timetable,
@@ -35,6 +36,12 @@ export function BunkSimulator({
     (timeSlots || []).forEach(t => { map[t.id] = t; });
     return map;
   }, [timeSlots]);
+
+  const fridayTimeSlotsMap = useMemo(() => {
+    const map = {};
+    (FRIDAY_TIME_SLOTS || []).forEach(t => { map[t.id] = t; });
+    return map;
+  }, []);
 
   // Scheduled periods for selected day
   const daySchedule = useMemo(() => {
@@ -93,7 +100,7 @@ export function BunkSimulator({
     // Subject breakdown
     const subjectBreakdown = missedSlots.map(slot => {
       const sub = subjectsMap[slot.subjectId] || { name: 'Unknown', code: 'N/A', shortName: 'N/A', attended: 0, held: 0, faculty: '', color: '#3b82f6' };
-      const slotInfo = timeSlotsMap[slot.slotId];
+      const slotInfo = (selectedDay === 'fri' ? fridayTimeSlotsMap : timeSlotsMap)[slot.slotId];
       const addHeld = missedCounts[slot.subjectId] || 1;
       const curSubPct = calculatePercentage(sub.attended, sub.held);
       const newSubHeld = sub.held + addHeld;
