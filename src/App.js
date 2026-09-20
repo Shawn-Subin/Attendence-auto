@@ -17,9 +17,9 @@ import { calculatePercentage } from './utils/attendanceMath.js';
 
 const STORAGE_KEYS = {
   SUBJECTS: ATTENDANCE_STORAGE_KEY || 'mits_s3_cs_ai_shawn_v1789446779',
-  TIMETABLE: 'mits_s3_cs_ai_timetable_v8',
-  ACTIVE_TAB: 'mits_s3_cs_ai_active_tab_v8',
-  PHONE_FRAME: 'mits_s3_cs_ai_phone_frame_v8'
+  TIMETABLE: 'mits_s3_cs_ai_timetable_v15',
+  ACTIVE_TAB: 'mits_s3_cs_ai_active_tab_v15',
+  PHONE_FRAME: 'mits_s3_cs_ai_phone_frame_v15'
 };
 
 export function App() {
@@ -50,8 +50,21 @@ export function App() {
   const [timetable, setTimetable] = React.useState(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.TIMETABLE);
     if (saved) {
-      try { return JSON.parse(saved); } catch (e) { console.error(e); }
+      try {
+        const parsed = JSON.parse(saved);
+        const friSlots = parsed.fri || [];
+        const wedSlots = parsed.wed || [];
+        const friP3 = friSlots.find(s => s.slotId === 'p3');
+        const friP6 = friSlots.find(s => s.slotId === 'p6');
+        const wedP4 = wedSlots.find(s => s.slotId === 'p4');
+        if (friP3?.subjectId === 'sub-fods' && !friP6 && wedP4?.subjectId === 'sub-aoop') {
+          return parsed;
+        }
+      } catch (e) { console.error(e); }
     }
+    try {
+      localStorage.setItem(STORAGE_KEYS.TIMETABLE, JSON.stringify(DEFAULT_TIMETABLE));
+    } catch (e) {}
     return DEFAULT_TIMETABLE;
   });
 

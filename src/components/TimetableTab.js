@@ -332,87 +332,183 @@ export function TimetableTab({
 
               {/* Slot Rows */}
               {timeSlots.map((slot) => {
-                if (slot.isBreak) {
+                if (slot.isBreak && slot.id === 'rec1') {
                   return (
-                    <div 
-                      key={slot.id} 
-                      className="py-1 px-4 bg-amber-50 dark:bg-amber-950/30 text-amber-800 dark:text-amber-300 text-[11px] font-semibold text-center border-b border-slate-200 dark:border-slate-800 font-mono"
-                    >
-                      ☕ {slot.label} ({slot.time})
+                    <div key={slot.id} className="grid grid-cols-6 border-b border-slate-200 dark:border-slate-800 bg-amber-50/70 dark:bg-amber-950/25 text-[10px] font-mono">
+                      <div className="p-1.5 border-r border-slate-200 dark:border-slate-800 text-amber-800 dark:text-amber-300 font-bold flex items-center justify-center">
+                        Break
+                      </div>
+                      <div className="p-1.5 border-r border-slate-200 dark:border-slate-800 text-amber-800 dark:text-amber-300 font-semibold text-center col-span-4 flex items-center justify-center gap-1">
+                        <span>☕</span>
+                        <span>Mon–Thu Recess (08:55 – 09:15 • 20m)</span>
+                      </div>
+                      <div className="p-1.5 text-blue-700 dark:text-blue-300 font-sans font-bold text-center flex items-center justify-center bg-blue-50/50 dark:bg-blue-950/30 text-[9px]">
+                        Fri: P2 Class (08:55–09:45)
+                      </div>
+                    </div>
+                  );
+                }
+
+                if (slot.isBreak && slot.id === 'lunch') {
+                  return (
+                    <div key={slot.id} className="grid grid-cols-6 border-b border-slate-200 dark:border-slate-800 bg-amber-50/70 dark:bg-amber-950/25 text-[10px] font-mono">
+                      <div className="p-1.5 border-r border-slate-200 dark:border-slate-800 text-amber-800 dark:text-amber-300 font-bold flex items-center justify-center">
+                        Break
+                      </div>
+                      <div className="p-1.5 border-r border-slate-200 dark:border-slate-800 text-amber-800 dark:text-amber-300 font-semibold text-center col-span-4 flex items-center justify-center gap-1">
+                        <span>☕</span>
+                        <span>Mon–Thu Midday Recess (11:45 – 12:00 • 15m)</span>
+                      </div>
+                      <div className="p-1.5 text-amber-700 dark:text-amber-300 font-sans font-bold text-center flex items-center justify-center bg-amber-100/50 dark:bg-amber-950/30 text-[9px]">
+                        Fri: P5 Starts (11:45–12:40)
+                      </div>
                     </div>
                   );
                 }
 
                 return (
-                  <div key={slot.id} className="grid grid-cols-6 border-b border-slate-200 dark:border-slate-800 text-xs">
-                    {/* Time Column */}
-                    <div className="p-2 border-r border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 font-mono text-[10px] text-slate-500 dark:text-slate-400 flex flex-col justify-center">
-                      <span className="font-bold text-slate-700 dark:text-slate-300">{slot.label}</span>
-                      <span>{slot.time}</span>
-                      {slot.id === 'p2' && (
-                        <span className="text-[8px] text-amber-600 dark:text-amber-400 font-sans">Fri: 08:55-09:45</span>
-                      )}
-                      {slot.id === 'p5' && (
-                        <span className="text-[8px] text-amber-600 dark:text-amber-400 font-sans">Fri: 11:45-12:40</span>
-                      )}
-                    </div>
+                  <React.Fragment key={slot.id}>
+                    <div className="grid grid-cols-6 border-b border-slate-200 dark:border-slate-800 text-xs">
+                      {/* Time Column */}
+                      <div className="p-2 border-r border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 font-mono text-[10px] text-slate-500 dark:text-slate-400 flex flex-col justify-center">
+                        <span className="font-bold text-slate-700 dark:text-slate-300">{slot.label}</span>
+                        <span>{slot.time}</span>
+                        {slot.id === 'p2' && (
+                          <span className="text-[8px] text-amber-600 dark:text-amber-400 font-sans block font-bold">Fri: 08:55-09:45</span>
+                        )}
+                        {slot.id === 'p5' && (
+                          <span className="text-[8px] text-amber-600 dark:text-amber-400 font-sans block font-bold">Fri: 11:45-12:40</span>
+                        )}
+                      </div>
 
-                    {/* Day Cells */}
-                    {daysOfWeek.map((d) => {
-                      if (d.id === 'fri' && slot.id === 'p6') {
+                      {/* Day Cells */}
+                      {daysOfWeek.map((d) => {
+                        if (d.id === 'fri' && slot.id === 'p6') {
+                          return (
+                            <div
+                              key={d.id}
+                              className="p-1.5 border-r border-slate-200 dark:border-slate-800 last:border-r-0 min-h-[64px] flex flex-col items-center justify-center bg-slate-50/40 dark:bg-slate-800/20 text-slate-400 text-center"
+                            >
+                              <span className="font-bold text-amber-600 dark:text-amber-400 text-[11px] block">🎉 12:40 PM</span>
+                              <span className="text-[9px] italic">Dismissed</span>
+                            </div>
+                          );
+                        }
+
+                        const entry = (timetable[d.id] || []).find(e => e.slotId === slot.id);
+                        const subject = entry ? subjectsMap[entry.subjectId] : null;
+                        const subPct = subject && subject.held > 0 ? Math.round((subject.attended / subject.held) * 100) : null;
+
                         return (
                           <div
                             key={d.id}
-                            className="p-1.5 border-r border-slate-200 dark:border-slate-800 last:border-r-0 min-h-[64px] flex items-center justify-center bg-slate-50/40 dark:bg-slate-800/20 text-slate-400 text-[10px] italic text-center"
+                            onClick={() => handleSlotClick(d.id, slot.id, entry)}
+                            className={`p-1.5 border-r border-slate-200 dark:border-slate-800 last:border-r-0 cursor-pointer transition hover:bg-blue-50/40 dark:hover:bg-blue-950/20 min-h-[64px] flex flex-col justify-between ${
+                              d.id === todayDayId ? 'bg-amber-50/20 dark:bg-amber-950/10' : ''
+                            }`}
                           >
-                            Dismissed at 12:40
+                            {entry && subject ? (
+                              <div 
+                                className="h-full rounded-lg p-1.5 text-left border flex flex-col justify-between transition group hover:shadow-sm"
+                                style={{ 
+                                  backgroundColor: `${subject.color}15`, 
+                                  borderColor: `${subject.color}40`
+                                }}
+                              >
+                                <div>
+                                  <div className="flex items-center justify-between gap-1">
+                                    <span className="font-bold text-[10px] truncate" style={{ color: subject.color }}>
+                                      {subject.shortName || subject.code}
+                                    </span>
+                                    {subPct !== null && (
+                                      <span className="text-[9px] font-mono font-bold text-slate-500 dark:text-slate-400">
+                                        {subPct}%
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="text-[9px] text-slate-500 dark:text-slate-400 truncate">
+                                    {subject.faculty?.split(' ')[0]}
+                                  </div>
+                                </div>
+                                <div className="text-[9px] font-bold text-amber-700 dark:text-amber-400 truncate mt-1">
+                                  {d.id === 'fri' && slot.id === 'p5' ? 'Till 12:40 PM' : entry.room || 'Room 512'}
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="h-full rounded-lg border border-dashed border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-300 dark:text-slate-700 hover:border-slate-400 hover:text-slate-500">
+                                +
+                              </div>
+                            )}
                           </div>
                         );
-                      }
+                      })}
+                    </div>
 
-                      const entry = (timetable[d.id] || []).find(e => e.slotId === slot.id);
-                      const subject = entry ? subjectsMap[entry.subjectId] : null;
-
-                      return (
-                        <div
-                          key={d.id}
-                          onClick={() => handleSlotClick(d.id, slot.id, entry)}
-                          className={`p-1.5 border-r border-slate-200 dark:border-slate-800 last:border-r-0 cursor-pointer transition hover:bg-blue-50/40 dark:hover:bg-blue-950/20 min-h-[64px] flex flex-col justify-between ${
-                            d.id === todayDayId ? 'bg-amber-50/20 dark:bg-amber-950/10' : ''
-                          }`}
-                        >
-                          {entry && subject ? (
-                            <div 
-                              className="h-full rounded-lg p-1.5 text-left border flex flex-col justify-between transition group hover:shadow-sm"
-                              style={{ 
-                                backgroundColor: `${subject.color}15`, 
-                                borderColor: `${subject.color}40`
-                              }}
-                            >
-                              <div>
-                                <div className="font-bold text-[10px] truncate" style={{ color: subject.color }}>
-                                  {subject.shortName || subject.code}
-                                </div>
-                                <div className="text-[9px] text-slate-500 dark:text-slate-400 truncate">
-                                  {subject.faculty?.split(' ')[0]}
-                                </div>
-                              </div>
-                              <div className="text-[9px] font-semibold text-slate-600 dark:text-slate-300 mt-1">
-                                {d.id === 'fri' && slot.id === 'p5' ? 'Till 12:40' : entry.room || 'Faraday'}
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="h-full rounded-lg border border-dashed border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-300 dark:text-slate-700 hover:border-slate-400 hover:text-slate-500">
-                              +
-                            </div>
-                          )}
+                    {/* FRIDAY RECESS (09:45 - 10:05): 20m Recess immediately after Period 2 */}
+                    {slot.id === 'p2' && (
+                      <div className="grid grid-cols-6 border-b border-slate-200 dark:border-slate-800 bg-amber-100/60 dark:bg-amber-950/40 text-[10px] font-mono">
+                        <div className="p-1.5 border-r border-slate-200 dark:border-slate-800 text-amber-900 dark:text-amber-300 font-bold flex items-center justify-center">
+                          Fri Recess
                         </div>
-                      );
-                    })}
-                  </div>
+                        <div className="p-1.5 border-r border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-sans text-center col-span-4 flex items-center justify-center">
+                          Mon–Thu: Period 2 finishes at 10:05
+                        </div>
+                        <div className="p-1.5 text-amber-900 dark:text-amber-200 font-bold text-center flex items-center justify-center bg-amber-200/70 dark:bg-amber-900/60 font-sans text-[9px]">
+                          ☕ Fri Recess (09:45–10:05 • 20m)
+                        </div>
+                      </div>
+                    )}
+                  </React.Fragment>
                 );
               })}
 
+            </div>
+          </div>
+
+          {/* FRIDAY SPECIAL TIMETABLE HIGHLIGHT CARD */}
+          <div className="p-3.5 bg-amber-50/70 dark:bg-[#191722] border-t border-amber-200/80 dark:border-white/[0.08] text-xs space-y-2">
+            <div className="flex items-center justify-between font-bold text-amber-900 dark:text-amber-300">
+              <span className="flex items-center gap-1.5 font-extrabold text-xs sm:text-sm">
+                <span>🕌</span>
+                <span>Friday Official Timetable & Bell Schedule</span>
+              </span>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-amber-200/80 dark:bg-amber-950 text-amber-950 dark:text-amber-200 font-bold">
+                Dismissed at 12:40 PM (No P6)
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-6 gap-2 text-center">
+              <div className="bg-white dark:bg-[#201d2a] p-2 rounded-xl border border-slate-200 dark:border-white/[0.06]">
+                <div className="text-[10px] font-bold text-slate-400">Period 1</div>
+                <div className="text-[10px] font-mono text-slate-500">08:00 - 08:55</div>
+                <div className="text-xs font-black text-blue-600 dark:text-blue-400 mt-1">LSD</div>
+              </div>
+              <div className="bg-white dark:bg-[#201d2a] p-2 rounded-xl border border-slate-200 dark:border-white/[0.06]">
+                <div className="text-[10px] font-bold text-slate-400">Period 2</div>
+                <div className="text-[10px] font-mono text-slate-500">08:55 - 09:45</div>
+                <div className="text-xs font-black text-purple-600 dark:text-purple-400 mt-1">MIS3</div>
+              </div>
+              <div className="bg-amber-100/70 dark:bg-amber-900/30 p-2 rounded-xl border border-amber-300/60 dark:border-amber-700/40">
+                <div className="text-[10px] font-bold text-amber-800 dark:text-amber-300">Recess (20m)</div>
+                <div className="text-[10px] font-mono text-amber-700 dark:text-amber-400">09:45 - 10:05</div>
+                <div className="text-xs font-bold text-amber-900 dark:text-amber-200 mt-1">☕ Tea Break</div>
+              </div>
+              <div className="bg-white dark:bg-[#201d2a] p-2 rounded-xl border border-slate-200 dark:border-white/[0.06]">
+                <div className="text-[10px] font-bold text-slate-400">Period 3</div>
+                <div className="text-[10px] font-mono text-slate-500">10:05 - 10:55</div>
+                <div className="text-xs font-black text-cyan-600 dark:text-cyan-400 mt-1">FoDS</div>
+              </div>
+              <div className="bg-white dark:bg-[#201d2a] p-2 rounded-xl border border-slate-200 dark:border-white/[0.06]">
+                <div className="text-[10px] font-bold text-slate-400">Period 4</div>
+                <div className="text-[10px] font-mono text-slate-500">10:55 - 11:45</div>
+                <div className="text-xs font-black text-cyan-600 dark:text-cyan-400 mt-1">FoDS</div>
+              </div>
+              <div className="bg-white dark:bg-[#201d2a] p-2 rounded-xl border border-slate-200 dark:border-white/[0.06]">
+                <div className="text-[10px] font-bold text-slate-400">Period 5 (Final)</div>
+                <div className="text-[10px] font-mono text-slate-500">11:45 - 12:40</div>
+                <div className="text-xs font-black text-cyan-600 dark:text-cyan-400 mt-0.5">FoDS</div>
+                <div className="text-[9px] font-extrabold text-amber-700 dark:text-amber-300 uppercase mt-0.5">Till 12:40 PM</div>
+              </div>
             </div>
           </div>
 

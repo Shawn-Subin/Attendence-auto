@@ -156,24 +156,24 @@ export const DEFAULT_TIMETABLE = {
     { slotId: 'p6', subjectId: 'sub-for', room: 'Room 512' }
   ],
   wed: [
-    { slotId: 'p1', subjectId: 'sub-aoop', room: 'Room 512' },
-    { slotId: 'p2', subjectId: 'sub-lsd', room: 'Room 512' },
-    { slotId: 'p3', subjectId: 'sub-for', room: 'Room 512' },
+    { slotId: 'p1', subjectId: 'sub-fods', room: 'Room 512' },
+    { slotId: 'p2', subjectId: 'sub-for', room: 'Room 512' },
+    { slotId: 'p3', subjectId: 'sub-amh', room: 'Room 512' },
     { slotId: 'p4', subjectId: 'sub-aoop', room: 'Room 512 / Turing Lab' },
     { slotId: 'p5', subjectId: 'sub-aoop', room: 'Room 512 / Turing Lab' },
     { slotId: 'p6', subjectId: 'sub-aoop', room: 'Room 512 / Turing Lab' }
   ],
   thu: [
-    { slotId: 'p1', subjectId: 'sub-for', room: 'Room 512' },
-    { slotId: 'p2', subjectId: 'sub-aoop', room: 'Room 512' },
-    { slotId: 'p3', subjectId: 'sub-mis3', room: 'Room 512' },
-    { slotId: 'p4', subjectId: 'sub-lsd', room: 'Room 512' },
-    { slotId: 'p5', subjectId: 'sub-fods', room: 'Room 512' },
-    { slotId: 'p6', subjectId: 'sub-adh', room: 'Room 512' }
+    { slotId: 'p1', subjectId: 'sub-aoop', room: 'Room 512' },
+    { slotId: 'p2', subjectId: 'sub-fods', room: 'Room 512' },
+    { slotId: 'p3', subjectId: 'sub-for', room: 'Room 512' },
+    { slotId: 'p4', subjectId: 'sub-mis3', room: 'Room 512' },
+    { slotId: 'p5', subjectId: 'sub-lsd', room: 'Room 512' },
+    { slotId: 'p6', subjectId: 'sub-ee', room: 'Room 512' }
   ],
   fri: [
-    { slotId: 'p1', subjectId: 'sub-mis3', room: 'Room 512' },
-    { slotId: 'p2', subjectId: 'sub-aoop', room: 'Room 512' },
+    { slotId: 'p1', subjectId: 'sub-lsd', room: 'Room 512' },
+    { slotId: 'p2', subjectId: 'sub-mis3', room: 'Room 512' },
     { slotId: 'p3', subjectId: 'sub-fods', room: 'Room 512 / Lovelace Lab' },
     { slotId: 'p4', subjectId: 'sub-fods', room: 'Room 512 / Lovelace Lab' },
     { slotId: 'p5', subjectId: 'sub-fods', room: 'Room 512 / Lovelace Lab' }
@@ -181,4 +181,4 @@ export const DEFAULT_TIMETABLE = {
 };
 
 export const ATTENDANCE_STORAGE_KEY = 'mits_s3_cs_ai_shawn_v1789911516';
-export const TIMETABLE_STORAGE_KEY = 'mits_s3_timetable_cs_ai_v8';
+export const TIMETABLE_STORAGE_KEY = 'mits_s3_timetable_cs_ai_v15';
