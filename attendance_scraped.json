@@ -1,105 +1,105 @@
 {
-  "Timestamp": "2026-09-20 13:38:36",
-  "Student": {
-    "Name": "SHAWN SUBIN PHILIP",
-    "RollNo": "65",
-    "RegNo": "MITS25UCA065"
-  },
-  "Overall": {
-    "TotalAttended": 243,
-    "TotalHeld": 257,
-    "Percentage": 94.6,
-    "BunkTill90": 13.0,
-    "BunkTill75": 67.0
-  },
-  "Subjects": [
-    {
-      "CourseId": "B250904/MA300A",
-      "Code": "MA300A",
-      "Attended": 37,
-      "Held": 40,
-      "Percentage": 93.0,
-      "BunkTill90": 1,
-      "BunkTill75": 9,
-      "NeededFor90": 1,
-      "NeededFor75": 1
-    },
-    {
-      "CourseId": "B250802/CN320D",
-      "Code": "CN320D",
-      "Attended": 30,
-      "Held": 33,
-      "Percentage": 91.0,
-      "BunkTill90": 0,
-      "BunkTill75": 7,
-      "NeededFor90": 1,
-      "NeededFor75": 1
-    },
-    {
-      "CourseId": "B250006/AI300E",
-      "Code": "AI300E",
-      "Attended": 37,
-      "Held": 39,
-      "Percentage": 95.0,
-      "BunkTill90": 2,
-      "BunkTill75": 10,
-      "NeededFor90": 1,
-      "NeededFor75": 1
-    },
-    {
-      "CourseId": "B250908/HU900F",
-      "Code": "HU900F",
-      "Attended": 26,
-      "Held": 28,
-      "Percentage": 93.0,
-      "BunkTill90": 0,
-      "BunkTill75": 6,
-      "NeededFor90": 1,
-      "NeededFor75": 1
-    },
-    {
-      "CourseId": "B250802/CN310B",
-      "Code": "CN310B",
-      "Attended": 51,
-      "Held": 54,
-      "Percentage": 94.0,
-      "BunkTill90": 2,
-      "BunkTill75": 14,
-      "NeededFor90": 1,
-      "NeededFor75": 1
-    },
-    {
-      "CourseId": "B250802/CN310C",
-      "Code": "CN310C",
-      "Attended": 47,
-      "Held": 48,
-      "Percentage": 98.0,
-      "BunkTill90": 4,
-      "BunkTill75": 14,
-      "NeededFor90": 1,
-      "NeededFor75": 1
-    },
-    {
-      "CourseId": "AMH",
-      "Code": "AMH",
-      "Attended": 8,
-      "Held": 8,
-      "Percentage": 100.0,
-      "BunkTill90": 0,
-      "BunkTill75": 2,
-      "NeededFor90": 1,
-      "NeededFor75": 1
-    },
-    {
-      "CourseId": "AD_H",
-      "Code": "AD_H",
-      "Attended": 7,
-      "Held": 7,
-      "Percentage": 100.0,
-      "BunkTill90": 0,
-      "BunkTill75": 2,
-      "NeededFor90": 1,
-      "NeededFor75": 1
-    }
-  ]
+    "Timestamp":  "2026-09-20 20:57:25",
+    "Student":  {
+                    "Name":  "SHAWN SUBIN PHILIP",
+                    "RollNo":  "65",
+                    "RegNo":  "MITS25UCA065"
+                },
+    "Overall":  {
+                    "TotalAttended":  243,
+                    "TotalHeld":  257,
+                    "Percentage":  94.6,
+                    "BunkTill90":  13,
+                    "BunkTill75":  67
+                },
+    "Subjects":  [
+                     {
+                         "CourseId":  "B250904/MA300A",
+                         "Code":  "MA300A",
+                         "Attended":  37,
+                         "Held":  40,
+                         "Percentage":  93,
+                         "BunkTill90":  1,
+                         "BunkTill75":  9,
+                         "NeededFor90":  1,
+                         "NeededFor75":  1
+                     },
+                     {
+                         "CourseId":  "B250802/CN320D",
+                         "Code":  "CN320D",
+                         "Attended":  30,
+                         "Held":  33,
+                         "Percentage":  91,
+                         "BunkTill90":  0,
+                         "BunkTill75":  7,
+                         "NeededFor90":  1,
+                         "NeededFor75":  1
+                     },
+                     {
+                         "CourseId":  "B250006/AI300E",
+                         "Code":  "AI300E",
+                         "Attended":  37,
+                         "Held":  39,
+                         "Percentage":  95,
+                         "BunkTill90":  2,
+                         "BunkTill75":  10,
+                         "NeededFor90":  1,
+                         "NeededFor75":  1
+                     },
+                     {
+                         "CourseId":  "B250908/HU900F",
+                         "Code":  "HU900F",
+                         "Attended":  26,
+                         "Held":  28,
+                         "Percentage":  93,
+                         "BunkTill90":  0,
+                         "BunkTill75":  6,
+                         "NeededFor90":  1,
+                         "NeededFor75":  1
+                     },
+                     {
+                         "CourseId":  "B250802/CN310B",
+                         "Code":  "CN310B",
+                         "Attended":  51,
+                         "Held":  54,
+                         "Percentage":  94,
+                         "BunkTill90":  2,
+                         "BunkTill75":  14,
+                         "NeededFor90":  1,
+                         "NeededFor75":  1
+                     },
+                     {
+                         "CourseId":  "B250802/CN310C",
+                         "Code":  "CN310C",
+                         "Attended":  47,
+                         "Held":  48,
+                         "Percentage":  98,
+                         "BunkTill90":  4,
+                         "BunkTill75":  14,
+                         "NeededFor90":  1,
+                         "NeededFor75":  1
+                     },
+                     {
+                         "CourseId":  "AMH",
+                         "Code":  "AMH",
+                         "Attended":  8,
+                         "Held":  8,
+                         "Percentage":  100,
+                         "BunkTill90":  0,
+                         "BunkTill75":  2,
+                         "NeededFor90":  1,
+                         "NeededFor75":  1
+                     },
+                     {
+                         "CourseId":  "AD_H",
+                         "Code":  "AD_H",
+                         "Attended":  7,
+                         "Held":  7,
+                         "Percentage":  100,
+                         "BunkTill90":  0,
+                         "BunkTill75":  2,
+                         "NeededFor90":  1,
+                         "NeededFor75":  1
+                     }
+                 ]
 }
