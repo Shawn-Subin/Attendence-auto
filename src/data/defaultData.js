@@ -19,8 +19,8 @@ export const DEFAULT_SUBJECTS = [
     shortName: 'LSD',
     faculty: 'Angel B John (ABJ)',
     color: '#3b82f6',
-    attended: 52,
-    held: 55, // 93.6% -> 94% (Bunk till 90%: 1 class)
+    attended: 53,
+    held: 56, // 93.6% -> 94% (Bunk till 90%: 1 class)
     room: 'Room 512'
   },
   {
@@ -31,8 +31,8 @@ export const DEFAULT_SUBJECTS = [
     shortName: 'FoDS',
     faculty: 'Dr. Parvathy Jyothi (Dr PJ) / Sheena Y',
     color: '#06b6d4',
-    attended: 47,
-    held: 48, // 97.7% -> 98% (Bunk till 90%: 3 classes)
+    attended: 48,
+    held: 49, // 97.7% -> 98% (Bunk till 90%: 3 classes)
     room: 'Room 512'
   },
   {
@@ -91,8 +91,8 @@ export const DEFAULT_SUBJECTS = [
     shortName: 'AMH',
     faculty: 'Faculty Mentor',
     color: '#6366f1',
-    attended: 8,
-    held: 8, // 100%
+    attended: 9,
+    held: 9, // 100%
     room: 'Room 512'
   },
   {
@@ -180,5 +180,5 @@ export const DEFAULT_TIMETABLE = {
   ]
 };
 
-export const ATTENDANCE_STORAGE_KEY = 'mits_s3_cs_ai_shawn_v1790103678';
+export const ATTENDANCE_STORAGE_KEY = 'mits_s3_cs_ai_shawn_v1790144167';
 export const TIMETABLE_STORAGE_KEY = 'mits_s3_timetable_cs_ai_v15';
