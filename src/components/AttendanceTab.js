@@ -101,6 +101,7 @@ export function AttendanceTab({
       totalAttended,
       totalHeld,
       overallPct,
+      percentage: overallPct,
       overallStatus,
       overallBunk,
       fullMarksCount,
@@ -169,7 +170,7 @@ export function AttendanceTab({
           <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Internal Marks</span>
           <span className="text-xs font-black text-amber-600 dark:text-amber-400 flex items-center gap-1 justify-end">
             <span>⭐</span>
-            <span>{overallStats.percentage >= 90 ? 5 : overallStats.percentage >= 85 ? 4 : overallStats.percentage >= 80 ? 3 : overallStats.percentage >= 75 ? 2 : 0} / 5 Marks</span>
+            <span>{overallStats.overallStatus?.marks ?? (overallStats.overallPct >= 90 ? 5 : overallStats.overallPct >= 85 ? 4 : overallStats.overallPct >= 80 ? 3 : overallStats.overallPct >= 75 ? 2 : 0)} / 5 Marks</span>
           </span>
         </div>
       </div>

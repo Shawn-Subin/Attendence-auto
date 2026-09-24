@@ -481,7 +481,7 @@
         faculty: 'Remya V (RV)',
         color: '#f59e0b',
         attended: 32,
-        held: 35,
+        held: 36,
         room: 'Room 512'
       },
       {
@@ -493,7 +493,7 @@
         faculty: 'Reshma S (RS)',
         color: '#ec4899',
         attended: 27,
-        held: 29,
+        held: 30,
         room: 'Room 512'
       },
       {
@@ -2290,6 +2290,7 @@
           totalAttended,
           totalHeld,
           overallPct,
+          percentage: overallPct,
           overallStatus,
           overallBunk,
           fullMarksCount,
@@ -2379,7 +2380,7 @@
               <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-[#a79fae] block tracking-wider">Internal Marks</span>
               <span className="text-xs font-black text-amber-600 dark:text-amber-400 flex items-center gap-1 justify-end">
                 <span>⭐</span>
-                <span>{overallStats.percentage >= 90 ? 5 : overallStats.percentage >= 85 ? 4 : overallStats.percentage >= 80 ? 3 : overallStats.percentage >= 75 ? 2 : 0} / 5 Marks</span>
+                <span>{overallStats.overallStatus?.marks ?? (overallStats.overallPct >= 90 ? 5 : overallStats.overallPct >= 85 ? 4 : overallStats.overallPct >= 80 ? 3 : overallStats.overallPct >= 75 ? 2 : 0)} / 5 Marks</span>
               </span>
             </div>
           </div>
@@ -2717,7 +2718,7 @@
     // MAIN APP COMPONENT
     // ==========================================
     const STORAGE_KEYS = {
-      SUBJECTS: 'mits_s3_cs_ai_shawn_v1790231142',
+      SUBJECTS: 'mits_s3_cs_ai_shawn_v1790256096',
       TIMETABLE: 'mits_s3_cs_ai_timetable_v15',
       ACTIVE_TAB: 'mits_s3_cs_ai_active_tab_v15',
       PHONE_FRAME: 'mits_s3_cs_ai_phone_frame_v15'
