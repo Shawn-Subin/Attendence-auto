@@ -67,8 +67,8 @@ export const DEFAULT_SUBJECTS = [
     shortName: 'AOOP',
     faculty: 'Remya V (RV)',
     color: '#f59e0b',
-    attended: 33,
-    held: 37, // 89.7% -> 90% (<90%, bunks till 75%: 5 classes)
+    attended: 34,
+    held: 38, // 89.7% -> 90% (<90%, bunks till 75%: 5 classes)
     room: 'Room 512'
   },
   {
@@ -180,5 +180,5 @@ export const DEFAULT_TIMETABLE = {
   ]
 };
 
-export const ATTENDANCE_STORAGE_KEY = 'mits_s3_cs_ai_shawn_v1790536085';
+export const ATTENDANCE_STORAGE_KEY = 'mits_s3_cs_ai_shawn_v1790579670';
 export const TIMETABLE_STORAGE_KEY = 'mits_s3_timetable_cs_ai_v15';
