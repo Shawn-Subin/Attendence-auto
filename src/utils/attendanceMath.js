@@ -6,12 +6,12 @@ export const MARKS_ATTENDANCE_TARGET = 90;
 export const MIN_ATTENDANCE_TARGET = 75;
 
 /**
- * Calculates attendance percentage rounded to 1 decimal
+ * Calculates attendance percentage rounded off to nearest integer
  */
 export function calculatePercentage(attended, held) {
   if (!held || held <= 0) return 100;
   const pct = (attended / held) * 100;
-  return Math.round(pct * 10) / 10;
+  return Math.round(pct);
 }
 
 /**

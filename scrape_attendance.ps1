@@ -182,7 +182,7 @@ try {
             if ($cellValue -match $valPattern) {
                 $att = [int]$matches[1]
                 $hld = [int]$matches[2]
-                $pct = if ($matches[3]) { [double]$matches[3] } else { if ($hld -gt 0) { [math]::Round(($att / $hld) * 100, 1) } else { 100.0 } }
+                $pct = if ($matches[3]) { [int][math]::Round([double]$matches[3]) } else { if ($hld -gt 0) { [int][math]::Round(($att / $hld) * 100) } else { 100 } }
 
                 # Determine pure code from colName, e.g. "B250802/CN310B" -> "CN310B"
                 $pureCode = $colName
@@ -214,7 +214,7 @@ try {
         }
     }
 
-    $overallPct = if ($totalHeld -gt 0) { [math]::Round(($totalAttended / $totalHeld) * 100, 1) } else { 100.0 }
+    $overallPct = if ($totalHeld -gt 0) { [int][math]::Round(($totalAttended / $totalHeld) * 100) } else { 100 }
     $overallBunk90 = [math]::Floor((10 * $totalAttended - 9 * $totalHeld) / 9)
     $overallBunk75 = [math]::Floor((4 * $totalAttended - 3 * $totalHeld) / 3)
 

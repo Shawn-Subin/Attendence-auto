@@ -204,7 +204,7 @@
     function calculatePercentage(attended, held) {
       if (!held || held <= 0) return 100;
       const pct = (attended / held) * 100;
-      return Math.round(pct * 10) / 10;
+      return Math.round(pct);
     }
 
     function getClassesToReachTarget(attended, held, targetPct = 90, strictlyOver = false) {
@@ -1587,7 +1587,7 @@
 
                   <div className="divide-y divide-slate-100 dark:divide-slate-800">
                     {subjects.map((sub) => {
-                      const pct = sub.held > 0 ? Math.round((sub.attended / sub.held) * 1000) / 10 : 100;
+                      const pct = sub.held > 0 ? Math.round((sub.attended / sub.held) * 100) : 100;
                       return (
                         <div key={sub.id} className="py-2.5 flex items-center justify-between gap-3">
                           <div className="flex items-center gap-2.5 min-w-0">
@@ -2718,7 +2718,7 @@
     // MAIN APP COMPONENT
     // ==========================================
     const STORAGE_KEYS = {
-      SUBJECTS: 'mits_s3_cs_ai_shawn_v1790579670',
+      SUBJECTS: 'mits_s3_cs_ai_shawn_v1790582085',
       TIMETABLE: 'mits_s3_cs_ai_timetable_v15',
       ACTIVE_TAB: 'mits_s3_cs_ai_active_tab_v15',
       PHONE_FRAME: 'mits_s3_cs_ai_phone_frame_v15'

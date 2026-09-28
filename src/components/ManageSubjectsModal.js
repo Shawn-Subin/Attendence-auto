@@ -119,7 +119,7 @@ export function ManageSubjectsModal({
 
               <div className="divide-y divide-slate-100 dark:divide-slate-800">
                 {subjects.map((sub) => {
-                  const pct = sub.held > 0 ? Math.round((sub.attended / sub.held) * 1000) / 10 : 100;
+                  const pct = sub.held > 0 ? Math.round((sub.attended / sub.held) * 100) : 100;
                   return (
                     <div key={sub.id} className="py-2.5 flex items-center justify-between gap-3">
                       <div className="flex items-center gap-2.5 min-w-0">
