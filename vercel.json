@@ -1,7 +1,6 @@
 {
   "version": 2,
   "name": "mits-campus-hub",
-  "buildCommand": "npm install",
   "functions": {
     "api/scrape-attendance.js": {
       "maxDuration": 30
@@ -12,6 +11,7 @@
       "src": "/api/(.*)",
       "dest": "/api/$1"
     },
+    { "handle": "filesystem" },
     {
       "src": "/(.*)",
       "dest": "/index.html"

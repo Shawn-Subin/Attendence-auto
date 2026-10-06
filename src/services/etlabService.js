@@ -98,22 +98,34 @@ export function saveStudentProfile(student) {
  */
 export async function fetchLiveAttendance(username, password, studentId = null, customApiUrl = null) {
   const apiUrl = (customApiUrl || getBackendApiUrl()).trim().replace(/\/+$/, '');
-  const endpoint = `${apiUrl}/api/scrape-attendance`;
+  const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:';
+  const endpointsToTry = isHttps
+    ? ['/api/scrape-attendance', `${apiUrl}/api/scrape-attendance`]
+    : [`${apiUrl}/api/scrape-attendance`];
 
-  let response;
-  try {
-    response = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        username: username.trim(),
-        password,
-        studentId: studentId ? studentId.trim() : undefined
-      })
-    });
-  } catch (err) {
+  let response = null;
+  let lastError = null;
+  for (const endpoint of endpointsToTry) {
+    try {
+      response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          username: username.trim(),
+          password,
+          studentId: studentId ? studentId.trim() : undefined
+        })
+      });
+      if (response.ok || response.status < 500) break;
+    } catch (err) {
+      lastError = err;
+      response = null;
+    }
+  }
+
+  if (!response) {
     // Intelligent Offline Fallback for Shawn Subin Philip
     const cleanUser = username.trim().toUpperCase();
     const isShawn = cleanUser === '25CT256' || cleanUser === 'MITS25UCA065' || cleanUser.includes('SHAWN');
