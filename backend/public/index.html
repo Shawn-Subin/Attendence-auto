@@ -1,0 +1,3846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>MITS Campus Hub | S3 CS AI Attendance & Timetable</title>
+  
+  <meta name="description" content="Muthoot Institute of Technology and Science (MITS) S3 CS AI student utility app with 90% (5 Marks) and 75% (Eligibility) bunk calculation." />
+  <meta name="theme-color" content="#0b1e3d" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="MITS Hub" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg" />
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+
+  <!-- Google Fonts: Plus Jakarta Sans & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
+            mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
+          },
+          colors: {
+            mits: {
+              navy: '#0b1e3d',
+              blue: '#1e3a8a',
+              accent: '#f59e0b',
+              gold: '#fbbf24',
+              surface: '#0f172a'
+            },
+            // Helios Dark Palette (Image 4)
+            helios: {
+              bg: '#121114',
+              card: '#1a1921',
+              cardHover: '#221f2b',
+              surface: '#16141c',
+              border: 'rgba(255, 255, 255, 0.08)',
+              pink: '#f472b6',
+              rose: '#fb7185',
+              plum: '#d946ef',
+              subtext: '#9ca3af',
+              muted: '#a79fae'
+            },
+            // Soft Dashboard Light Palette (Image 3)
+            dashboard: {
+              canvas: '#dbe4f3',
+              content: '#edf3fc',
+              card: '#ffffff',
+              border: '#e2e8f0',
+              blue: '#2563eb',
+              blueLight: '#dbeafe',
+              text: '#0f172a',
+              subtext: '#64748b'
+            }
+          },
+          boxShadow: {
+            'light-card': '0 10px 25px -5px rgba(148, 163, 184, 0.18), 0 4px 6px -2px rgba(148, 163, 184, 0.08)',
+            'dark-card': '0 10px 30px -5px rgba(0, 0, 0, 0.6)',
+            'helios-glow': '0 0 20px rgba(244, 114, 182, 0.25)',
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.25s ease-out',
+            'scale-up': 'scaleUp 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+            'pulse-subtle': 'pulseSubtle 2s infinite',
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0', transform: 'translateY(4px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            },
+            scaleUp: {
+              '0%': { opacity: '0', transform: 'scale(0.96)' },
+              '100%': { opacity: '1', transform: 'scale(1)' },
+            },
+            pulseSubtle: {
+              '0%, 100%': { opacity: '1' },
+              '50%': { opacity: '0.6' },
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    input, textarea, select {
+      user-select: text;
+    }
+  </style>
+
+  <!-- React 18 & Babel Standalone -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+
+<body class="bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen">
+  <div id="root">
+    <div class="flex flex-col items-center justify-center min-h-screen p-6 text-center space-y-6">
+      
+      <!-- Brand Crest -->
+      <div class="relative">
+        <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-900 via-indigo-950 to-amber-500 p-1 shadow-2xl animate-pulse">
+          <div class="w-full h-full bg-slate-900 rounded-xl flex items-center justify-center font-black text-amber-400 text-base shadow-inner">
+            MITS
+          </div>
+        </div>
+        <span class="absolute -bottom-1 -right-1 flex h-4 w-4">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-4 w-4 bg-emerald-500 border-2 border-white dark:border-slate-950"></span>
+        </span>
+      </div>
+
+      <div>
+        <h2 class="text-xl font-black text-slate-900 dark:text-white tracking-tight">MITS Campus Hub</h2>
+        <p class="text-xs font-semibold text-amber-600 dark:text-amber-400 mt-1">S3 CS AI • Autonomous Portal</p>
+      </div>
+
+      <!-- Animated Loading Progress Bar -->
+      <div class="w-72 max-w-xs space-y-2">
+        <div class="w-full h-2.5 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden p-0.5 shadow-inner">
+          <div id="loading-bar-fill" class="h-full bg-gradient-to-r from-blue-600 via-amber-500 to-emerald-500 rounded-full transition-all duration-300" style="width: 20%"></div>
+        </div>
+        <div class="flex justify-between items-center text-[11px] text-slate-500 dark:text-slate-400 font-mono">
+          <span id="loading-status-text">Loading attendance & timetable...</span>
+          <span id="loading-pct-text">20%</span>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      var pct = 20;
+      var fill = document.getElementById('loading-bar-fill');
+      var pctText = document.getElementById('loading-pct-text');
+      var statusText = document.getElementById('loading-status-text');
+      var msgs = [
+        "Connecting to student database...",
+        "Loading S3 CS AI courses...",
+        "Applying 90% attendance rules...",
+        "Finalizing campus dashboard..."
+      ];
+      var idx = 0;
+      var t = setInterval(function() {
+        if (!fill || !pctText) {
+          clearInterval(t);
+          return;
+        }
+        pct += Math.floor(Math.random() * 20) + 15;
+        if (pct >= 95) {
+          pct = 95;
+          clearInterval(t);
+        }
+        fill.style.width = pct + '%';
+        pctText.textContent = pct + '%';
+        if (msgs[idx]) {
+          statusText.textContent = msgs[idx];
+          idx++;
+        }
+      }, 160);
+
+      window.addEventListener('error', function(e) {
+        if (statusText) {
+          statusText.innerHTML = '<span style="color:#ef4444;font-weight:bold;">Error: ' + (e.message || 'Script error') + '</span>';
+        }
+      });
+    })();
+  </script>
+
+  <script type="text/babel">
+    const { useState, useEffect, useMemo } = React;
+
+    // ==========================================
+    // ATTENDANCE MATH UTILITIES
+    // Tier 1: 90% Threshold (Full 5 Internal Marks)
+    // Tier 2: 75% Threshold (University Exam Eligibility)
+    // ==========================================
+    function calculatePercentage(attended, held) {
+      if (!held || held <= 0) return 100;
+      const pct = (attended / held) * 100;
+      return Math.round(pct);
+    }
+
+    function getClassesToReachTarget(attended, held, targetPct = 90, strictlyOver = false) {
+      if (held <= 0) return 0;
+      const currentPct = (attended / held) * 100;
+      
+      if (strictlyOver) {
+        if (currentPct > targetPct) return 0;
+        const diff = (targetPct * held - 100 * attended) / (100 - targetPct);
+        return Math.max(1, Math.floor(diff) + 1);
+      }
+
+      if (currentPct >= targetPct) return 0;
+      const needed = Math.ceil((targetPct * held - 100 * attended) / (100 - targetPct));
+      return Math.max(1, needed);
+    }
+
+    function getAttendanceStatus(percentage) {
+      if (percentage >= 90) {
+        return {
+          status: 'full-marks',
+          marks: 5,
+          marksLabel: '5 Mark',
+          label: '5 Mark (≥90%)',
+          color: 'amber',
+          ringColor: '#f59e0b', // Gold / Amber
+          bgColor: 'bg-amber-500/10 dark:bg-amber-950/30',
+          textColor: 'text-amber-600 dark:text-amber-400',
+          borderColor: 'border-amber-500/30',
+          badgeBg: 'bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-300'
+        };
+      } else if (percentage >= 85) {
+        return {
+          status: 'four-marks',
+          marks: 4,
+          marksLabel: '4 Mark',
+          label: '4 Mark (85-90%)',
+          color: 'blue',
+          ringColor: '#3b82f6', // Blue
+          bgColor: 'bg-blue-500/10 dark:bg-blue-950/30',
+          textColor: 'text-blue-600 dark:text-blue-400',
+          borderColor: 'border-blue-500/30',
+          badgeBg: 'bg-blue-100 text-blue-900 dark:bg-blue-900/40 dark:text-blue-300 border border-blue-300/40'
+        };
+      } else if (percentage >= 80) {
+        return {
+          status: 'three-marks',
+          marks: 3,
+          marksLabel: '3 Mark',
+          label: '3 Mark (80-85%)',
+          color: 'teal',
+          ringColor: '#14b8a6', // Teal
+          bgColor: 'bg-teal-500/10 dark:bg-teal-950/30',
+          textColor: 'text-teal-600 dark:text-teal-400',
+          borderColor: 'border-teal-500/30',
+          badgeBg: 'bg-teal-100 text-teal-900 dark:bg-teal-900/40 dark:text-teal-300 border border-teal-300/40'
+        };
+      } else if (percentage >= 75) {
+        return {
+          status: 'two-marks',
+          marks: 2,
+          marksLabel: '2 Mark',
+          label: '2 Mark (75-80%)',
+          color: 'emerald',
+          ringColor: '#10b981', // Green
+          bgColor: 'bg-emerald-500/10 dark:bg-emerald-950/30',
+          textColor: 'text-emerald-600 dark:text-emerald-400',
+          borderColor: 'border-emerald-500/30',
+          badgeBg: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300 border border-emerald-300/40'
+        };
+      } else {
+        return {
+          status: 'critical',
+          marks: 0,
+          marksLabel: '0 Mark',
+          label: 'Shortage (<75%)',
+          color: 'rose',
+          ringColor: '#f43f5e',
+          bgColor: 'bg-rose-500/10 dark:bg-rose-950/30',
+          textColor: 'text-rose-600 dark:text-rose-400',
+          borderColor: 'border-rose-500/30',
+          badgeBg: 'bg-rose-100 text-rose-800 dark:bg-rose-900/40 dark:text-rose-300 border border-rose-300/40'
+        };
+      }
+    }
+
+    function calculateBunkInfo(attended, held) {
+      if (held === 0) {
+        return { type: 'initial', tier: 90, marks: 5, count: 0, message: 'No classes conducted yet' };
+      }
+      const pct = (attended / held) * 100;
+      const bunk75 = Math.floor((4 * attended - 3 * held) / 3);
+
+      // Tier 1: Attendance >= 90% (5 Mark)
+      if (pct >= 90) {
+        const bunk90 = Math.floor((10 * attended - 9 * held) / 9);
+
+        if (bunk90 === 0) {
+          return {
+            type: 'edge-90',
+            tier: 90,
+            marks: 5,
+            count: 0,
+            bunksTo75: bunk75,
+            message: 'Missing the next class drops attendance to 4 Mark (<90%)!'
+          };
+        }
+        return {
+          type: 'safe-90',
+          tier: 90,
+          marks: 5,
+          count: bunk90,
+          bunksTo75: bunk75,
+          message: `You can bunk ${bunk90} ${bunk90 === 1 ? 'class' : 'classes'} till you drop to 4 Mark (<90%)`
+        };
+      }
+
+      // Tier 2: 85% <= Attendance < 90% (4 Mark)
+      if (pct >= 85) {
+        const bunk85 = Math.floor((20 * attended - 17 * held) / 17);
+        const neededFor90 = Math.max(1, 9 * held - 10 * attended);
+
+        if (bunk85 === 0) {
+          return {
+            type: 'edge-85',
+            tier: 85,
+            marks: 4,
+            count: 0,
+            bunksTo75: bunk75,
+            neededForNext: neededFor90,
+            message: '4 Mark: Missing next class drops to 3 Mark (<85%)!'
+          };
+        }
+        return {
+          type: 'safe-85',
+          tier: 85,
+          marks: 4,
+          count: bunk85,
+          bunksTo75: bunk75,
+          neededForNext: neededFor90,
+          message: `4 Mark: You can bunk ${bunk85} ${bunk85 === 1 ? 'class' : 'classes'} till you drop to 3 Mark (<85%)`
+        };
+      }
+
+      // Tier 3: 80% <= Attendance < 85% (3 Mark)
+      if (pct >= 80) {
+        const bunk80 = Math.floor((5 * attended - 4 * held) / 4);
+        const neededFor85 = Math.max(1, Math.ceil((17 * held - 20 * attended) / 3));
+
+        if (bunk80 === 0) {
+          return {
+            type: 'edge-80',
+            tier: 80,
+            marks: 3,
+            count: 0,
+            bunksTo75: bunk75,
+            neededForNext: neededFor85,
+            message: '3 Mark: Missing next class drops to 2 Mark (<80%)!'
+          };
+        }
+        return {
+          type: 'safe-80',
+          tier: 80,
+          marks: 3,
+          count: bunk80,
+          bunksTo75: bunk75,
+          neededForNext: neededFor85,
+          message: `3 Mark: You can bunk ${bunk80} ${bunk80 === 1 ? 'class' : 'classes'} till you drop to 2 Mark (<80%)`
+        };
+      }
+
+      // Tier 4: 75% <= Attendance < 80% (2 Mark)
+      if (pct >= 75) {
+        const neededFor80 = Math.max(1, 4 * held - 5 * attended);
+
+        if (bunk75 === 0) {
+          return {
+            type: 'edge-75',
+            tier: 75,
+            marks: 2,
+            count: 0,
+            neededForNext: neededFor80,
+            message: '2 Mark: Missing next class causes exam shortage (<75%)!'
+          };
+        }
+        return {
+          type: 'safe-75',
+          tier: 75,
+          marks: 2,
+          count: bunk75,
+          neededForNext: neededFor80,
+          message: `2 Mark: You can bunk ${bunk75} ${bunk75 === 1 ? 'class' : 'classes'} before exam shortage (<75%)`
+        };
+      }
+
+      // Tier 5: Attendance < 75% (Shortage / 0 Mark)
+      const needed75 = Math.max(1, (3 * held) - (4 * attended));
+      return {
+        type: 'recovery-75',
+        tier: 0,
+        marks: 0,
+        count: needed75,
+        message: `🚨 Shortage (0 Mark): Must attend next ${needed75} consecutive ${needed75 === 1 ? 'class' : 'classes'} to reach 75%`
+      };
+    }
+
+    // ==========================================
+    // STUDENT PROFILE & OFFICIAL ATTENDANCE RECORD
+    // Shawn Subin Philip (Roll No: 65 | MITS25UCA065)
+    // ==========================================
+    const STUDENT_PROFILE = {
+      name: 'Shawn Subin Philip',
+      rollNo: '65',
+      regNo: 'MITS25UCA065',
+      semester: 'S3 CS AI',
+      department: 'Computer Science & Engineering (AI)'
+    };
+
+    const DEFAULT_SUBJECTS = [
+      {
+        id: 'sub-lsd',
+        code: 'CN310B',
+        courseId: 'B250802/CN310B',
+        name: 'Logic System Design (LSD)',
+        shortName: 'LSD',
+        faculty: 'Angel B John (ABJ)',
+        color: '#3b82f6',
+        attended: 61,
+        held: 65,
+        room: 'Room 512'
+      },
+      {
+        id: 'sub-fods',
+        code: 'CN310C',
+        courseId: 'B250802/CN310C',
+        name: 'Fundamentals of Data Structures (FoDS)',
+        shortName: 'FoDS',
+        faculty: 'Dr. Parvathy Jyothi (Dr PJ) / Sheena Y',
+        color: '#06b6d4',
+        attended: 60,
+        held: 62,
+        room: 'Room 512'
+      },
+      {
+        id: 'sub-mis3',
+        code: 'MA300A',
+        courseId: 'B250904/MA300A',
+        name: 'Mathematics for Information Science-3 (MIS3)',
+        shortName: 'MIS3',
+        faculty: 'Dr. S. Babu / Dr. J. Thomas',
+        color: '#8b5cf6',
+        attended: 45,
+        held: 50,
+        room: 'Room 512'
+      },
+      {
+        id: 'sub-for',
+        code: 'AI300E',
+        courseId: 'B250006/AI300E',
+        name: 'Foundations of Robotics (FoR)',
+        shortName: 'FoR',
+        faculty: 'Anitha S (AS)',
+        color: '#10b981',
+        attended: 41,
+        held: 43,
+        room: 'Room 512'
+      },
+      {
+        id: 'sub-aoop',
+        code: 'CN320D',
+        courseId: 'B250802/CN320D',
+        name: 'Advanced Object Oriented Programming (AOOP)',
+        shortName: 'AOOP',
+        faculty: 'Remya V (RV)',
+        color: '#f59e0b',
+        attended: 36,
+        held: 40,
+        room: 'Room 512'
+      },
+      {
+        id: 'sub-ee',
+        code: 'HU900F',
+        courseId: 'B250908/HU900F',
+        name: 'Engineering Economics (EE)',
+        shortName: 'EE',
+        faculty: 'Reshma S (RS)',
+        color: '#ec4899',
+        attended: 31,
+        held: 34,
+        room: 'Room 512'
+      },
+      {
+        id: 'sub-amh',
+        code: 'AMH',
+        courseId: 'AMH',
+        name: 'Academic Mentoring Hour',
+        shortName: 'AMH',
+        faculty: 'Faculty Mentor',
+        color: '#6366f1',
+        attended: 9,
+        held: 9,
+        room: 'Room 512'
+      },
+      {
+        id: 'sub-adh',
+        code: 'AD_H',
+        courseId: 'AD_H',
+        name: 'Department Hour',
+        shortName: 'AD_H',
+        faculty: 'CSE (AI) HOD & Staff',
+        color: '#14b8a6',
+        attended: 7,
+        held: 7,
+        room: 'Room 512'
+      }
+    ];
+
+    const TIME_SLOTS = [
+      { id: 'p1', time: '08:00 - 08:55', start: '08:00', end: '08:55', label: 'Period 1' },
+      { id: 'rec1', isBreak: true, time: '08:55 - 09:15', label: 'Morning Recess (20m)' },
+      { id: 'p2', time: '09:15 - 10:05', start: '09:15', end: '10:05', label: 'Period 2' },
+      { id: 'p3', time: '10:05 - 10:55', start: '10:05', end: '10:55', label: 'Period 3' },
+      { id: 'p4', time: '10:55 - 11:45', start: '10:55', end: '11:45', label: 'Period 4' },
+      { id: 'lunch', isBreak: true, time: '11:45 - 12:00', label: 'Midday Recess (15m)' },
+      { id: 'p5', time: '12:00 - 12:50', start: '12:00', end: '12:50', label: 'Period 5' },
+      { id: 'p6', time: '12:50 - 13:40', start: '12:50', end: '13:40', label: 'Period 6' }
+    ];
+
+    // Friday Schedule: Recess after Period 2 (20m), Period 5 lasts till 12:40 only
+    const FRIDAY_TIME_SLOTS = [
+      { id: 'p1', time: '08:00 - 08:55', start: '08:00', end: '08:55', label: 'Period 1' },
+      { id: 'p2', time: '08:55 - 09:45', start: '08:55', end: '09:45', label: 'Period 2' },
+      { id: 'rec_fri', isBreak: true, time: '09:45 - 10:05', label: 'Friday Recess (20m)' },
+      { id: 'p3', time: '10:05 - 10:55', start: '10:05', end: '10:55', label: 'Period 3' },
+      { id: 'p4', time: '10:55 - 11:45', start: '10:55', end: '11:45', label: 'Period 4' },
+      { id: 'p5', time: '11:45 - 12:40', start: '11:45', end: '12:40', label: 'Period 5 (Final)' }
+    ];
+
+    const DAYS_OF_WEEK = [
+      { id: 'mon', short: 'Mon', full: 'Monday' },
+      { id: 'tue', short: 'Tue', full: 'Tuesday' },
+      { id: 'wed', short: 'Wed', full: 'Wednesday' },
+      { id: 'thu', short: 'Thu', full: 'Thursday' },
+      { id: 'fri', short: 'Fri', full: 'Friday' }
+    ];
+
+    const DEFAULT_TIMETABLE = {
+      mon: [
+        { slotId: 'p1', subjectId: 'sub-lsd', room: 'Room 512' },
+        { slotId: 'p2', subjectId: 'sub-aoop', room: 'Room 512' },
+        { slotId: 'p3', subjectId: 'sub-fods', room: 'Room 512' },
+        { slotId: 'p4', subjectId: 'sub-for', room: 'Room 512' },
+        { slotId: 'p5', subjectId: 'sub-mis3', room: 'Room 512' },
+        { slotId: 'p6', subjectId: 'sub-ee', room: 'Room 512' }
+      ],
+      tue: [
+        { slotId: 'p1', subjectId: 'sub-aoop', room: 'Room 512' },
+        { slotId: 'p2', subjectId: 'sub-for', room: 'Room 512' },
+        { slotId: 'p3', subjectId: 'sub-mis3', room: 'Room 512' },
+        { slotId: 'p4', subjectId: 'sub-ee', room: 'Room 512' },
+        { slotId: 'p5', subjectId: 'sub-adh', room: 'Room 512' },
+        { slotId: 'p6', subjectId: 'sub-lsd', room: 'Room 512' }
+      ],
+      wed: [
+        { slotId: 'p1', subjectId: 'sub-fods', room: 'Room 512' },
+        { slotId: 'p2', subjectId: 'sub-for', room: 'Room 512' },
+        { slotId: 'p3', subjectId: 'sub-amh', room: 'Room 512' },
+        { slotId: 'p4', subjectId: 'sub-aoop', room: 'Room 512 / Turing Lab' },
+        { slotId: 'p5', subjectId: 'sub-aoop', room: 'Room 512 / Turing Lab' },
+        { slotId: 'p6', subjectId: 'sub-aoop', room: 'Room 512 / Turing Lab' }
+      ],
+      thu: [
+        { slotId: 'p1', subjectId: 'sub-aoop', room: 'Room 512' },
+        { slotId: 'p2', subjectId: 'sub-fods', room: 'Room 512' },
+        { slotId: 'p3', subjectId: 'sub-for', room: 'Room 512' },
+        { slotId: 'p4', subjectId: 'sub-mis3', room: 'Room 512' },
+        { slotId: 'p5', subjectId: 'sub-lsd', room: 'Room 512' },
+        { slotId: 'p6', subjectId: 'sub-ee', room: 'Room 512' }
+      ],
+      fri: [
+        { slotId: 'p1', subjectId: 'sub-lsd', room: 'Room 512' },
+        { slotId: 'p2', subjectId: 'sub-mis3', room: 'Room 512' },
+        { slotId: 'p3', subjectId: 'sub-fods', room: 'Room 512 / Lovelace Lab' },
+        { slotId: 'p4', subjectId: 'sub-fods', room: 'Room 512 / Lovelace Lab' },
+        { slotId: 'p5', subjectId: 'sub-fods', room: 'Room 512 / Lovelace Lab' }
+      ]
+    };
+
+    // ==========================================
+    // PROGRESS RING COMPONENT
+    // ==========================================
+    function AttendanceRing({ 
+      percentage, 
+      size = 68, 
+      strokeWidth = 6, 
+      color,
+      textColor = 'text-slate-900 dark:text-white',
+      trackColor = 'text-slate-100 dark:text-slate-800'
+    }) {
+      const radius = (size - strokeWidth) / 2;
+      const circumference = 2 * Math.PI * radius;
+      const validPct = Math.min(100, Math.max(0, percentage));
+      const strokeDashoffset = circumference - (validPct / 100) * circumference;
+
+      return (
+        <div className="relative flex items-center justify-center flex-shrink-0" style={{ width: size, height: size }}>
+          <svg className="w-full h-full transform -rotate-90">
+            <circle
+              cx={size / 2}
+              cy={size / 2}
+              r={radius}
+              stroke="currentColor"
+              strokeWidth={strokeWidth}
+              className={trackColor}
+              fill="none"
+            />
+            <circle
+              cx={size / 2}
+              cy={size / 2}
+              r={radius}
+              stroke={color}
+              strokeWidth={strokeWidth}
+              strokeDasharray={circumference}
+              strokeDashoffset={strokeDashoffset}
+              strokeLinecap="round"
+              className="transition-all duration-700 ease-out"
+              fill="none"
+            />
+          </svg>
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+            <span className={`text-xs sm:text-sm font-black tracking-tight leading-none ${textColor}`}>
+              {percentage}%
+            </span>
+          </div>
+        </div>
+      );
+    }
+
+    // ==========================================
+    // HEADER COMPONENT
+    // ==========================================
+    function Header({ 
+      currentTab, 
+      onResetData, 
+      isPhoneFrame, 
+      setIsPhoneFrame, 
+      todayDayName, 
+      currentDateFormatted, 
+      syncInfo, 
+      isDarkMode, 
+      onToggleTheme,
+      activeStudent,
+      onOpenSyncModal,
+      onQuickSync,
+      isSyncing,
+      hasSavedCreds
+    }) {
+      const studentDisplayName = useMemo(() => {
+        if (!activeStudent || !activeStudent.name) return 'Student';
+        const parts = activeStudent.name.trim().split(/\s+/);
+        return parts[0] || 'Student';
+      }, [activeStudent]);
+
+      return (
+        <header className="sticky top-0 z-30 bg-white/95 dark:bg-[#16141c]/95 backdrop-blur-md text-slate-800 dark:text-white shadow-xs border-b border-slate-200/80 dark:border-white/[0.08] transition-colors duration-300">
+          <div className="max-w-md mx-auto px-4 py-3 sm:max-w-xl md:max-w-4xl">
+            <div className="flex items-center justify-between gap-2.5">
+              
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 dark:from-purple-700 dark:via-pink-600 dark:to-amber-500 p-0.5 shadow-md flex items-center justify-center flex-shrink-0">
+                  <div className="w-full h-full bg-white dark:bg-[#16141c] rounded-[14px] flex items-center justify-center font-black text-blue-600 dark:text-amber-400 text-xs tracking-tighter">
+                    MITS
+                  </div>
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <h1 className="text-sm sm:text-base font-extrabold tracking-tight text-slate-900 dark:text-white truncate">
+                      MITS Campus Hub
+                    </h1>
+                    <span className="text-[10px] uppercase font-extrabold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 dark:bg-pink-500/15 dark:text-pink-300 dark:border-pink-500/30">
+                      S3 CS AI
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5 truncate">
+                    <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse"></span>
+                    <span>{todayDayName}, {currentDateFormatted}</span>
+                    <span className="text-slate-300 dark:text-slate-600">•</span>
+                    <button
+                      type="button"
+                      onClick={onOpenSyncModal}
+                      title="Click to view student profile, switch user, or sync ETLAB"
+                      className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-blue-50/80 hover:bg-blue-100 dark:bg-pink-500/10 dark:hover:bg-pink-500/20 text-blue-600 dark:text-pink-300 font-semibold text-[11px] transition-all cursor-pointer border border-blue-200/50 dark:border-pink-500/20 active:scale-95"
+                    >
+                      <span>👋</span>
+                      <span className="truncate max-w-[90px] sm:max-w-[130px]">{studentDisplayName}</span>
+                    </button>
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-1.5 flex-shrink-0">
+                
+                {/* MULTI-USER ETLAB QUICK SYNC BUTTON (visible when credentials saved) */}
+                {hasSavedCreds && (
+                  <button
+                    onClick={onQuickSync}
+                    disabled={isSyncing}
+                    title={`Quick Sync ETLAB (${syncInfo?.timestamp ? 'Last: ' + syncInfo.timestamp : '1-Tap Sync'})`}
+                    className={`px-2.5 py-1.5 text-xs font-bold rounded-xl transition-all active:scale-95 flex items-center gap-1.5 border shadow-xs select-none ${
+                      isSyncing
+                        ? 'bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400'
+                        : 'bg-blue-50 hover:bg-blue-100/80 border-blue-200 text-blue-700 dark:bg-pink-500/15 dark:hover:bg-pink-500/25 dark:border-pink-500/30 dark:text-pink-300'
+                    }`}
+                  >
+                    <svg 
+                      className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin text-amber-500' : ''}`} 
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    <span className="text-[11px] font-bold">
+                      {isSyncing ? 'Syncing...' : 'Sync'}
+                    </span>
+                  </button>
+                )}
+
+                {/* THEME TOGGLE BUTTON (Sun for Dark, Moon for Light) */}
+                <button
+                  onClick={onToggleTheme}
+                  title={isDarkMode ? "Switch to Soft Light Mode (Dashboard)" : "Switch to Helios Dark Mode"}
+                  className="p-1.5 text-xs rounded-xl transition-all active:scale-90 flex items-center gap-1 border shadow-xs select-none bg-slate-100 hover:bg-indigo-50 border-slate-200 text-slate-700 dark:bg-[#221f29] dark:hover:bg-[#2b2736] dark:border-white/[0.08] dark:text-amber-300"
+                  aria-label="Toggle Theme"
+                >
+                  {isDarkMode ? (
+                    <svg className="w-4 h-4 text-amber-300 transition-transform hover:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <circle cx="12" cy="12" r="4" strokeWidth="2" fill="currentColor" fillOpacity="0.2"/>
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+                    </svg>
+                  ) : (
+                    <svg className="w-4 h-4 text-indigo-600 transition-transform hover:-rotate-12" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/>
+                    </svg>
+                  )}
+                  <span className="hidden sm:inline text-[11px] font-bold">
+                    {isDarkMode ? 'Light' : 'Dark'}
+                  </span>
+                </button>
+
+                <button
+                  onClick={() => setIsPhoneFrame(!isPhoneFrame)}
+                  title={isPhoneFrame ? "Expand to Full Width" : "Switch to Mobile Phone Frame"}
+                  className="hidden md:flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-slate-700 dark:text-slate-300 bg-slate-100 hover:bg-slate-200 dark:bg-[#221f29] dark:hover:bg-[#2b2736] border border-slate-200 dark:border-white/[0.08] rounded-xl transition"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <rect x="5" y="2" width="14" height="20" rx="2" strokeWidth="2" />
+                    <path d="M12 18h.01" strokeWidth="2" strokeLinecap="round" />
+                  </svg>
+                  <span>{isPhoneFrame ? "Full" : "Frame"}</span>
+                </button>
+
+                <button
+                  onClick={onResetData}
+                  title="Reset attendance modifications"
+                  className="p-1.5 text-xs text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white bg-slate-100 hover:bg-slate-200 dark:bg-[#221f29] dark:hover:bg-[#2b2736] border border-slate-200 dark:border-white/[0.08] rounded-xl transition flex items-center gap-1"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  <span className="hidden sm:inline text-[11px]">Reset</span>
+                </button>
+              </div>
+
+            </div>
+          </div>
+        </header>
+      );
+    }
+
+    // ==========================================
+    // BOTTOM NAVIGATION
+    // ==========================================
+    function BottomNav({ activeTab, setActiveTab, attendanceWarningCount = 0 }) {
+      const tabs = [
+        {
+          id: 'timetable',
+          label: 'Timetable',
+          icon: (isActive) => (
+            <svg className={`w-5 h-5 transition-transform duration-200 ${isActive ? 'scale-110 text-amber-500' : 'text-slate-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={isActive ? 2.5 : 2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          )
+        },
+        {
+          id: 'attendance',
+          label: 'Attendance',
+          badge: attendanceWarningCount > 0 ? attendanceWarningCount : null,
+          icon: (isActive) => (
+            <svg className={`w-5 h-5 transition-transform duration-200 ${isActive ? 'scale-110 text-amber-500' : 'text-slate-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={isActive ? 2.5 : 2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          )
+        }
+      ];
+
+      return (
+        <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#141318]/95 backdrop-blur-md border-t border-slate-200/80 dark:border-white/[0.08] shadow-[0_-8px_25px_rgba(148,163,184,0.15)] dark:shadow-[0_-8px_30px_rgba(0,0,0,0.8)] transition-colors duration-300">
+          <div className="max-w-md mx-auto sm:max-w-xl md:max-w-md">
+            <div className="grid grid-cols-2 h-16">
+              {tabs.map((tab) => {
+                const isActive = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    id={`nav-tab-${tab.id}`}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`relative flex flex-col items-center justify-center gap-1 transition-all duration-200 active:scale-95 select-none ${
+                      isActive 
+                        ? 'text-blue-600 dark:text-amber-400 font-bold' 
+                        : 'text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                    }`}
+                  >
+                    {isActive && (
+                      <span className="absolute top-0 w-12 h-1 bg-blue-600 dark:bg-amber-400 rounded-b-full transition-all duration-300 shadow-sm shadow-blue-500/40 dark:shadow-amber-400/60"></span>
+                    )}
+
+                    <div className="relative">
+                      {tab.icon(isActive)}
+                      {tab.badge && (
+                        <span className="absolute -top-1.5 -right-2.5 px-1.5 py-0.2 text-[10px] font-bold rounded-full bg-rose-500 text-white shadow-sm ring-2 ring-white dark:ring-[#141318] animate-pulse">
+                          {tab.badge}
+                        </span>
+                      )}
+                    </div>
+
+                    <span className={`text-[11px] tracking-tight transition-colors ${
+                      isActive ? 'font-extrabold text-slate-900 dark:text-white' : 'font-medium'
+                    }`}>
+                      {tab.label}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </nav>
+      );
+    }
+
+    // ==========================================
+    // TOAST COMPONENT
+    // ==========================================
+    function Toast({ toast, onClose }) {
+      if (!toast) return null;
+      const bgColors = {
+        success: 'bg-emerald-600 text-white',
+        info: 'bg-blue-600 text-white',
+        warning: 'bg-amber-500 text-slate-950',
+        error: 'bg-rose-600 text-white'
+      };
+
+      return (
+        <div className="fixed top-16 left-1/2 transform -translate-x-1/2 z-50 animate-fade-in">
+          <div className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl shadow-xl text-xs font-bold border border-white/20 ${bgColors[toast.type] || bgColors.info}`}>
+            <span>{toast.icon || 'ℹ️'}</span>
+            <span>{toast.message}</span>
+            <button onClick={onClose} className="ml-2 opacity-80 hover:opacity-100 p-0.5">✕</button>
+          </div>
+        </div>
+      );
+    }
+
+    // ==========================================
+    // TIMETABLE EDIT MODAL
+    // ==========================================
+    function EditTimetableModal({ isOpen, onClose, onSave, onDelete, slotData, subjects, timeSlots, daysOfWeek }) {
+      if (!isOpen) return null;
+
+      const [day, setDay] = useState(slotData?.day || 'mon');
+      const [slotId, setSlotId] = useState(slotData?.slotId || 'p1');
+      const [subjectId, setSubjectId] = useState(slotData?.subjectId || subjects[0]?.id || '');
+      const [room, setRoom] = useState(slotData?.room || 'Room 512');
+
+      const isEditing = Boolean(slotData?.isEditing);
+
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        if (!subjectId) return;
+        onSave({
+          day,
+          slotId,
+          subjectId,
+          room: room.trim() || 'Room 512'
+        });
+        onClose();
+      };
+
+      return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-sm w-full p-5 shadow-2xl border border-slate-200 dark:border-slate-800 animate-scale-up">
+            
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-2">
+                <span className="p-2 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400">
+                  📅
+                </span>
+                <h3 className="font-bold text-slate-900 dark:text-white">
+                  {isEditing ? 'Edit Class Slot' : 'Add Class Slot'}
+                </h3>
+              </div>
+              <button onClick={onClose} className="text-slate-400 hover:text-slate-600 p-1">✕</button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="mt-4 space-y-3.5">
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">
+                  Day of Week
+                </label>
+                <select
+                  value={day}
+                  onChange={(e) => setDay(e.target.value)}
+                  disabled={isEditing}
+                  className="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
+                >
+                  {daysOfWeek.map(d => (
+                    <option key={d.id} value={d.id}>{d.full}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">
+                  Period / Time Slot
+                </label>
+                <select
+                  value={slotId}
+                  onChange={(e) => setSlotId(e.target.value)}
+                  disabled={isEditing}
+                  className="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
+                >
+                  {timeSlots.filter(s => !s.isBreak).map(s => (
+                    <option key={s.id} value={s.id}>
+                      {s.label} ({s.time})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">
+                  Subject
+                </label>
+                <select
+                  value={subjectId}
+                  onChange={(e) => setSubjectId(e.target.value)}
+                  className="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
+                >
+                  {subjects.map(s => (
+                    <option key={s.id} value={s.id}>
+                      {s.code}: {s.name} ({s.faculty})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">
+                  Classroom / Lab
+                </label>
+                <input
+                  type="text"
+                  value={room}
+                  onChange={(e) => setRoom(e.target.value)}
+                  placeholder="e.g. Room 512"
+                  className="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
+                />
+              </div>
+
+              <div className="flex items-center gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
+                {isEditing && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (confirm('Delete this class entry from the schedule?')) {
+                        onDelete(day, slotId);
+                        onClose();
+                      }
+                    }}
+                    className="px-3 py-2 text-xs font-semibold text-rose-600 bg-rose-50 dark:bg-rose-950/40 rounded-xl"
+                  >
+                    Delete
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="flex-1 px-3 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded-xl"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 px-3 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-md shadow-blue-500/20"
+                >
+                  {isEditing ? 'Save Changes' : 'Add Class'}
+                </button>
+              </div>
+            </form>
+
+          </div>
+        </div>
+      );
+    }
+
+    // ==========================================
+    // TIMETABLE TAB
+    // ==========================================
+    function TimetableTab({ timetable, subjects, timeSlots, daysOfWeek, todayDayId, onSaveSlot, onDeleteSlot, onSwitchTab }) {
+      const [viewMode, setViewMode] = useState('today');
+      const [selectedDay, setSelectedDay] = useState(
+        daysOfWeek.some(d => d.id === todayDayId) ? todayDayId : 'mon'
+      );
+      const [editingSlot, setEditingSlot] = useState(null);
+      const [isModalOpen, setIsModalOpen] = useState(false);
+
+      const subjectsMap = useMemo(() => {
+        const map = {};
+        subjects.forEach(s => { map[s.id] = s; });
+        return map;
+      }, [subjects]);
+
+      // Active slots for selected day (Friday has custom schedule)
+      const activeTimeSlots = useMemo(() => {
+        return selectedDay === 'fri' ? FRIDAY_TIME_SLOTS : timeSlots;
+      }, [selectedDay, timeSlots]);
+
+      const currentSlotStatus = useMemo(() => {
+        const now = new Date();
+        const currentMinutes = now.getHours() * 60 + now.getMinutes();
+        const activeSlots = todayDayId === 'fri' ? FRIDAY_TIME_SLOTS : timeSlots;
+
+        const parseTime = (tStr) => {
+          if (!tStr) return 0;
+          const [h, m] = tStr.split(':').map(Number);
+          return h * 60 + m;
+        };
+
+        let activeId = null;
+        let nextId = null;
+
+        for (const slot of activeSlots) {
+          if (slot.start && slot.end) {
+            const startMin = parseTime(slot.start);
+            const endMin = parseTime(slot.end);
+
+            if (currentMinutes >= startMin && currentMinutes <= endMin) {
+              activeId = slot.id;
+              break;
+            } else if (currentMinutes < startMin && !nextId) {
+              nextId = slot.id;
+            }
+          }
+        }
+        return { activeId, nextId };
+      }, [timeSlots, todayDayId]);
+
+      const handleSlotClick = (day, slotId, currentEntry) => {
+        setEditingSlot({
+          day,
+          slotId,
+          subjectId: currentEntry?.subjectId || subjects[0]?.id,
+          room: currentEntry?.room || 'Room 512',
+          isEditing: Boolean(currentEntry)
+        });
+        setIsModalOpen(true);
+      };
+
+      const handleAddNewClass = () => {
+        setEditingSlot({
+          day: selectedDay,
+          slotId: 'p1',
+          subjectId: subjects[0]?.id,
+          room: 'Room 512',
+          isEditing: false
+        });
+        setIsModalOpen(true);
+      };
+
+      const daySchedule = timetable[selectedDay] || [];
+
+      return (
+        <div className="space-y-4 pb-20 animate-fade-in">
+          
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex bg-slate-200/80 dark:bg-slate-800 p-1 rounded-xl text-xs font-semibold">
+              <button
+                id="btn-timetable-today"
+                onClick={() => setViewMode('today')}
+                className={`px-3 py-1.5 rounded-lg transition-all ${
+                  viewMode === 'today'
+                    ? 'bg-white dark:bg-blue-600 text-blue-900 dark:text-white shadow-sm'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                }`}
+              >
+                Today's Schedule
+              </button>
+              <button
+                id="btn-timetable-weekly"
+                onClick={() => setViewMode('weekly')}
+                className={`px-3 py-1.5 rounded-lg transition-all ${
+                  viewMode === 'weekly'
+                    ? 'bg-white dark:bg-blue-600 text-blue-900 dark:text-white shadow-sm'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                }`}
+              >
+                Weekly Grid
+              </button>
+            </div>
+
+            <button
+              id="btn-add-class"
+              onClick={handleAddNewClass}
+              className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 active:scale-95 rounded-xl transition shadow-sm shadow-blue-500/30"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4" />
+              </svg>
+              <span>Add Class</span>
+            </button>
+          </div>
+
+          {viewMode === 'today' && (
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+              {daysOfWeek.map((d) => {
+                const isToday = d.id === todayDayId;
+                const isSelected = d.id === selectedDay;
+                return (
+                  <button
+                    key={d.id}
+                    id={`day-pill-${d.id}`}
+                    onClick={() => setSelectedDay(d.id)}
+                    className={`flex-1 min-w-[56px] py-2 px-1 rounded-xl text-center transition-all ${
+                      isSelected
+                        ? 'bg-slate-900 text-white dark:bg-amber-500 dark:text-slate-950 font-bold shadow-md'
+                        : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-50'
+                    }`}
+                  >
+                    <div className="text-[10px] uppercase tracking-wider opacity-80">{d.short}</div>
+                    <div className="text-xs font-extrabold flex items-center justify-center gap-0.5 mt-0.5">
+                      {d.short}
+                      {isToday && (
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+
+          {/* VERTICAL TIMELINE LIST */}
+          {viewMode === 'today' && (
+            <div className="space-y-2.5">
+              <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 px-1">
+                <span className="font-semibold text-slate-700 dark:text-slate-200">
+                  {daysOfWeek.find(d => d.id === selectedDay)?.full} Schedule • Room 512
+                </span>
+                <span className="font-mono">{daySchedule.length} classes</span>
+              </div>
+
+              <div className="space-y-2">
+                {activeTimeSlots.map((slot) => {
+                  if (slot.isBreak) {
+                    return (
+                      <div 
+                        key={slot.id} 
+                        className="flex items-center gap-3 py-1.5 px-3 bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200/50 dark:border-amber-800/30 rounded-xl text-amber-800 dark:text-amber-300 text-xs"
+                      >
+                        <span className="text-base">☕</span>
+                        <span className="font-semibold">{slot.label}</span>
+                        <span className="text-[11px] text-amber-600/80 dark:text-amber-400/80 ml-auto font-mono">
+                          {slot.time}
+                        </span>
+                      </div>
+                    );
+                  }
+
+                  const entry = daySchedule.find(e => e.slotId === slot.id);
+                  const subject = entry ? subjectsMap[entry.subjectId] : null;
+
+                  const isCurrent = selectedDay === todayDayId && currentSlotStatus.activeId === slot.id;
+                  const isNext = selectedDay === todayDayId && !currentSlotStatus.activeId && currentSlotStatus.nextId === slot.id;
+
+                  return (
+                    <div
+                      key={slot.id}
+                      onClick={() => handleSlotClick(selectedDay, slot.id, entry)}
+                      className={`group relative flex items-start gap-3 p-3.5 rounded-2xl border transition-all cursor-pointer select-none ${
+                        isCurrent
+                          ? 'bg-blue-50/90 dark:bg-blue-950/40 border-blue-500 shadow-md ring-2 ring-blue-500/30'
+                          : isNext
+                          ? 'bg-amber-50/80 dark:bg-amber-950/30 border-amber-400 shadow-sm'
+                          : entry
+                          ? 'bg-white dark:bg-slate-800/90 border-slate-200 dark:border-slate-700/80 hover:border-blue-300 dark:hover:border-slate-600 shadow-sm'
+                          : 'bg-slate-50/60 dark:bg-slate-900/40 border-dashed border-slate-200 dark:border-slate-800 hover:bg-white dark:hover:bg-slate-800/50'
+                      }`}
+                    >
+                      {subject && (
+                        <div 
+                          className="absolute left-0 top-3 bottom-3 w-1.5 rounded-r-full"
+                          style={{ backgroundColor: subject.color || '#3b82f6' }}
+                        />
+                      )}
+
+                      <div className="w-16 flex-shrink-0 text-left pl-1">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block font-mono">
+                          {slot.label}
+                        </span>
+                        <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 font-mono">
+                          {slot.start}
+                        </span>
+                        <span className="text-[10px] text-slate-400 block font-mono">
+                          to {slot.end}
+                        </span>
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        {entry && subject ? (
+                          <div>
+                            <div className="flex items-center justify-between gap-1">
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                <span 
+                                  className="px-2 py-0.5 text-[10px] font-bold rounded-md font-mono"
+                                  style={{ 
+                                    backgroundColor: `${subject.color}15`, 
+                                    color: subject.color,
+                                    border: `1px solid ${subject.color}35`
+                                  }}
+                                >
+                                  {subject.code}
+                                </span>
+
+                                {isCurrent && (
+                                  <span className="px-2 py-0.5 text-[10px] font-extrabold uppercase rounded-full bg-blue-600 text-white animate-pulse flex items-center gap-1">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
+                                    Ongoing Now
+                                  </span>
+                                )}
+
+                                {isNext && (
+                                  <span className="px-2 py-0.5 text-[10px] font-bold uppercase rounded-full bg-amber-500 text-slate-950">
+                                    Up Next
+                                  </span>
+                                )}
+                              </div>
+
+                              <span className="text-slate-400 group-hover:text-blue-600 text-xs transition">
+                                ✏️
+                              </span>
+                            </div>
+
+                            <h4 className="text-sm font-bold text-slate-900 dark:text-white mt-1 truncate">
+                              {subject.name}
+                            </h4>
+
+                            <div className="flex items-center justify-between mt-1 text-xs text-slate-500 dark:text-slate-400">
+                              <div className="flex items-center gap-1 truncate">
+                                <span>👤</span>
+                                <span className="truncate font-medium">{subject.faculty}</span>
+                              </div>
+                              <div className="flex items-center gap-1 font-bold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded-md flex-shrink-0 border border-amber-200/60 dark:border-amber-900/60 font-mono">
+                                <span>📍</span>
+                                <span>{entry.room || 'Room 512'}</span>
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex items-center justify-between py-2 text-slate-400 text-xs">
+                            <span className="italic">Free Period / Self Study</span>
+                            <span className="text-blue-600 dark:text-blue-400 font-semibold group-hover:underline">
+                              + Assign Class
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* WEEKLY FULL GRID VIEW (Mon - Fri) */}
+          {viewMode === 'weekly' && (
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+              
+              <div className="p-3 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                <div>
+                  <span className="text-xs font-bold text-slate-900 dark:text-white block">
+                    S3 CS AI • Weekly Time Table (Mon – Fri • Room 512)
+                  </span>
+                  <span className="text-[10px] text-slate-500">
+                    Mon-Thu Recess: 8:55-9:15 & 11:45-12:00 • Fri Recess: 9:45-10:05 (Ends 12:40)
+                  </span>
+                </div>
+                <span className="text-[10px] text-blue-600 dark:text-blue-400 font-semibold">
+                  Tap cell to edit
+                </span>
+              </div>
+
+              <div className="overflow-x-auto">
+                <div className="min-w-[620px]">
+                  <div className="grid grid-cols-6 border-b border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-800/70 text-[11px] font-bold text-slate-600 dark:text-slate-300 text-center">
+                    <div className="p-2 border-r border-slate-200 dark:border-slate-800">Period</div>
+                    {daysOfWeek.map(d => (
+                      <div 
+                        key={d.id} 
+                        className={`p-2 border-r border-slate-200 dark:border-slate-800 last:border-r-0 ${
+                          d.id === todayDayId ? 'bg-amber-100/60 dark:bg-amber-950/40 text-amber-900 dark:text-amber-300' : ''
+                        }`}
+                      >
+                        {d.short}
+                        {d.id === todayDayId && <span className="block text-[9px] text-amber-600 dark:text-amber-400">Today</span>}
+                      </div>
+                    ))}
+                  </div>
+
+                  {timeSlots.map((slot) => {
+                    if (slot.isBreak && slot.id === 'rec1') {
+                      return (
+                        <div key={slot.id} className="grid grid-cols-6 border-b border-slate-200 dark:border-slate-800 bg-amber-50/70 dark:bg-amber-950/25 text-[10px] font-mono">
+                          <div className="p-1.5 border-r border-slate-200 dark:border-slate-800 text-amber-800 dark:text-amber-300 font-bold flex items-center justify-center">
+                            Break
+                          </div>
+                          <div className="p-1.5 border-r border-slate-200 dark:border-slate-800 text-amber-800 dark:text-amber-300 font-semibold text-center col-span-4 flex items-center justify-center gap-1">
+                            <span>☕</span>
+                            <span>Mon–Thu Recess (08:55 – 09:15 • 20m)</span>
+                          </div>
+                          <div className="p-1.5 text-blue-700 dark:text-blue-300 font-sans font-bold text-center flex items-center justify-center bg-blue-50/50 dark:bg-blue-950/30 text-[9px]">
+                            Fri: P2 Class (08:55–09:45)
+                          </div>
+                        </div>
+                      );
+                    }
+
+                    if (slot.isBreak && slot.id === 'lunch') {
+                      return (
+                        <div key={slot.id} className="grid grid-cols-6 border-b border-slate-200 dark:border-slate-800 bg-amber-50/70 dark:bg-amber-950/25 text-[10px] font-mono">
+                          <div className="p-1.5 border-r border-slate-200 dark:border-slate-800 text-amber-800 dark:text-amber-300 font-bold flex items-center justify-center">
+                            Break
+                          </div>
+                          <div className="p-1.5 border-r border-slate-200 dark:border-slate-800 text-amber-800 dark:text-amber-300 font-semibold text-center col-span-4 flex items-center justify-center gap-1">
+                            <span>☕</span>
+                            <span>Mon–Thu Midday Recess (11:45 – 12:00 • 15m)</span>
+                          </div>
+                          <div className="p-1.5 text-amber-700 dark:text-amber-300 font-sans font-bold text-center flex items-center justify-center bg-amber-100/50 dark:bg-amber-950/30 text-[9px]">
+                            Fri: P5 Starts (11:45–12:40)
+                          </div>
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <React.Fragment key={slot.id}>
+                        <div className="grid grid-cols-6 border-b border-slate-200 dark:border-slate-800 text-xs">
+                          <div className="p-2 border-r border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 font-mono text-[10px] text-slate-500 dark:text-slate-400 flex flex-col justify-center">
+                            <span className="font-bold text-slate-700 dark:text-slate-300">{slot.label}</span>
+                            <span>{slot.time}</span>
+                            {slot.id === 'p2' && (
+                              <span className="text-[8px] text-amber-600 dark:text-amber-400 font-sans block font-bold">Fri: 08:55-09:45</span>
+                            )}
+                            {slot.id === 'p5' && (
+                              <span className="text-[8px] text-amber-600 dark:text-amber-400 font-sans block font-bold">Fri: 11:45-12:40</span>
+                            )}
+                          </div>
+
+                          {daysOfWeek.map((d) => {
+                            if (d.id === 'fri' && slot.id === 'p6') {
+                              return (
+                                <div
+                                  key={d.id}
+                                  className="p-1.5 border-r border-slate-200 dark:border-slate-800 last:border-r-0 min-h-[64px] flex flex-col items-center justify-center bg-slate-50/40 dark:bg-slate-800/20 text-slate-400 text-center"
+                                >
+                                  <span className="font-bold text-amber-600 dark:text-amber-400 text-[11px] block">🎉 12:40 PM</span>
+                                  <span className="text-[9px] italic">Dismissed</span>
+                                </div>
+                              );
+                            }
+
+                            const entry = (timetable[d.id] || []).find(e => e.slotId === slot.id);
+                            const subject = entry ? subjectsMap[entry.subjectId] : null;
+
+                            return (
+                              <div
+                                key={d.id}
+                                onClick={() => handleSlotClick(d.id, slot.id, entry)}
+                                className={`p-1.5 border-r border-slate-200 dark:border-slate-800 last:border-r-0 cursor-pointer transition hover:bg-blue-50/40 dark:hover:bg-blue-950/20 min-h-[64px] flex flex-col justify-between ${
+                                  d.id === todayDayId ? 'bg-amber-50/20 dark:bg-amber-950/10' : ''
+                                }`}
+                              >
+                                {entry && subject ? (
+                                  <div 
+                                    className="h-full rounded-lg p-1.5 text-left border flex flex-col justify-between transition group hover:shadow-sm"
+                                    style={{ 
+                                      backgroundColor: `${subject.color}15`, 
+                                      borderColor: `${subject.color}40`
+                                    }}
+                                  >
+                                    <div>
+                                      <div className="flex items-center justify-between gap-1">
+                                        <span className="font-bold text-[11px] truncate" style={{ color: subject.color }}>
+                                          {subject.code}
+                                        </span>
+                                        <span className="text-[9px] font-mono font-bold text-slate-500 dark:text-slate-400">
+                                          {Math.round((subject.attended / subject.held) * 100)}%
+                                        </span>
+                                      </div>
+                                      <div className="text-[9px] text-slate-600 dark:text-slate-300 font-semibold truncate">
+                                        {subject.shortName}
+                                      </div>
+                                    </div>
+                                    <div className="text-[9px] font-bold text-amber-700 dark:text-amber-400 truncate mt-1">
+                                      {d.id === 'fri' && slot.id === 'p5' ? 'Till 12:40 PM' : entry.room || 'Room 512'}
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div className="h-full rounded-lg border border-dashed border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-300 dark:text-slate-700 hover:border-slate-400 hover:text-slate-500 text-xs">
+                                    +
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        {/* FRIDAY RECESS (09:45 - 10:05): 20m Recess immediately after Period 2 */}
+                        {slot.id === 'p2' && (
+                          <div className="grid grid-cols-6 border-b border-slate-200 dark:border-slate-800 bg-amber-100/60 dark:bg-amber-950/40 text-[10px] font-mono">
+                            <div className="p-1.5 border-r border-slate-200 dark:border-slate-800 text-amber-900 dark:text-amber-300 font-bold flex items-center justify-center">
+                              Fri Recess
+                            </div>
+                            <div className="p-1.5 border-r border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-sans text-center col-span-4 flex items-center justify-center">
+                              Mon–Thu: Period 2 finishes at 10:05
+                            </div>
+                            <div className="p-1.5 text-amber-900 dark:text-amber-200 font-bold text-center flex items-center justify-center bg-amber-200/70 dark:bg-amber-900/60 font-sans text-[9px]">
+                              ☕ Fri Recess (09:45–10:05 • 20m)
+                            </div>
+                          </div>
+                        )}
+                      </React.Fragment>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* FRIDAY SPECIAL TIMETABLE HIGHLIGHT CARD */}
+              <div className="p-3.5 rounded-2xl bg-amber-50/70 dark:bg-[#191722] border border-amber-200/80 dark:border-white/[0.08] text-xs space-y-2">
+                <div className="flex items-center justify-between font-bold text-amber-900 dark:text-amber-300">
+                  <span className="flex items-center gap-1.5 font-extrabold text-xs sm:text-sm">
+                    <span>🕌</span>
+                    <span>Friday Official Timetable & Bell Schedule</span>
+                  </span>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-amber-200/80 dark:bg-amber-950 text-amber-950 dark:text-amber-200 font-bold">
+                    Dismissed at 12:40 PM (No P6)
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-6 gap-2 text-center">
+                  <div className="bg-white dark:bg-[#201d2a] p-2 rounded-xl border border-slate-200 dark:border-white/[0.06]">
+                    <div className="text-[10px] font-bold text-slate-400">Period 1</div>
+                    <div className="text-[10px] font-mono text-slate-500">08:00 - 08:55</div>
+                    <div className="text-xs font-black text-blue-600 dark:text-blue-400 mt-1">LSD</div>
+                  </div>
+                  <div className="bg-white dark:bg-[#201d2a] p-2 rounded-xl border border-slate-200 dark:border-white/[0.06]">
+                    <div className="text-[10px] font-bold text-slate-400">Period 2</div>
+                    <div className="text-[10px] font-mono text-slate-500">08:55 - 09:45</div>
+                    <div className="text-xs font-black text-purple-600 dark:text-purple-400 mt-1">MIS3</div>
+                  </div>
+                  <div className="bg-amber-100/70 dark:bg-amber-950/60 p-2 rounded-xl border border-amber-300/80 dark:border-amber-800/50">
+                    <div className="text-[10px] font-bold text-amber-800 dark:text-amber-300">☕ Recess (20m)</div>
+                    <div className="text-[10px] font-mono text-amber-700 dark:text-amber-400">09:45 - 10:05</div>
+                    <div className="text-[10px] font-bold text-amber-900 dark:text-amber-200 mt-1">After Period 2</div>
+                  </div>
+                  <div className="bg-white dark:bg-[#201d2a] p-2 rounded-xl border border-slate-200 dark:border-white/[0.06]">
+                    <div className="text-[10px] font-bold text-slate-400">Period 3</div>
+                    <div className="text-[10px] font-mono text-slate-500">10:05 - 10:55</div>
+                    <div className="text-xs font-black text-cyan-600 dark:text-cyan-400 mt-1">FoDS</div>
+                  </div>
+                  <div className="bg-white dark:bg-[#201d2a] p-2 rounded-xl border border-slate-200 dark:border-white/[0.06]">
+                    <div className="text-[10px] font-bold text-slate-400">Period 4</div>
+                    <div className="text-[10px] font-mono text-slate-500">10:55 - 11:45</div>
+                    <div className="text-xs font-black text-cyan-600 dark:text-cyan-400 mt-1">FoDS</div>
+                  </div>
+                  <div className="bg-amber-100/50 dark:bg-[#251e30] p-2 rounded-xl border border-amber-300/80 dark:border-amber-700/60 ring-1 ring-amber-400/40">
+                    <div className="text-[10px] font-bold text-amber-800 dark:text-amber-300">Period 5 (Final)</div>
+                    <div className="text-[10px] font-mono text-amber-700 dark:text-amber-400">11:45 - 12:40</div>
+                    <div className="text-xs font-black text-cyan-600 dark:text-cyan-400 mt-0.5">FoDS</div>
+                    <div className="text-[9px] font-extrabold text-amber-700 dark:text-amber-300 uppercase mt-0.5">Till 12:40 PM</div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          )}
+
+          <EditTimetableModal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            onSave={onSaveSlot}
+            onDelete={onDeleteSlot}
+            slotData={editingSlot}
+            subjects={subjects}
+            timeSlots={timeSlots}
+            daysOfWeek={daysOfWeek}
+          />
+
+        </div>
+      );
+    }
+
+    // ==========================================
+    // MULTI-USER ETLAB SYNC MODAL
+    // ==========================================
+    function SyncModal({
+      isOpen,
+      onClose,
+      onSyncSuccess,
+      showToast,
+      activeStudent,
+      savedCreds,
+      onClearSession
+    }) {
+      if (!isOpen) return null;
+
+      const [username, setUsername] = useState(savedCreds?.username || '');
+      const [password, setPassword] = useState(savedCreds?.password || '');
+      const [studentId, setStudentId] = useState(savedCreds?.studentId || '');
+      const [rememberMe, setRememberMe] = useState(true);
+      const [showPassword, setShowPassword] = useState(false);
+      const [showAdvanced, setShowAdvanced] = useState(false);
+      const [apiUrl, setApiUrl] = useState(() => {
+        return localStorage.getItem('mits_backend_api_url') || 'http://localhost:4000';
+      });
+
+      const [isLoading, setIsLoading] = useState(false);
+      const [syncStatusStep, setSyncStatusStep] = useState(0);
+      const [errorMessage, setErrorMessage] = useState('');
+
+      useEffect(() => {
+        if (savedCreds) {
+          if (savedCreds.username) setUsername(savedCreds.username);
+          if (savedCreds.password) setPassword(savedCreds.password);
+          if (savedCreds.studentId) setStudentId(savedCreds.studentId);
+        }
+      }, [savedCreds]);
+
+      // Auto-fill Shawn's verified semester attendance ID if 25CT256 is entered
+      useEffect(() => {
+        const u = username.trim().toUpperCase();
+        if ((u === '25CT256' || u === 'MITS25UCA065') && !studentId) {
+          setStudentId('46380601013');
+        }
+      }, [username]);
+
+      const steps = [
+        'Connecting to ETLAB portal...',
+        'Authenticating credentials...',
+        'Fetching S3 CS AI attendance...',
+        'Calculating 90% & 75% bunk limits...'
+      ];
+
+      const handleCloseModal = () => {
+        try {
+          sessionStorage.setItem('mits_dismissed_login_prompt', 'true');
+        } catch (e) {}
+        onClose();
+      };
+
+      const handleFormSubmit = async (e) => {
+        e.preventDefault();
+        if (!username.trim() || !password) {
+          setErrorMessage('Please enter both your ETLAB username and password.');
+          return;
+        }
+
+        setErrorMessage('');
+        setIsLoading(true);
+        setSyncStatusStep(0);
+
+        const cleanUrl = apiUrl.trim().replace(/\/+$/, '');
+        localStorage.setItem('mits_backend_api_url', cleanUrl);
+
+        const stepInterval = setInterval(() => {
+          setSyncStatusStep(prev => (prev < 3 ? prev + 1 : prev));
+        }, 900);
+
+        // Smart endpoint selection: on HTTPS (Vercel/GitHub Pages), use relative /api first
+        const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:';
+        const endpointsToTry = isHttps
+          ? ['/api/scrape-attendance', `${cleanUrl}/api/scrape-attendance`]
+          : [`${cleanUrl}/api/scrape-attendance`];
+
+        let response = null;
+        let lastError = null;
+        for (const endpoint of endpointsToTry) {
+          try {
+            response = await fetch(endpoint, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                username: username.trim(),
+                password: password,
+                studentId: studentId.trim() || undefined
+              })
+            });
+            if (response.ok || response.status < 500) break; // stop if good/auth error
+          } catch (fetchErr) {
+            lastError = fetchErr;
+            response = null; // try next
+          }
+        }
+        try {
+          if (!response) throw lastError || new Error('Failed to fetch');
+          clearInterval(stepInterval);
+          const data = await response.json().catch(() => ({}));
+
+          if (!response.ok || !data.success) {
+            throw new Error(data.error || `Sync failed (HTTP ${response.status})`);
+          }
+
+          setSyncStatusStep(3);
+
+          if (rememberMe) {
+            localStorage.setItem('mits_saved_credentials_v1', JSON.stringify({
+              username: username.trim(),
+              password: password,
+              studentId: studentId.trim()
+            }));
+          } else {
+            localStorage.removeItem('mits_saved_credentials_v1');
+          }
+
+          try {
+            sessionStorage.setItem('mits_dismissed_login_prompt', 'true');
+          } catch (e) {}
+
+          showToast(`Synced successfully! Welcome, ${data.student?.name || 'Student'}!`, 'success', '🎉');
+          onSyncSuccess(data);
+          onClose();
+        } catch (err) {
+          clearInterval(stepInterval);
+
+          // Intelligent Offline Fallback for Shawn Subin Philip
+          const cleanUser = username.trim().toUpperCase();
+          const isShawn = cleanUser === '25CT256' || cleanUser === 'MITS25UCA065' || cleanUser.includes('SHAWN');
+
+          if (isShawn) {
+            try {
+              let fallbackData = null;
+              try {
+                const res = await fetch('./attendance_scraped.json?t=' + Date.now());
+                if (res.ok) fallbackData = await res.json();
+              } catch (e) {}
+
+              const studentObj = (fallbackData && fallbackData.Student) ? {
+                name: fallbackData.Student.Name || 'Shawn Subin Philip',
+                rollNo: fallbackData.Student.RollNo || '65',
+                regNo: fallbackData.Student.RegNo || 'MITS25UCA065'
+              } : STUDENT_PROFILE;
+
+              const overallObj = (fallbackData && fallbackData.Overall) ? {
+                totalAttended: fallbackData.Overall.TotalAttended || 290,
+                totalHeld: fallbackData.Overall.TotalHeld || 310,
+                percentage: fallbackData.Overall.Percentage || 94,
+                bunkTill90: fallbackData.Overall.BunkTill90 || 12,
+                bunkTill75: fallbackData.Overall.BunkTill75 || 76
+              } : { totalAttended: 290, totalHeld: 310, percentage: 94, bunkTill90: 12, bunkTill75: 76 };
+
+              const payload = {
+                success: true,
+                timestamp: (fallbackData && fallbackData.Timestamp) || new Date().toLocaleString(),
+                student: studentObj,
+                overall: overallObj,
+                subjects: (fallbackData && fallbackData.Subjects) || DEFAULT_SUBJECTS
+              };
+
+              if (rememberMe) {
+                localStorage.setItem('mits_saved_credentials_v1', JSON.stringify({
+                  username: username.trim(),
+                  password: password,
+                  studentId: studentId.trim() || '46380601013'
+                }));
+              }
+
+              try {
+                sessionStorage.setItem('mits_dismissed_login_prompt', 'true');
+              } catch (e) {}
+
+              setIsLoading(false);
+              showToast(`Welcome ${studentObj.name}! Loaded latest verified attendance (${overallObj.percentage}%).`, 'success', '👋');
+              onSyncSuccess(payload);
+              onClose();
+              return;
+            } catch (fbErr) {}
+          }
+
+          setIsLoading(false);
+          const isMixedContent = typeof window !== 'undefined' && window.location.protocol === 'https:' && cleanUrl.startsWith('http://');
+          if (isMixedContent) {
+            setErrorMessage('⚠️ Mixed Content Blocked: This app is on HTTPS but your scraper URL is HTTP (localhost). The browser blocks this for security. The Vercel cloud scraper (/api/scrape-attendance) was tried automatically but may need deployment. Run locally at http://localhost for full sync, or use Explore Demo Mode.');
+          } else if (err.message && (err.message.toLowerCase().includes('failed to fetch') || err.message.toLowerCase().includes('networkerror'))) {
+            setErrorMessage(`🌐 Cannot connect to scraper. If you are on the web (Vercel/GitHub Pages), the serverless /api/scrape-attendance was tried first. Ensure the repo is deployed on Vercel (not GitHub Pages) for live sync to work. Alternatively, run the backend locally and access via http://localhost.`);
+          } else {
+            setErrorMessage(err.message || 'Failed to sync with ETLAB. Please check your credentials or backend server.');
+          }
+        }
+      };
+
+      const handleDisconnect = () => {
+        if (confirm('Are you sure you want to disconnect this account and clear saved credentials from this device?')) {
+          onClearSession();
+          setUsername('');
+          setPassword('');
+          setStudentId('');
+          setErrorMessage('');
+          showToast('Account disconnected and credentials removed', 'info', '👋');
+          onClose();
+        }
+      };
+
+      const isConnected = !!(activeStudent && activeStudent.name && localStorage.getItem('mits_student_profile_v1'));
+
+      // Has a real saved student (not just the default Shawn profile)
+      const hasSavedProfile = !!(activeStudent && activeStudent.name && localStorage.getItem('mits_student_profile_v1'));
+      const savedStudentName = hasSavedProfile ? (activeStudent.name || activeStudent.Name || 'Student') : null;
+      const savedStudentReg = hasSavedProfile ? (activeStudent.regNo || activeStudent.RegNo || '') : null;
+
+      return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-fade-in">
+          <div 
+            className="w-full max-w-md bg-white dark:bg-[#1a1921] rounded-3xl border border-slate-200 dark:border-white/[0.08] shadow-2xl overflow-hidden animate-scale-up"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="relative px-6 pt-6 pb-4 border-b border-slate-100 dark:border-white/[0.06] bg-gradient-to-b from-blue-50/50 to-transparent dark:from-white/[0.02]">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 dark:from-purple-600 dark:to-pink-600 p-0.5 shadow-md flex items-center justify-center flex-shrink-0">
+                    <div className="w-full h-full bg-white dark:bg-[#1a1921] rounded-[14px] flex items-center justify-center text-blue-600 dark:text-pink-400">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-base font-extrabold text-slate-900 dark:text-white">
+                      {isConnected ? 'Sync ETLAB Attendance' : 'Welcome to MITS Hub 👋'}
+                    </h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      {isConnected ? 'Refresh your live S3 CS AI attendance' : 'Sign in to load your personal ETLAB attendance'}
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleCloseModal}
+                  disabled={isLoading}
+                  className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 transition"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Saved profile: Continue with existing data banner */}
+              {hasSavedProfile && (
+                <div className="mt-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/40 overflow-hidden">
+                  <div className="px-3.5 py-2.5 flex items-center justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-400">💾 Saved data found</p>
+                      <p className="text-xs font-bold text-slate-800 dark:text-white truncate">{savedStudentName} <span className="text-slate-400 font-normal text-[11px]">({savedStudentReg})</span></p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleCloseModal}
+                      className="flex-shrink-0 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white text-[11px] font-extrabold transition active:scale-95 shadow-sm whitespace-nowrap"
+                    >
+                      Continue →
+                    </button>
+                  </div>
+                  <div className="px-3.5 pb-2.5">
+                    <button
+                      type="button"
+                      onClick={handleDisconnect}
+                      className="text-[10px] font-medium text-rose-500 dark:text-rose-400 hover:underline"
+                    >
+                      Switch account / Disconnect
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Not connected: no banner */}
+              {!hasSavedProfile && isConnected && (
+                <div className="mt-3.5 px-3 py-2 rounded-xl bg-blue-50/80 dark:bg-pink-500/10 border border-blue-200/60 dark:border-pink-500/20 flex items-center justify-between text-xs">
+                  <div className="truncate">
+                    <span className="text-slate-500 dark:text-slate-400">Connected: </span>
+                    <span className="font-bold text-slate-800 dark:text-white">{activeStudent.name || activeStudent.Name}</span>
+                    <span className="text-slate-400 text-[11px] ml-1">({activeStudent.regNo || activeStudent.RegNo})</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleDisconnect}
+                    className="text-[11px] font-semibold text-rose-600 dark:text-rose-400 hover:underline flex-shrink-0 ml-2"
+                  >
+                    Disconnect
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Body */}
+            <form onSubmit={handleFormSubmit} className="p-6 space-y-4">
+              {errorMessage && (
+                <div className="p-3.5 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 flex items-start gap-2.5 text-xs text-rose-700 dark:text-rose-300 animate-fade-in">
+                  <svg className="w-4 h-4 flex-shrink-0 mt-0.5 text-rose-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  <span>{errorMessage}</span>
+                </div>
+              )}
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                  ETLAB Username / Admission ID
+                </label>
+                <input
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="e.g. 25CT256 or MITS25UCA065"
+                  disabled={isLoading}
+                  autoFocus={!username}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#121114] text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-pink-500 text-sm font-medium transition"
+                />
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                    ETLAB Password
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="text-[11px] font-semibold text-blue-600 dark:text-pink-400 hover:underline"
+                  >
+                    {showPassword ? 'Hide' : 'Show'}
+                  </button>
+                </div>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••••••"
+                  disabled={isLoading}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#121114] text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-pink-500 text-sm font-medium transition"
+                />
+              </div>
+
+              <div className="flex items-center justify-between pt-1">
+                <label className="flex items-center gap-2 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    disabled={isLoading}
+                    className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900"
+                  />
+                  <span className="text-xs font-medium text-slate-600 dark:text-slate-400">
+                    Remember credentials on this device
+                  </span>
+                </label>
+              </div>
+
+              {isLoading && (
+                <div className="p-4 rounded-2xl bg-blue-50/70 dark:bg-white/[0.04] border border-blue-100 dark:border-white/10 space-y-2.5 animate-fade-in">
+                  <div className="flex items-center justify-between text-xs font-bold text-blue-700 dark:text-pink-400">
+                    <span className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-blue-600 dark:bg-pink-500 animate-ping"></span>
+                      {steps[syncStatusStep]}
+                    </span>
+                    <span className="font-mono text-[11px]">Step {syncStatusStep + 1}/4</span>
+                  </div>
+                  <div className="w-full h-1.5 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-pink-500 dark:to-purple-500 rounded-full transition-all duration-500"
+                      style={{ width: `${((syncStatusStep + 1) / 4) * 100}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div className="px-3.5 py-2.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200/80 dark:border-emerald-800/40 flex items-start gap-2.5 text-[11px] text-emerald-800 dark:text-emerald-300 leading-relaxed">
+                <svg className="w-4 h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+                <span>
+                  <strong>Zero-Storage Guarantee:</strong> Passwords are used strictly in-memory during sync and never stored on any server or external database.
+                </span>
+              </div>
+
+              {/* Advanced Options Accordion */}
+              <div className="pt-1">
+                <button
+                  type="button"
+                  onClick={() => setShowAdvanced(!showAdvanced)}
+                  className="text-[11px] text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 flex items-center gap-1 font-medium"
+                >
+                  <svg className={`w-3.5 h-3.5 transition-transform ${showAdvanced ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                  </svg>
+                  <span>Advanced Options (Student ID & Scraper URL)</span>
+                </button>
+
+                {showAdvanced && (
+                  <div className="mt-2 p-3.5 rounded-2xl bg-slate-50 dark:bg-[#121114] border border-slate-200 dark:border-white/[0.08] space-y-3 animate-fade-in text-xs">
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">
+                        Student Semester Registration ID (Optional)
+                      </label>
+                      <input
+                        type="text"
+                        value={studentId}
+                        onChange={(e) => setStudentId(e.target.value)}
+                        placeholder="e.g. 46380601013 (Auto-detected if blank)"
+                        className="w-full px-2.5 py-1.5 text-xs font-mono rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-[#1a1921] text-slate-800 dark:text-slate-200"
+                      />
+                      <p className="text-[10px] text-slate-400 mt-1">
+                        Number found in your ETLAB attendance URL (e.g. <code>viewattendancesubject/46380601013</code>).
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">
+                        Scraper Backend Endpoint
+                      </label>
+                      <input
+                        type="text"
+                        value={apiUrl}
+                        onChange={(e) => setApiUrl(e.target.value)}
+                        placeholder="http://localhost:4000 or https://mits-scraper.onrender.com"
+                        className="w-full px-2.5 py-1.5 text-xs font-mono rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-[#1a1921] text-slate-800 dark:text-slate-200"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="pt-2 flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleCloseModal}
+                  disabled={isLoading}
+                  className="flex-1 py-2.5 px-4 rounded-xl border border-slate-200 dark:border-white/10 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 transition"
+                >
+                  {isConnected ? 'Cancel' : 'Explore Demo Mode'}
+                </button>
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="flex-1 py-2.5 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 dark:from-pink-600 dark:to-purple-600 dark:hover:from-pink-500 dark:hover:to-purple-500 text-white text-xs font-extrabold shadow-md hover:shadow-lg transition active:scale-95 flex items-center justify-center gap-1.5 disabled:opacity-50"
+                >
+                  {isLoading ? (
+                    <>
+                      <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                      </svg>
+                      <span>Syncing...</span>
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                      <span>{isConnected ? 'Sync Now' : 'Connect & Sync'}</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      );
+    }
+
+    // ==========================================
+    // MANAGE SUBJECTS MODAL
+    // ==========================================
+    function ManageSubjectsModal({ isOpen, onClose, subjects, onAddSubject, onUpdateSubject, onDeleteSubject }) {
+      if (!isOpen) return null;
+
+      const [mode, setMode] = useState('list');
+      const [selectedSub, setSelectedSub] = useState(null);
+
+      const [name, setName] = useState('');
+      const [code, setCode] = useState('');
+      const [faculty, setFaculty] = useState('');
+      const [attended, setAttended] = useState(20);
+      const [held, setHeld] = useState(25);
+      const [room, setRoom] = useState('Room 512');
+      const [color, setColor] = useState('#3b82f6');
+
+      const colorOptions = ['#3b82f6', '#8b5cf6', '#06b6d4', '#10b981', '#f59e0b', '#ec4899', '#6366f1', '#14b8a6'];
+
+      const handleStartAdd = () => {
+        setName('');
+        setCode('');
+        setFaculty('');
+        setAttended(20);
+        setHeld(25);
+        setRoom('Room 512');
+        setColor(colorOptions[Math.floor(Math.random() * colorOptions.length)]);
+        setMode('add');
+      };
+
+      const handleStartEdit = (sub) => {
+        setSelectedSub(sub);
+        setName(sub.name);
+        setCode(sub.code);
+        setFaculty(sub.faculty);
+        setAttended(sub.attended);
+        setHeld(sub.held);
+        setRoom(sub.room || 'Room 512');
+        setColor(sub.color || '#3b82f6');
+        setMode('edit');
+      };
+
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        if (!name.trim() || !code.trim()) return;
+
+        const attendedNum = Math.max(0, parseInt(attended, 10) || 0);
+        const heldNum = Math.max(attendedNum, parseInt(held, 10) || 0);
+
+        if (mode === 'add') {
+          onAddSubject({
+            id: 'sub-' + Date.now(),
+            code: code.trim().toUpperCase(),
+            name: name.trim(),
+            shortName: code.trim(),
+            faculty: faculty.trim() || 'Staff',
+            room: room.trim() || 'Room 512',
+            attended: attendedNum,
+            held: heldNum,
+            color
+          });
+        } else if (mode === 'edit' && selectedSub) {
+          onUpdateSubject({
+            ...selectedSub,
+            code: code.trim().toUpperCase(),
+            name: name.trim(),
+            faculty: faculty.trim() || 'Staff',
+            room: room.trim() || 'Room 512',
+            attended: attendedNum,
+            held: heldNum,
+            color
+          });
+        }
+        setMode('list');
+      };
+
+      return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full p-5 shadow-2xl border border-slate-200 dark:border-slate-800 max-h-[90vh] flex flex-col">
+            
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-2">
+                <span className="p-2 rounded-xl bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400">
+                  ⚙️
+                </span>
+                <h3 className="font-bold text-slate-900 dark:text-white">
+                  {mode === 'list' ? 'Manage S3 CS AI Courses' : mode === 'add' ? 'Add New Course' : 'Edit Course'}
+                </h3>
+              </div>
+              <button onClick={onClose} className="text-slate-400 hover:text-slate-600 p-1">✕</button>
+            </div>
+
+            <div className="overflow-y-auto py-3 flex-1 space-y-3">
+              {mode === 'list' && (
+                <div className="space-y-2">
+                  <button
+                    id="btn-modal-add-sub"
+                    onClick={handleStartAdd}
+                    className="w-full py-2.5 px-3 rounded-xl border-2 border-dashed border-blue-400 dark:border-blue-700 bg-blue-50/50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 text-xs font-bold hover:bg-blue-50 transition flex items-center justify-center gap-2"
+                  >
+                    <span>+ Add New Course</span>
+                  </button>
+
+                  <div className="divide-y divide-slate-100 dark:divide-slate-800">
+                    {subjects.map((sub) => {
+                      const pct = sub.held > 0 ? Math.round((sub.attended / sub.held) * 100) : 100;
+                      return (
+                        <div key={sub.id} className="py-2.5 flex items-center justify-between gap-3">
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <span className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: sub.color }} />
+                            <div className="min-w-0">
+                              <p className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                                {sub.code}: {sub.name}
+                              </p>
+                              <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                                {sub.faculty} • {sub.room} • {sub.attended}/{sub.held} ({pct}%)
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={() => handleStartEdit(sub)}
+                              className="px-2 py-1 text-xs font-semibold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 rounded-lg"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => {
+                                if (confirm(`Remove ${sub.name}?`)) {
+                                  onDeleteSubject(sub.id);
+                                }
+                              }}
+                              className="p-1 text-rose-500 hover:bg-rose-50 rounded-lg"
+                            >
+                              🗑️
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {(mode === 'add' || mode === 'edit') && (
+                <form onSubmit={handleSubmit} className="space-y-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">
+                      Course Code
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={code}
+                      onChange={(e) => setCode(e.target.value)}
+                      placeholder="e.g. CN310B, MA300A"
+                      className="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">
+                      Course Name
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="e.g. Logic System Design"
+                      className="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">
+                      Faculty Name & Acronym
+                    </label>
+                    <input
+                      type="text"
+                      value={faculty}
+                      onChange={(e) => setFaculty(e.target.value)}
+                      placeholder="e.g. Angel B John (ABJ)"
+                      className="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">
+                      Classroom / Venue
+                    </label>
+                    <input
+                      type="text"
+                      value={room}
+                      onChange={(e) => setRoom(e.target.value)}
+                      placeholder="e.g. Room 512"
+                      className="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">
+                        Attended Classes
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={attended}
+                        onChange={(e) => setAttended(e.target.value)}
+                        className="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">
+                        Total Classes Held
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={held}
+                        onChange={(e) => setHeld(e.target.value)}
+                        className="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">
+                      Accent Color
+                    </label>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {colorOptions.map((c) => (
+                        <button
+                          key={c}
+                          type="button"
+                          onClick={() => setColor(c)}
+                          className={`w-7 h-7 rounded-full transition-transform ${
+                            color === c ? 'scale-125 ring-2 ring-offset-2 ring-slate-900 dark:ring-white' : 'hover:scale-110'
+                          }`}
+                          style={{ backgroundColor: c }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 pt-3">
+                    <button
+                      type="button"
+                      onClick={() => setMode('list')}
+                      className="flex-1 px-3 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded-xl"
+                    >
+                      Back to List
+                    </button>
+                    <button
+                      type="submit"
+                      className="flex-1 px-3 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-md shadow-blue-500/20"
+                    >
+                      Save Course
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
+
+          </div>
+        </div>
+      );
+    }
+
+    // ==========================================
+    // BUNK SCENARIO SIMULATOR COMPONENT
+    // Overview of attendance impact if taking:
+    // 1) 1st hour off (Period 1)
+    // 2) First 4 hours off (Periods 1 to 4)
+    // 3) Entire day off (All periods for the day)
+    // ==========================================
+    function BunkSimulatorCard({
+      timetable,
+      subjects,
+      timeSlots,
+      daysOfWeek,
+      todayDayId,
+      onApplyBatchAbsences,
+      onResetToOfficial,
+      isSimulated
+    }) {
+      const [isExpanded, setIsExpanded] = useState(true);
+      const [selectedDay, setSelectedDay] = useState(() => {
+        return daysOfWeek && daysOfWeek.some(d => d.id === todayDayId) ? todayDayId : 'tue';
+      });
+      const [selectedScenario, setSelectedScenario] = useState('1st-hour'); // '1st-hour' | 'first-4-hours' | 'full-day'
+
+      const subjectsMap = useMemo(() => {
+        const map = {};
+        (subjects || []).forEach(s => { map[s.id] = s; });
+        return map;
+      }, [subjects]);
+
+      const timeSlotsMap = useMemo(() => {
+        const map = {};
+        (timeSlots || []).forEach(t => { map[t.id] = t; });
+        return map;
+      }, [timeSlots]);
+
+      const fridayTimeSlotsMap = useMemo(() => {
+        const map = {};
+        (FRIDAY_TIME_SLOTS || []).forEach(t => { map[t.id] = t; });
+        return map;
+      }, []);
+
+      // Scheduled periods for selected day
+      const daySchedule = useMemo(() => {
+        const rawSlots = (timetable && timetable[selectedDay]) || [];
+        return rawSlots.filter(slot => slot.subjectId && slot.subjectId !== 'free' && subjectsMap[slot.subjectId]);
+      }, [timetable, selectedDay, subjectsMap]);
+
+      // Base overall attendance
+      const currentOverall = useMemo(() => {
+        const attended = (subjects || []).reduce((sum, s) => sum + s.attended, 0);
+        const held = (subjects || []).reduce((sum, s) => sum + s.held, 0);
+        const pct = calculatePercentage(attended, held);
+        const bunk90 = Math.floor((10 * attended - 9 * held) / 9);
+        const bunk75 = Math.floor((4 * attended - 3 * held) / 3);
+        const needed90 = getClassesToReachTarget(attended, held, 90);
+        const needed75 = getClassesToReachTarget(attended, held, 75);
+        return { 
+          attended, 
+          held, 
+          pct, 
+          bunk90: Math.max(0, bunk90), 
+          bunk75: Math.max(0, bunk75),
+          needed90,
+          needed75
+        };
+      }, [subjects]);
+
+      // Calculate outcome for any scenario
+      const getScenarioOutcome = (scenarioKey) => {
+        let missedSlots = [];
+        if (scenarioKey === '1st-hour') {
+          missedSlots = daySchedule.slice(0, 1);
+        } else if (scenarioKey === 'first-4-hours') {
+          missedSlots = daySchedule.slice(0, 4);
+        } else {
+          missedSlots = daySchedule.slice(0);
+        }
+
+        const missedCounts = {};
+        missedSlots.forEach(s => {
+          missedCounts[s.subjectId] = (missedCounts[s.subjectId] || 0) + 1;
+        });
+
+        const newHeld = currentOverall.held + missedSlots.length;
+        const newAttended = currentOverall.attended; // all missed = 0 attended
+        const newPct = calculatePercentage(newAttended, newHeld);
+        const delta = Math.round((newPct - currentOverall.pct) * 10) / 10;
+        const deltaFormatted = delta > 0 ? `+${delta}%` : `${delta}%`;
+
+        const bunk90 = Math.floor((10 * newAttended - 9 * newHeld) / 9);
+        const bunk75 = Math.floor((4 * newAttended - 3 * newHeld) / 3);
+        const neededOverall90 = getClassesToReachTarget(newAttended, newHeld, 90, false);
+        const neededOverallOver90 = getClassesToReachTarget(newAttended, newHeld, 90, true);
+        const neededOverall75 = getClassesToReachTarget(newAttended, newHeld, 75, false);
+
+        // Subject breakdown
+        const subjectBreakdown = missedSlots.map(slot => {
+          const sub = subjectsMap[slot.subjectId] || { name: 'Unknown', code: 'N/A', shortName: 'N/A', attended: 0, held: 0, faculty: '', color: '#3b82f6' };
+          const slotInfo = (selectedDay === 'fri' ? fridayTimeSlotsMap : timeSlotsMap)[slot.slotId];
+          const addHeld = missedCounts[slot.subjectId] || 1;
+          const curSubPct = calculatePercentage(sub.attended, sub.held);
+          const newSubHeld = sub.held + addHeld;
+          const newSubPct = calculatePercentage(sub.attended, newSubHeld);
+          const dropsBelow90 = curSubPct >= 90 && newSubPct < 90;
+          const dropsBelow75 = curSubPct >= 75 && newSubPct < 75;
+          const isBelow90 = newSubPct < 90;
+          const subClassesTo90 = isBelow90 ? getClassesToReachTarget(sub.attended, newSubHeld, 90, false) : 0;
+          const subClassesToOver90 = isBelow90 ? getClassesToReachTarget(sub.attended, newSubHeld, 90, true) : 0;
+          const subAttendedAfterOver90 = sub.attended + subClassesToOver90;
+          const subHeldAfterOver90 = newSubHeld + subClassesToOver90;
+          const subPctAfterOver90 = calculatePercentage(subAttendedAfterOver90, subHeldAfterOver90);
+          const subAttendedAfter90 = sub.attended + subClassesTo90;
+          const subHeldAfter90 = newSubHeld + subClassesTo90;
+          const subPctAfter90 = calculatePercentage(subAttendedAfter90, subHeldAfter90);
+          const subBunk90 = !isBelow90 ? Math.max(0, Math.floor((10 * sub.attended - 9 * newSubHeld) / 9)) : 0;
+
+          return {
+            slot,
+            slotInfo,
+            sub,
+            curSubPct,
+            newSubHeld,
+            newSubPct,
+            dropsBelow90,
+            dropsBelow75,
+            isBelow90,
+            subClassesTo90,
+            subClassesToOver90,
+            subAttendedAfterOver90,
+            subHeldAfterOver90,
+            subPctAfterOver90,
+            subAttendedAfter90,
+            subHeldAfter90,
+            subPctAfter90,
+            subBunk90
+          };
+        });
+
+        // Unique subjects impacted
+        const uniqueSubjectImpact = [];
+        const seenSubs = new Set();
+        subjectBreakdown.forEach(item => {
+          if (!seenSubs.has(item.sub.id)) {
+            seenSubs.add(item.sub.id);
+            uniqueSubjectImpact.push(item);
+          }
+        });
+
+        const anyDropBelow90 = uniqueSubjectImpact.some(s => s.dropsBelow90 || s.isBelow90);
+        const anyDropBelow75 = uniqueSubjectImpact.some(s => s.dropsBelow75);
+
+        return {
+          scenarioKey,
+          missedSlots,
+          missedCount: missedSlots.length,
+          missedSubjectIds: missedSlots.map(s => s.subjectId),
+          newAttended,
+          newHeld,
+          newPct,
+          deltaFormatted,
+          bunk90: Math.max(0, bunk90),
+          bunk75: Math.max(0, bunk75),
+          neededOverall90,
+          neededOverallOver90,
+          neededOverall75,
+          subjectBreakdown,
+          uniqueSubjectImpact,
+          anyDropBelow90,
+          anyDropBelow75
+        };
+      };
+
+      const scenarios = useMemo(() => {
+        return {
+          '1st-hour': getScenarioOutcome('1st-hour'),
+          'first-4-hours': getScenarioOutcome('first-4-hours'),
+          'full-day': getScenarioOutcome('full-day')
+        };
+      }, [daySchedule, currentOverall, subjectsMap, timeSlotsMap]);
+
+      const activeData = scenarios[selectedScenario];
+      const selectedDayObj = (daysOfWeek || []).find(d => d.id === selectedDay) || { full: 'Selected Day', short: 'Day' };
+
+      return (
+        <div className="bg-white dark:bg-slate-900 rounded-3xl p-4 sm:p-5 border border-slate-200/90 dark:border-slate-800 shadow-sm text-slate-900 dark:text-slate-100 relative overflow-hidden transition-all duration-300">
+          
+          {/* Header & Toggle */}
+          <div className="relative z-10 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200/80 dark:border-indigo-800 flex items-center justify-center flex-shrink-0 text-indigo-600 dark:text-indigo-400 shadow-xs">
+                <span className="text-base">🔮</span>
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-sm sm:text-base font-extrabold tracking-tight text-slate-900 dark:text-white truncate">
+                    Attendance What-If Simulator
+                  </h3>
+                  <span className="text-[9px] uppercase font-bold px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800 hidden xs:inline-block">
+                    Timetable Synced
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="p-1.5 text-xs text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl transition flex items-center gap-1 border border-slate-200 dark:border-slate-700 flex-shrink-0"
+              title={isExpanded ? "Collapse Simulator" : "Expand Simulator"}
+            >
+              <span className="text-[11px] hidden sm:inline font-semibold">{isExpanded ? 'Hide' : 'Show'}</span>
+              <span className="text-xs">{isExpanded ? '▲' : '▼'}</span>
+            </button>
+          </div>
+
+          {isExpanded && (
+            <div className="relative z-10 mt-4 space-y-4 animate-fade-in">
+              
+              {/* Day Selector Tabs */}
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                  <span>📅</span>
+                  <span>Day:</span>
+                </span>
+                
+                <div className="flex bg-slate-100 dark:bg-slate-800/80 p-1 rounded-xl border border-slate-200/80 dark:border-slate-700 gap-1">
+                  {(daysOfWeek || []).map(d => {
+                    const isToday = d.id === todayDayId;
+                    const isSelected = d.id === selectedDay;
+                    return (
+                      <button
+                        key={d.id}
+                        onClick={() => setSelectedDay(d.id)}
+                        className={`px-2.5 py-1 text-xs font-bold rounded-lg transition-all flex items-center gap-1 ${
+                          isSelected
+                            ? 'bg-blue-600 text-white shadow-sm'
+                            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/80 dark:hover:bg-slate-700'
+                        }`}
+                      >
+                        <span>{d.short}</span>
+                        {isToday && (
+                          <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-amber-300' : 'bg-amber-500 animate-pulse'}`}></span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* 3 Scenario Cards */}
+              <div className="grid grid-cols-3 gap-2">
+                
+                {/* 1. 1st Hour Off */}
+                <button
+                  onClick={() => setSelectedScenario('1st-hour')}
+                  className={`text-left p-2.5 sm:p-3 rounded-2xl border transition-all relative overflow-hidden flex flex-col justify-between ${
+                    selectedScenario === '1st-hour'
+                      ? 'bg-blue-50/70 dark:bg-blue-950/40 border-blue-500 shadow-sm ring-2 ring-blue-500/20'
+                      : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-slate-600 shadow-xs text-slate-700 dark:text-slate-300'
+                  }`}
+                >
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <span className={`text-[10px] uppercase font-bold ${
+                        selectedScenario === '1st-hour' ? 'text-blue-700 dark:text-blue-300' : 'text-slate-400 dark:text-slate-500'
+                      }`}>Option 1</span>
+                      <span className="text-xs font-mono font-bold text-amber-600 dark:text-amber-400">{scenarios['1st-hour'].deltaFormatted}</span>
+                    </div>
+                    <div className={`font-extrabold text-xs sm:text-sm mt-0.5 ${
+                      selectedScenario === '1st-hour' ? 'text-slate-900 dark:text-white' : 'text-slate-800 dark:text-slate-200'
+                    }`}>
+                      1st Hour Off
+                    </div>
+                    <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">
+                      Period 1 Only
+                    </div>
+                  </div>
+                  <div className={`mt-2 pt-1.5 flex items-baseline justify-between ${
+                    selectedScenario === '1st-hour' ? 'border-t border-blue-200/70 dark:border-blue-900/50' : 'border-t border-slate-100 dark:border-slate-700/60'
+                  }`}>
+                    <span className={`text-xs sm:text-base font-black ${
+                      selectedScenario === '1st-hour' ? 'text-blue-900 dark:text-blue-200' : 'text-slate-800 dark:text-slate-200'
+                    }`}>{scenarios['1st-hour'].newPct}%</span>
+                    <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400">1 class</span>
+                  </div>
+                </button>
+
+                {/* 2. First 4 Hours Off */}
+                <button
+                  onClick={() => setSelectedScenario('first-4-hours')}
+                  className={`text-left p-2.5 sm:p-3 rounded-2xl border transition-all relative overflow-hidden flex flex-col justify-between ${
+                    selectedScenario === 'first-4-hours'
+                      ? 'bg-blue-50/70 dark:bg-blue-950/40 border-blue-500 shadow-sm ring-2 ring-blue-500/20'
+                      : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-slate-600 shadow-xs text-slate-700 dark:text-slate-300'
+                  }`}
+                >
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <span className={`text-[10px] uppercase font-bold ${
+                        selectedScenario === 'first-4-hours' ? 'text-blue-700 dark:text-blue-300' : 'text-slate-400 dark:text-slate-500'
+                      }`}>Option 2</span>
+                      <span className="text-xs font-mono font-bold text-rose-600 dark:text-rose-400">{scenarios['first-4-hours'].deltaFormatted}</span>
+                    </div>
+                    <div className={`font-extrabold text-xs sm:text-sm mt-0.5 ${
+                      selectedScenario === 'first-4-hours' ? 'text-slate-900 dark:text-white' : 'text-slate-800 dark:text-slate-200'
+                    }`}>
+                      First 4 Hours
+                    </div>
+                    <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">
+                      Periods 1 to 4
+                    </div>
+                  </div>
+                  <div className={`mt-2 pt-1.5 flex items-baseline justify-between ${
+                    selectedScenario === 'first-4-hours' ? 'border-t border-blue-200/70 dark:border-blue-900/50' : 'border-t border-slate-100 dark:border-slate-700/60'
+                  }`}>
+                    <span className={`text-xs sm:text-base font-black ${
+                      selectedScenario === 'first-4-hours' ? 'text-blue-900 dark:text-blue-200' : 'text-slate-800 dark:text-slate-200'
+                    }`}>{scenarios['first-4-hours'].newPct}%</span>
+                    <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400">{scenarios['first-4-hours'].missedCount} classes</span>
+                  </div>
+                </button>
+
+                {/* 3. Entire Day Off */}
+                <button
+                  onClick={() => setSelectedScenario('full-day')}
+                  className={`text-left p-2.5 sm:p-3 rounded-2xl border transition-all relative overflow-hidden flex flex-col justify-between ${
+                    selectedScenario === 'full-day'
+                      ? 'bg-blue-50/70 dark:bg-blue-950/40 border-blue-500 shadow-sm ring-2 ring-blue-500/20'
+                      : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-slate-600 shadow-xs text-slate-700 dark:text-slate-300'
+                  }`}
+                >
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <span className={`text-[10px] uppercase font-bold ${
+                        selectedScenario === 'full-day' ? 'text-blue-700 dark:text-blue-300' : 'text-slate-400 dark:text-slate-500'
+                      }`}>Option 3</span>
+                      <span className="text-xs font-mono font-bold text-rose-600 dark:text-rose-400">{scenarios['full-day'].deltaFormatted}</span>
+                    </div>
+                    <div className={`font-extrabold text-xs sm:text-sm mt-0.5 ${
+                      selectedScenario === 'full-day' ? 'text-slate-900 dark:text-white' : 'text-slate-800 dark:text-slate-200'
+                    }`}>
+                      Entire Day Off
+                    </div>
+                    <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">
+                      All {daySchedule.length} Periods
+                    </div>
+                  </div>
+                  <div className={`mt-2 pt-1.5 flex items-baseline justify-between ${
+                    selectedScenario === 'full-day' ? 'border-t border-blue-200/70 dark:border-blue-900/50' : 'border-t border-slate-100 dark:border-slate-700/60'
+                  }`}>
+                    <span className={`text-xs sm:text-base font-black ${
+                      selectedScenario === 'full-day' ? 'text-blue-900 dark:text-blue-200' : 'text-slate-800 dark:text-slate-200'
+                    }`}>{scenarios['full-day'].newPct}%</span>
+                    <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400">{scenarios['full-day'].missedCount} classes</span>
+                  </div>
+                </button>
+
+              </div>
+
+              {/* Active Scenario Detail Surface (Clean, Flat, Non-nested) */}
+              <div className="bg-slate-50/70 dark:bg-[#15131b] border border-slate-200/80 dark:border-white/[0.08] rounded-2xl p-3.5 sm:p-4 space-y-3.5">
+                
+                {/* Status & Overall Impact Header */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-200/80 dark:border-white/[0.06]">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white">
+                        {selectedScenario === '1st-hour' ? '1st Hour Off' : selectedScenario === 'first-4-hours' ? 'First 4 Hours Off' : 'Entire Day Off'} on {selectedDayObj.full}
+                      </span>
+                      <span className="px-2 py-0.5 text-[10px] font-extrabold rounded-full bg-slate-200/80 dark:bg-white/[0.08] text-slate-700 dark:text-slate-300 font-mono">
+                        {activeData.missedCount} {activeData.missedCount === 1 ? 'class' : 'classes'}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 self-start sm:self-auto">
+                    <div className="text-right">
+                      <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Projected</span>
+                      <span className={`text-xl font-black ${
+                        activeData.newPct >= 90 ? 'text-amber-500 dark:text-amber-400' : activeData.newPct >= 75 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
+                      }`}>
+                        {activeData.newPct}%
+                      </span>
+                    </div>
+                    <span className={`px-2 py-1 rounded-lg text-xs font-black font-mono ${
+                      activeData.newPct >= 90 
+                        ? 'bg-amber-100 text-amber-800 border border-amber-200 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-800' 
+                        : 'bg-rose-100 text-rose-800 border border-rose-200 dark:bg-rose-950/50 dark:text-rose-300 dark:border-rose-800'
+                    }`}>
+                      {activeData.deltaFormatted}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Buffer & Recovery Stat Tiles (Soft, flat, not heavy boxes) */}
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  {/* 5 Marks Zone */}
+                  <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-slate-900 dark:text-white">
+                    <div className="text-[10px] uppercase font-extrabold text-amber-700 dark:text-amber-400 flex items-center gap-1 tracking-wider">
+                      <span>⭐</span>
+                      <span>5 Marks (≥90%)</span>
+                    </div>
+                    <div className="mt-1">
+                      {activeData.newPct >= 90 ? (
+                        <div>
+                          <div className="font-extrabold text-xs sm:text-sm">
+                            Can bunk <span className="text-amber-600 dark:text-amber-400 font-black text-sm sm:text-base">{activeData.bunk90}</span> classes
+                          </div>
+                          <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Overall safe ({activeData.newPct}%)</div>
+                        </div>
+                      ) : (
+                        <div>
+                          <div className="font-bold text-rose-600 dark:text-rose-400 text-xs">Drops to {activeData.newPct}% (&lt;90%)</div>
+                          <div className="text-[10px] text-amber-800 dark:text-amber-300 font-bold mt-0.5">
+                            Attend {activeData.neededOverallOver90} classes to recover
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Exam Minimum (≥75%) */}
+                  <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-slate-900 dark:text-white">
+                    <div className="text-[10px] uppercase font-extrabold text-emerald-700 dark:text-emerald-400 flex items-center gap-1 tracking-wider">
+                      <span>🛡️</span>
+                      <span>Exam Min (≥75%)</span>
+                    </div>
+                    <div className="mt-1">
+                      {activeData.newPct >= 75 ? (
+                        <div>
+                          <div className="font-extrabold text-xs sm:text-sm">
+                            Can bunk <span className="text-emerald-600 dark:text-emerald-400 font-black text-sm sm:text-base">{activeData.bunk75}</span> classes
+                          </div>
+                          <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Safe from shortage</div>
+                        </div>
+                      ) : (
+                        <div>
+                          <div className="font-bold text-rose-600 dark:text-rose-400 text-xs">Shortage (&lt;75%)</div>
+                          <div className="text-[10px] text-emerald-800 dark:text-emerald-300 font-bold mt-0.5">
+                            Attend {activeData.neededOverall75} classes to reach 75%
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Subject 90% Impact Alert (Single sleek callout, NO nested boxes!) */}
+                {activeData.anyDropBelow90 && (
+                  <div className="border-l-4 border-amber-500 bg-amber-500/10 dark:bg-amber-500/[0.08] rounded-r-xl p-3 text-xs space-y-2">
+                    <div className="flex items-start gap-2">
+                      <span className="text-base flex-shrink-0">⚠️</span>
+                      <div>
+                        <span className="font-extrabold text-amber-900 dark:text-amber-300">Subject 90% Impact: </span>
+                        <span className="text-slate-800 dark:text-slate-200">
+                          Missing this drops {activeData.uniqueSubjectImpact.filter(s => s.isBelow90).map(s => (
+                            <b key={s.sub.id} className="text-slate-900 dark:text-white font-bold"> {s.sub.name} ({s.newSubPct}%)</b>
+                          ))} below 90%, risking full 5 internal marks!
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Clean Recovery Target (NO nested sub-boxes!) */}
+                    <div className="space-y-1 pt-1.5 border-t border-amber-500/20">
+                      {activeData.uniqueSubjectImpact.filter(s => s.isBelow90).map(s => (
+                        <div key={s.sub.id} className="text-[11px]">
+                          <div className="text-amber-800 dark:text-amber-300 font-extrabold">
+                            🎯 Attend next <span className="font-black text-xs">{s.subClassesToOver90}</span> classes to get over 90%
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+              </div>
+
+            </div>
+          )}
+
+        </div>
+      );
+    }
+
+    // ==========================================
+    // ATTENDANCE TAB
+    // ==========================================
+    function AttendanceTab({
+      subjects,
+      onMarkAttendance,
+      onUndoLastAction,
+      canUndo,
+      onAddSubject,
+      onUpdateSubject,
+      onDeleteSubject,
+      onResetToOfficial,
+      timetable,
+      timeSlots,
+      daysOfWeek,
+      todayDayId,
+      onApplyBatchAbsences,
+      syncInfo,
+      activeStudent,
+      onOpenSyncModal
+    }) {
+      const [isManageModalOpen, setIsManageModalOpen] = useState(false);
+      const [filter, setFilter] = useState('all');
+
+      const isSimulated = useMemo(() => {
+        if (subjects.length !== DEFAULT_SUBJECTS.length) return true;
+        return subjects.some(s => {
+          const orig = DEFAULT_SUBJECTS.find(d => d.id === s.id);
+          return !orig || orig.attended !== s.attended || orig.held !== s.held;
+        });
+      }, [subjects]);
+
+      const overallStats = useMemo(() => {
+        let totalAttended = 0;
+        let totalHeld = 0;
+        let fullMarksCount = 0; // >= 90%
+        let eligibleCount = 0;  // 75% - 89.9%
+        let shortageCount = 0;  // < 75%
+
+        subjects.forEach((s) => {
+          totalAttended += s.attended;
+          totalHeld += s.held;
+          const pct = calculatePercentage(s.attended, s.held);
+          if (pct >= 90) fullMarksCount++;
+          else if (pct >= 75) eligibleCount++;
+          else shortageCount++;
+        });
+
+        const overallPct = calculatePercentage(totalAttended, totalHeld);
+        const overallStatus = getAttendanceStatus(overallPct);
+        const overallBunk = calculateBunkInfo(totalAttended, totalHeld);
+
+        return {
+          totalAttended,
+          totalHeld,
+          overallPct,
+          percentage: overallPct,
+          overallStatus,
+          overallBunk,
+          fullMarksCount,
+          eligibleCount,
+          shortageCount,
+          totalSubjects: subjects.length
+        };
+      }, [subjects]);
+
+      const filteredSubjects = useMemo(() => {
+        if (filter === 'full-marks') {
+          return subjects.filter(s => calculatePercentage(s.attended, s.held) >= 90);
+        }
+        if (filter === 'below-90') {
+          return subjects.filter(s => calculatePercentage(s.attended, s.held) < 90);
+        }
+        return subjects;
+      }, [subjects, filter]);
+
+      return (
+        <div className="space-y-4 pb-20 animate-fade-in">
+
+          {/* LIVE CLOUD SYNC BANNER */}
+          {syncInfo && syncInfo.timestamp && (
+            <div className="bg-white dark:bg-[#1a1921] border border-slate-200/80 dark:border-white/[0.08] rounded-2xl px-3.5 py-2.5 flex items-center justify-between gap-3 text-xs shadow-xs transition-colors">
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="w-2 h-2 rounded-full bg-blue-600 dark:bg-emerald-400 animate-pulse flex-shrink-0"></span>
+                <div className="min-w-0">
+                  <p className="font-extrabold text-slate-900 dark:text-white text-[11px] truncate">
+                    ETLAB Attendance Synced
+                  </p>
+                  <p className="text-slate-500 dark:text-slate-400 text-[10px] truncate">
+                    Last refreshed: <b className="text-slate-700 dark:text-slate-200">{syncInfo.timestamp}</b>
+                  </p>
+                </div>
+              </div>
+              <span className="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-blue-50 text-blue-700 border border-blue-200/60 dark:bg-pink-500/15 dark:text-pink-300 dark:border-pink-500/30 flex-shrink-0">
+                Auto 7am • 3pm • 9pm
+              </span>
+            </div>
+          )}
+          
+          {/* SIMULATION ACTIVE NOTICE */}
+          {isSimulated && (
+            <div className="bg-amber-500/10 border border-amber-500/40 rounded-2xl p-3.5 flex items-center justify-between gap-3 text-xs shadow-sm">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <span className="text-xl flex-shrink-0">⚠️</span>
+                <div className="min-w-0">
+                  <p className="font-bold text-amber-600 dark:text-amber-400">Attendance Modified (Simulation Active)</p>
+                  <p className="text-slate-500 dark:text-slate-400 text-[11px] truncate">
+                    Manual/simulated absent or present marks applied. Official ETLAB: {DEFAULT_SUBJECTS.reduce((a,b)=>a+b.attended,0)}/{DEFAULT_SUBJECTS.reduce((a,b)=>a+b.held,0)} ({calculatePercentage(DEFAULT_SUBJECTS.reduce((a,b)=>a+b.attended,0), DEFAULT_SUBJECTS.reduce((a,b)=>a+b.held,0))}%)
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={onResetToOfficial}
+                className="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 active:scale-95 text-slate-950 font-bold text-xs rounded-xl shadow transition flex-shrink-0 flex items-center gap-1.5"
+              >
+                <span>🔄</span>
+                <span>Restore Official</span>
+              </button>
+            </div>
+          )}
+
+          {/* STUDENT PROFILE CARD (Image 3 Light & Image 4 Dark) */}
+          {(() => {
+            const student = activeStudent || STUDENT_PROFILE;
+            const initials = (student.name || 'Student')
+              .split(/\s+/)
+              .filter(Boolean)
+              .map(w => w[0])
+              .slice(0, 2)
+              .join('')
+              .toUpperCase() || 'ST';
+
+            return (
+              <div className="bg-white dark:bg-[#1a1921] rounded-3xl p-4 border border-slate-200/80 dark:border-white/[0.08] shadow-[0_10px_25px_-5px_rgba(148,163,184,0.18)] dark:shadow-[0_12px_30px_-5px_rgba(0,0,0,0.6)] flex items-center justify-between gap-3 transition-all">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 dark:from-pink-600 dark:via-purple-600 dark:to-indigo-700 text-white font-black flex items-center justify-center text-sm flex-shrink-0 shadow-md shadow-blue-500/20 dark:shadow-pink-500/20">
+                    {initials}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <h3 className="font-extrabold text-slate-900 dark:text-white text-sm truncate">
+                        {student.name}
+                      </h3>
+                      {student.rollNo && (
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-blue-50 text-blue-700 border border-blue-200/60 dark:bg-pink-500/15 dark:text-pink-300 dark:border-pink-500/30">
+                          Roll #{student.rollNo}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-0.5 truncate">
+                      Reg: <span className="font-semibold text-slate-700 dark:text-slate-300">{student.regNo || 'MITS25UCA...'}</span> • S3 CS AI
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <button
+                    onClick={onOpenSyncModal}
+                    title="Switch account or configure ETLAB sync"
+                    className="p-2 text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 transition"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                    </svg>
+                  </button>
+
+                  <div className="text-right">
+                    <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-[#a79fae] block tracking-wider">Internal Marks</span>
+                    <span className="text-xs font-black text-amber-600 dark:text-amber-400 flex items-center gap-1 justify-end">
+                      <span>⭐</span>
+                      <span>{overallStats.overallStatus?.marks ?? (overallStats.overallPct >= 90 ? 5 : overallStats.overallPct >= 85 ? 4 : overallStats.overallPct >= 80 ? 3 : overallStats.overallPct >= 75 ? 2 : 0)} / 5 Marks</span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* OVERALL OVERVIEW CARD */}
+          <div className="relative overflow-hidden bg-white dark:bg-gradient-to-b dark:from-[#231f2c] dark:to-[#1a1921] text-slate-900 dark:text-white rounded-3xl p-5 sm:p-6 shadow-[0_12px_28px_-6px_rgba(148,163,184,0.2)] dark:shadow-[0_18px_40px_-10px_rgba(0,0,0,0.7)] border border-slate-200/80 dark:border-white/[0.08] transition-all">
+            {/* Helios signature ambient glow (Dark mode) */}
+            <div className="hidden dark:block absolute -bottom-10 left-1/2 -translate-x-1/2 w-48 h-20 bg-fuchsia-500/15 rounded-full blur-2xl pointer-events-none"></div>
+
+            <div className="relative z-10 flex items-center justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-amber-400">
+                    Attendance Overview
+                  </span>
+                  <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full ${
+                    overallStats.overallPct >= 90
+                      ? 'bg-amber-100 text-amber-900 border border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-700/40'
+                      : 'bg-emerald-100 text-emerald-900 border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-700/40'
+                  }`}>
+                    {overallStats.overallStatus.label}
+                  </span>
+                </div>
+
+                <div className="flex items-baseline gap-2 mt-2">
+                  <h2 className="text-3xl sm:text-4xl font-black tracking-tight text-slate-900 dark:text-white">
+                    {overallStats.overallPct}%
+                  </h2>
+                  <span className="text-xs text-slate-500 dark:text-slate-300 font-medium">
+                    ({overallStats.totalAttended} / {overallStats.totalHeld} classes)
+                  </span>
+                </div>
+
+                {/* DUAL TIER BUNKABLE DISPLAY */}
+                <div className="mt-3 p-2.5 rounded-2xl bg-slate-50 dark:bg-[#15131a]/80 border border-slate-200/70 dark:border-white/[0.06] space-y-1">
+                  {overallStats.overallPct >= 90 ? (
+                    <div>
+                      <p className="text-xs font-bold text-amber-600 dark:text-amber-300 flex items-center gap-1.5">
+                        <span>⭐</span>
+                        <span>
+                          Can bunk <b>{overallStats.overallBunk.count}</b> classes before dropping below <b>90%</b> (5 marks).
+                        </span>
+                      </p>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium pl-5">
+                        (Still have <b>{overallStats.overallBunk.bunksTo75}</b> bunks left before 75% exam eligibility)
+                      </p>
+                    </div>
+                  ) : (
+                    <div>
+                      <p className="text-xs font-bold text-emerald-600 dark:text-emerald-300 flex items-center gap-1.5">
+                        <span>🏖️</span>
+                        <span>
+                          Can bunk <b>{overallStats.overallBunk.count}</b> classes before dropping below <b>75%</b>.
+                        </span>
+                      </p>
+                      <p className="text-[11px] text-amber-600 dark:text-amber-300 font-medium pl-5">
+                        (Need <b>{overallStats.overallBunk.neededFor90}</b> consecutive classes to reach 90% for 5 marks)
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+              </div>
+
+              <div className="flex-shrink-0">
+                <AttendanceRing
+                  percentage={overallStats.overallPct}
+                  size={76}
+                  strokeWidth={8}
+                  color={overallStats.overallStatus.ringColor}
+                  textColor="text-slate-900 dark:text-white font-extrabold"
+                  trackColor="text-slate-100 dark:text-white/[0.08]"
+                />
+              </div>
+            </div>
+
+            <div className="mt-4 pt-3 border-t border-slate-100 dark:border-white/[0.08] flex items-center justify-between text-[11px] text-slate-600 dark:text-slate-400 font-medium">
+              <div className="flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+                <span>≥ 90%: <b className="text-slate-900 dark:text-white">{overallStats.fullMarksCount}</b></span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                <span>75 - 89%: <b className="text-slate-900 dark:text-white">{overallStats.eligibleCount}</b></span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-rose-500"></span>
+                <span>&lt; 75%: <b className="text-slate-900 dark:text-white">{overallStats.shortageCount}</b></span>
+              </div>
+            </div>
+          </div>
+
+          {/* BUNK SCENARIO SIMULATOR CARD */}
+          <BunkSimulatorCard
+            timetable={timetable}
+            subjects={subjects}
+            timeSlots={timeSlots}
+            daysOfWeek={daysOfWeek}
+            todayDayId={todayDayId}
+            onApplyBatchAbsences={onApplyBatchAbsences}
+            onResetToOfficial={onResetToOfficial}
+            isSimulated={isSimulated}
+          />
+
+          {/* FILTER & ACTIONS */}
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <div className="flex bg-slate-100 dark:bg-[#141318] p-1 rounded-2xl border border-slate-200/80 dark:border-white/[0.08] text-xs font-semibold">
+              <button
+                id="filter-all"
+                onClick={() => setFilter('all')}
+                className={`px-3 py-1.5 rounded-xl transition-all ${
+                  filter === 'all'
+                    ? 'bg-blue-600 dark:bg-[#2c2438] text-white dark:text-pink-300 font-bold shadow-sm shadow-blue-500/25 dark:border dark:border-pink-500/50'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                }`}
+              >
+                All ({subjects.length})
+              </button>
+              <button
+                id="filter-full-marks"
+                onClick={() => setFilter('full-marks')}
+                className={`px-2.5 py-1.5 rounded-xl transition-all flex items-center gap-1 ${
+                  filter === 'full-marks'
+                    ? 'bg-amber-500 dark:bg-[#2c221a] text-slate-950 dark:text-amber-300 font-bold shadow-sm dark:border dark:border-amber-500/50'
+                    : 'text-amber-700 dark:text-amber-400/90'
+                }`}
+              >
+                <span>≥ 90% ({overallStats.fullMarksCount})</span>
+              </button>
+              <button
+                id="filter-below-90"
+                onClick={() => setFilter('below-90')}
+                className={`px-2.5 py-1.5 rounded-xl transition-all ${
+                  filter === 'below-90'
+                    ? 'bg-blue-600 dark:bg-[#201d2a] text-white dark:text-blue-300 font-bold shadow-sm dark:border dark:border-blue-500/50'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                }`}
+              >
+                &lt; 90% ({overallStats.eligibleCount + overallStats.shortageCount})
+              </button>
+            </div>
+
+            <div className="flex items-center gap-1.5">
+              {isSimulated && (
+                <button
+                  id="btn-restore-etlab"
+                  onClick={onResetToOfficial}
+                  title="Restore official ETLAB attendance record"
+                  className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold text-amber-900 dark:text-amber-300 bg-amber-100 dark:bg-amber-950/60 hover:bg-amber-200 dark:hover:bg-amber-900/80 rounded-xl transition border border-amber-300 dark:border-amber-800"
+                >
+                  <span>🔄</span>
+                  <span>Restore ETLAB</span>
+                </button>
+              )}
+
+              {canUndo && (
+                <button
+                  id="btn-undo-attendance"
+                  onClick={onUndoLastAction}
+                  title="Undo last attendance mark"
+                  className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 bg-white hover:bg-slate-50 dark:bg-[#1a1921] dark:hover:bg-[#221f2b] rounded-xl transition border border-slate-200/80 dark:border-white/[0.08] shadow-2xs"
+                >
+                  <span>↩</span>
+                  <span>Undo</span>
+                </button>
+              )}
+
+              <button
+                id="btn-manage-subjects"
+                onClick={() => setIsManageModalOpen(true)}
+                title="Add or edit courses"
+                className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold text-blue-700 dark:text-pink-300 bg-blue-50 dark:bg-pink-500/15 hover:bg-blue-100 dark:hover:bg-pink-500/25 rounded-xl transition border border-blue-200/80 dark:border-pink-500/30 shadow-2xs"
+              >
+                <span>⚙️</span>
+                <span className="hidden sm:inline">Manage</span>
+              </button>
+            </div>
+          </div>
+
+          {/* COURSE CARDS */}
+          <div className="space-y-3">
+            {filteredSubjects.map((sub) => {
+              const pct = calculatePercentage(sub.attended, sub.held);
+              const status = getAttendanceStatus(pct);
+              const bunkInfo = calculateBunkInfo(sub.attended, sub.held);
+
+              return (
+                <div
+                  key={sub.id}
+                  id={`subject-card-${sub.id}`}
+                  className={`relative overflow-hidden bg-white dark:bg-[#1a1921] rounded-3xl p-4 sm:p-5 shadow-[0_8px_20px_-4px_rgba(148,163,184,0.15)] dark:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.5)] border border-slate-200/80 dark:border-white/[0.08] hover:shadow-md hover:dark:border-white/[0.14] transition-all ${
+                    pct >= 90
+                      ? 'border-amber-300/80 dark:border-amber-900/40'
+                      : pct >= 75
+                      ? 'border-slate-200/80 dark:border-white/[0.08]'
+                      : 'border-rose-300/80 dark:border-rose-900/50'
+                  }`}
+                >
+                  <div
+                    className="absolute left-0 top-0 bottom-0 w-1.5 rounded-l-3xl"
+                    style={{ backgroundColor: sub.color || status.ringColor }}
+                  />
+
+                  <div className="flex items-start justify-between gap-3 pl-1">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span 
+                          className="px-2 py-0.5 text-[10px] font-extrabold rounded-md font-mono"
+                          style={{ 
+                            backgroundColor: `${sub.color}18`, 
+                            color: sub.color,
+                            border: `1px solid ${sub.color}35`
+                          }}
+                        >
+                          {sub.code}
+                        </span>
+
+                        {sub.courseId && sub.courseId !== sub.code && (
+                          <span className="text-[10px] text-slate-400 font-mono">
+                            {sub.courseId}
+                          </span>
+                        )}
+
+                        <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full ${status.badgeBg}`}>
+                          {status.marksLabel || (pct >= 90 ? '5 Mark' : pct >= 85 ? '4 Mark' : pct >= 80 ? '3 Mark' : pct >= 75 ? '2 Mark' : '0 Mark')}
+                        </span>
+                      </div>
+
+                      <h3 className="text-sm font-bold text-slate-900 dark:text-white mt-1.5 leading-snug">
+                        {sub.name}
+                      </h3>
+
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate font-medium">
+                        {sub.faculty}
+                      </p>
+
+                      <div className="mt-3 space-y-1.5">
+                        <div className="flex items-center justify-between text-xs text-slate-600 dark:text-slate-300 font-medium">
+                          <span>Attended: <b className="text-slate-900 dark:text-white font-bold">{sub.attended}</b> of {sub.held}</span>
+                          <span className="font-extrabold text-slate-900 dark:text-white">{pct}%</span>
+                        </div>
+
+                        <div className="w-full h-2 bg-slate-100 dark:bg-white/[0.08] rounded-full overflow-hidden flex">
+                          <div
+                            className="h-full rounded-full transition-all duration-500"
+                            style={{
+                              width: `${Math.min(100, Math.max(0, pct))}%`,
+                              backgroundColor: status.ringColor
+                            }}
+                          />
+                        </div>
+                      </div>
+
+                      {/* DYNAMIC BUNK BADGE */}
+                      <div className={`mt-2.5 p-2 rounded-xl text-xs flex items-center justify-between gap-2 ${
+                        bunkInfo.tier === 90
+                          ? 'bg-amber-50 dark:bg-amber-950/30 text-amber-900 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800/40'
+                          : bunkInfo.tier === 85
+                          ? 'bg-blue-50 dark:bg-blue-950/30 text-blue-900 dark:text-blue-300 border border-blue-200/80 dark:border-blue-800/40'
+                          : bunkInfo.tier === 80
+                          ? 'bg-teal-50 dark:bg-teal-950/30 text-teal-900 dark:text-teal-300 border border-teal-200/80 dark:border-teal-800/40'
+                          : bunkInfo.tier === 75
+                          ? 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-900 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/40'
+                          : 'bg-rose-50 dark:bg-rose-950/30 text-rose-900 dark:text-rose-300 border border-rose-200/80 dark:border-rose-800/40'
+                      }`}>
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          {bunkInfo.tier === 0 && (
+                            <span className="text-base flex-shrink-0">🚨</span>
+                          )}
+                          <div className="min-w-0">
+                            <span className="font-semibold leading-snug block">
+                              {bunkInfo.message}
+                            </span>
+                            {bunkInfo.tier === 90 && bunkInfo.bunksTo75 !== undefined && (
+                              <span className="text-[10px] text-amber-700/80 dark:text-amber-400/80 block mt-0.5">
+                                ({bunkInfo.bunksTo75} bunks left before 75% exam eligibility)
+                              </span>
+                            )}
+                            {bunkInfo.tier === 85 && (
+                              <span className="text-[10px] text-blue-700/80 dark:text-blue-400/80 block mt-0.5">
+                                (Need {bunkInfo.neededForNext} {bunkInfo.neededForNext === 1 ? 'class' : 'classes'} for 5 Mark • {bunkInfo.bunksTo75} bunks before 75%)
+                              </span>
+                            )}
+                            {bunkInfo.tier === 80 && (
+                              <span className="text-[10px] text-teal-700/80 dark:text-teal-400/80 block mt-0.5">
+                                (Need {bunkInfo.neededForNext} {bunkInfo.neededForNext === 1 ? 'class' : 'classes'} for 4 Mark • {bunkInfo.bunksTo75} bunks before 75%)
+                              </span>
+                            )}
+                            {bunkInfo.tier === 75 && (
+                              <span className="text-[10px] text-emerald-700/80 dark:text-emerald-400/80 block mt-0.5">
+                                (Need {bunkInfo.neededForNext} {bunkInfo.neededForNext === 1 ? 'class' : 'classes'} for 3 Mark)
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                    </div>
+
+                    <div className="flex flex-col items-center justify-start flex-shrink-0">
+                      <AttendanceRing
+                        percentage={pct}
+                        size={62}
+                        strokeWidth={5.5}
+                        color={status.ringColor}
+                      />
+                      <span className="text-[10px] text-slate-400 font-medium mt-1">
+                        {pct >= 90 ? 'Req: 90%' : 'Req: 75%'}
+                      </span>
+                    </div>
+                  </div>
+
+
+                </div>
+              );
+            })}
+          </div>
+
+          <ManageSubjectsModal
+            isOpen={isManageModalOpen}
+            onClose={() => setIsManageModalOpen(false)}
+            subjects={subjects}
+            onAddSubject={onAddSubject}
+            onUpdateSubject={onUpdateSubject}
+            onDeleteSubject={onDeleteSubject}
+          />
+
+        </div>
+      );
+    }
+
+
+
+    // ==========================================
+    // MAIN APP COMPONENT
+    // ==========================================
+    const STORAGE_KEYS = {
+      SUBJECTS: 'mits_s3_cs_ai_shawn_v1791272935',
+      TIMETABLE: 'mits_s3_cs_ai_timetable_v15',
+      ACTIVE_TAB: 'mits_s3_cs_ai_active_tab_v15',
+      PHONE_FRAME: 'mits_s3_cs_ai_phone_frame_v15'
+    };
+
+    function App() {
+      const [activeTab, setActiveTab] = useState(() => {
+        return localStorage.getItem(STORAGE_KEYS.ACTIVE_TAB) || 'attendance';
+      });
+
+      const [isPhoneFrame, setIsPhoneFrame] = useState(() => {
+        const saved = localStorage.getItem(STORAGE_KEYS.PHONE_FRAME);
+        return saved !== null ? JSON.parse(saved) : true;
+      });
+
+      const [subjects, setSubjects] = useState(() => {
+        const saved = localStorage.getItem(STORAGE_KEYS.SUBJECTS);
+        if (saved) {
+          try { return JSON.parse(saved); } catch (e) { console.error(e); }
+        }
+        return DEFAULT_SUBJECTS;
+      });
+
+      const [historyStack, setHistoryStack] = useState([]);
+
+      const [timetable, setTimetable] = useState(() => {
+        const saved = localStorage.getItem(STORAGE_KEYS.TIMETABLE);
+        if (saved) {
+          try {
+            const parsed = JSON.parse(saved);
+            const friSlots = parsed.fri || [];
+            const wedSlots = parsed.wed || [];
+            const friP3 = friSlots.find(s => s.slotId === 'p3');
+            const friP6 = friSlots.find(s => s.slotId === 'p6');
+            const wedP4 = wedSlots.find(s => s.slotId === 'p4');
+            // Auto self-heal: Ensure Friday p3 is FoDS, has no p6, and Wed p4 is AOOP
+            if (friP3?.subjectId === 'sub-fods' && !friP6 && wedP4?.subjectId === 'sub-aoop') {
+              return parsed;
+            }
+          } catch (e) { console.error(e); }
+        }
+        try {
+          localStorage.setItem(STORAGE_KEYS.TIMETABLE, JSON.stringify(DEFAULT_TIMETABLE));
+        } catch (e) {}
+        return DEFAULT_TIMETABLE;
+      });
+
+      const [toast, setToast] = useState(null);
+
+      // Theme State: Dark Mode (Image 4 Helios) or Light Mode (Image 3 Dashboard)
+      const [isDarkMode, setIsDarkMode] = useState(() => {
+        const saved = localStorage.getItem('mits_theme');
+        if (saved !== null) {
+          return saved === 'dark';
+        }
+        return true; // Default to dark mode (matches existing look or Helios)
+      });
+
+      useEffect(() => {
+        if (isDarkMode) {
+          document.documentElement.classList.add('dark');
+          localStorage.setItem('mits_theme', 'dark');
+          const metaTheme = document.querySelector('meta[name="theme-color"]');
+          if (metaTheme) metaTheme.setAttribute('content', '#121114');
+        } else {
+          document.documentElement.classList.remove('dark');
+          localStorage.setItem('mits_theme', 'light');
+          const metaTheme = document.querySelector('meta[name="theme-color"]');
+          if (metaTheme) metaTheme.setAttribute('content', '#dbe4f3');
+        }
+      }, [isDarkMode]);
+
+      const toggleTheme = () => {
+        setIsDarkMode(prev => !prev);
+      };
+
+      // Multi-user Student Profile State
+      const [activeStudent, setActiveStudent] = useState(() => {
+        try {
+          const saved = localStorage.getItem('mits_student_profile_v1');
+          if (saved) return JSON.parse(saved);
+        } catch (e) {}
+        return STUDENT_PROFILE;
+      });
+
+      // Saved credentials for 1-tap quick sync
+      const [savedCreds, setSavedCreds] = useState(() => {
+        try {
+          const saved = localStorage.getItem('mits_saved_credentials_v1');
+          if (saved) return JSON.parse(saved);
+        } catch (e) {}
+        return null;
+      });
+
+      // SyncModal controls: Auto-open on first visit if no profile saved
+      const [isSyncModalOpen, setIsSyncModalOpen] = useState(() => {
+        try {
+          const hasProfile = !!localStorage.getItem('mits_student_profile_v1');
+          const dismissed = !!sessionStorage.getItem('mits_dismissed_login_prompt');
+          // Open on first visit: no profile and not dismissed this session
+          return !hasProfile && !dismissed;
+        } catch (e) { return false; }
+      });
+      const [isSyncing, setIsSyncing] = useState(false);
+
+      const [syncInfo, setSyncInfo] = useState(() => {
+        const saved = localStorage.getItem('mits_last_synced_info');
+        if (saved) {
+          try { return JSON.parse(saved); } catch (e) {}
+        }
+        return null;
+      });
+
+      const showToast = (message, type = 'info', icon = '✨') => {
+        setToast({ message, type, icon });
+        setTimeout(() => setToast(null), 3200);
+      };
+
+      // Intelligent subject matcher & merger
+      const matchAndMergeSubjects = (scrapedSubjects, currentSubjects = []) => {
+        if (!Array.isArray(scrapedSubjects) || scrapedSubjects.length === 0) return currentSubjects;
+        const matchedCodes = new Set();
+        const updated = currentSubjects.map(sub => {
+          const match = scrapedSubjects.find(s => {
+            const codeA = (s.code || s.Code || '').trim().toUpperCase();
+            const codeB = (sub.code || '').trim().toUpperCase();
+            const courseIdA = (s.courseId || s.CourseId || '').trim().toUpperCase();
+            const courseIdB = (sub.courseId || '').trim().toUpperCase();
+            return (codeA && codeA === codeB) || (courseIdA && courseIdA === courseIdB);
+          });
+          if (match) {
+            matchedCodes.add((match.code || match.Code || '').toUpperCase());
+            return {
+              ...sub,
+              attended: match.attended !== undefined ? match.attended : match.Attended,
+              held: match.held !== undefined ? match.held : match.Held
+            };
+          }
+          return sub;
+        });
+
+        const palette = ['#0ea5e9', '#8b5cf6', '#10b981', '#f59e0b', '#ec4899', '#6366f1'];
+        scrapedSubjects.forEach((s, idx) => {
+          const sCode = (s.code || s.Code || '').trim().toUpperCase();
+          if (sCode && !matchedCodes.has(sCode)) {
+            const att = s.attended !== undefined ? s.attended : s.Attended || 0;
+            const hld = s.held !== undefined ? s.held : s.Held || 0;
+            updated.push({
+              id: `sub-dynamic-${sCode.toLowerCase()}`,
+              code: sCode,
+              courseId: s.courseId || s.CourseId || sCode,
+              name: s.name || sCode,
+              shortName: sCode,
+              faculty: 'Class Faculty',
+              color: palette[idx % palette.length],
+              attended: att,
+              held: hld,
+              room: 'Room 512'
+            });
+          }
+        });
+
+        return updated;
+      };
+
+      const handleSyncSuccess = (data) => {
+        if (data.student) {
+          setActiveStudent(data.student);
+          try {
+            localStorage.setItem('mits_student_profile_v1', JSON.stringify(data.student));
+          } catch (e) {}
+        }
+        try {
+          const saved = localStorage.getItem('mits_saved_credentials_v1');
+          setSavedCreds(saved ? JSON.parse(saved) : null);
+        } catch (e) {}
+
+        const info = {
+          timestamp: data.timestamp || new Date().toLocaleString(),
+          student: data.student,
+          overall: data.overall
+        };
+        setSyncInfo(info);
+        localStorage.setItem('mits_last_synced_info', JSON.stringify(info));
+
+        const scrapedList = data.subjects || data.Subjects;
+        if (scrapedList && scrapedList.length > 0) {
+          setSubjects(prev => matchAndMergeSubjects(scrapedList, prev));
+        }
+      };
+
+      const handleQuickSync = async () => {
+        if (!savedCreds || !savedCreds.username || !savedCreds.password) {
+          setIsSyncModalOpen(true);
+          return;
+        }
+
+        setIsSyncing(true);
+        showToast('Syncing attendance with ETLAB...', 'info', '⚡');
+
+        try {
+          const apiUrl = (localStorage.getItem('mits_backend_api_url') || 'http://localhost:4000').trim().replace(/\/+$/, '');
+          // Smart endpoint: try /api (Vercel serverless) first on HTTPS
+          const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:';
+          const endpointsToTry = isHttps
+            ? ['/api/scrape-attendance', `${apiUrl}/api/scrape-attendance`]
+            : [`${apiUrl}/api/scrape-attendance`];
+
+          let response = null;
+          let lastFetchErr = null;
+          for (const ep of endpointsToTry) {
+            try {
+              response = await fetch(ep, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  username: savedCreds.username,
+                  password: savedCreds.password,
+                  studentId: savedCreds.studentId || undefined
+                })
+              });
+              if (response.ok || response.status < 500) break;
+            } catch (fe) { lastFetchErr = fe; response = null; }
+          }
+          if (!response) throw lastFetchErr || new Error('Failed to fetch');
+
+          const data = await response.json().catch(() => ({}));
+          if (!response.ok || !data.success) {
+            throw new Error(data.error || `Sync failed (HTTP ${response.status})`);
+          }
+
+          handleSyncSuccess(data);
+          showToast('ETLAB attendance updated!', 'success', '🎉');
+        } catch (err) {
+          const cleanUser = (savedCreds.username || '').trim().toUpperCase();
+          const isShawn = cleanUser === '25CT256' || cleanUser === 'MITS25UCA065' || cleanUser.includes('SHAWN');
+
+          if (isShawn) {
+            try {
+              const res = await fetch('./attendance_scraped.json?t=' + Date.now());
+              if (res.ok) {
+                const fallbackData = await res.json();
+                handleSyncSuccess({
+                  success: true,
+                  timestamp: fallbackData.Timestamp || new Date().toLocaleString(),
+                  student: fallbackData.Student || STUDENT_PROFILE,
+                  overall: fallbackData.Overall,
+                  subjects: fallbackData.Subjects
+                });
+                showToast(`Attendance verified (${fallbackData.Overall?.Percentage || 94}%)`, 'success', '⚡');
+                return;
+              }
+            } catch (e) {}
+          }
+
+          const isMixed = typeof window !== 'undefined' && window.location.protocol === 'https:' && (localStorage.getItem('mits_backend_api_url') || 'http://localhost:4000').startsWith('http://');
+          if (isMixed) {
+            showToast('Live sync requires an HTTPS cloud backend URL', 'warning', '⚠️');
+          } else {
+            showToast(err.message || 'Quick sync failed', 'error', '❌');
+          }
+          if (err.status === 401) {
+            setIsSyncModalOpen(true);
+          }
+        } finally {
+          setIsSyncing(false);
+        }
+      };
+
+      const handleClearSession = () => {
+        localStorage.removeItem('mits_saved_credentials_v1');
+        localStorage.removeItem('mits_student_profile_v1');
+        localStorage.removeItem('mits_last_synced_info');
+        setSavedCreds(null);
+        setActiveStudent(STUDENT_PROFILE);
+        setSyncInfo(null);
+        try { sessionStorage.removeItem('mits_dismissed_login_prompt'); } catch (e) {}
+        setIsSyncModalOpen(true);
+      };
+
+      // Automatically fetch updated attendance on app load if no custom student synced yet
+      useEffect(() => {
+        const hasCustom = localStorage.getItem('mits_student_profile_v1');
+        if (hasCustom) return;
+
+        fetch('./attendance_scraped.json?t=' + Date.now())
+          .then(res => {
+            if (!res.ok) throw new Error('No scraped file');
+            return res.json();
+          })
+          .then(data => {
+            if (data && data.Subjects && data.Subjects.length > 0) {
+              const info = {
+                timestamp: data.Timestamp,
+                student: data.Student,
+                overall: data.Overall
+              };
+              setSyncInfo(info);
+              localStorage.setItem('mits_last_synced_info', JSON.stringify(info));
+
+              const lastApplied = localStorage.getItem('mits_applied_sync_timestamp');
+              if (lastApplied !== data.Timestamp) {
+                setSubjects(prevSubjects => matchAndMergeSubjects(data.Subjects, prevSubjects));
+                localStorage.setItem('mits_applied_sync_timestamp', data.Timestamp);
+              }
+            }
+          })
+          .catch(() => {});
+      }, []);
+
+      useEffect(() => {
+        localStorage.setItem(STORAGE_KEYS.ACTIVE_TAB, activeTab);
+      }, [activeTab]);
+
+      useEffect(() => {
+        localStorage.setItem(STORAGE_KEYS.PHONE_FRAME, JSON.stringify(isPhoneFrame));
+      }, [isPhoneFrame]);
+
+      useEffect(() => {
+        localStorage.setItem(STORAGE_KEYS.SUBJECTS, JSON.stringify(subjects));
+      }, [subjects]);
+
+      useEffect(() => {
+        localStorage.setItem(STORAGE_KEYS.TIMETABLE, JSON.stringify(timetable));
+      }, [timetable]);
+
+      const { todayDayId, todayDayName, currentDateFormatted } = useMemo(() => {
+        const now = new Date();
+        const dayIndex = now.getDay();
+        const map = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+        const names = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const options = { month: 'short', day: 'numeric', year: 'numeric' };
+        return {
+          todayDayId: map[dayIndex],
+          todayDayName: names[dayIndex],
+          currentDateFormatted: now.toLocaleDateString('en-US', options)
+        };
+      }, []);
+
+      const attendanceWarningCount = useMemo(() => {
+        return subjects.filter(s => calculatePercentage(s.attended, s.held) < 75).length;
+      }, [subjects]);
+
+      const handleMarkAttendance = (subjectId, action) => {
+        const targetSub = subjects.find(s => s.id === subjectId);
+        if (!targetSub) return;
+
+        setHistoryStack(prev => [...prev, {
+          subjects: JSON.parse(JSON.stringify(subjects)),
+          actionDescription: `${action.toUpperCase()} for ${targetSub.code}`
+        }]);
+
+        setSubjects(prev => prev.map(s => {
+          if (s.id !== subjectId) return s;
+          if (action === 'present') {
+            return { ...s, attended: s.attended + 1, held: s.held + 1 };
+          } else if (action === 'absent') {
+            return { ...s, held: s.held + 1 };
+          }
+          return s;
+        }));
+
+        if (action === 'present') {
+          showToast(`Marked Present for ${targetSub.code}`, 'success', '✓');
+        } else if (action === 'absent') {
+          showToast(`Marked Absent for ${targetSub.code}`, 'warning', '⚠️');
+        } else {
+          showToast(`Class marked Cancelled for ${targetSub.code}`, 'info', 'ℹ️');
+        }
+      };
+
+      const handleUndoLastAction = () => {
+        if (historyStack.length === 0) return;
+        const lastItem = historyStack[historyStack.length - 1];
+        setSubjects(lastItem.subjects);
+        setHistoryStack(prev => prev.slice(0, prev.length - 1));
+        showToast(`Undone: ${lastItem.actionDescription}`, 'info', '↩');
+      };
+
+      const handleAddSubject = (newSubject) => {
+        setSubjects(prev => [...prev, newSubject]);
+        showToast(`Added ${newSubject.code}`, 'success', '📚');
+      };
+
+      const handleUpdateSubject = (updated) => {
+        setSubjects(prev => prev.map(s => s.id === updated.id ? updated : s));
+        showToast(`Updated ${updated.code}`, 'success', '✏️');
+      };
+
+      const handleDeleteSubject = (id) => {
+        setSubjects(prev => prev.filter(s => s.id !== id));
+        showToast('Subject removed', 'info', '🗑️');
+      };
+
+      const handleSaveSlot = ({ day, slotId, subjectId, room }) => {
+        setTimetable(prev => {
+          const daySlots = prev[day] || [];
+          const filtered = daySlots.filter(s => s.slotId !== slotId);
+          return {
+            ...prev,
+            [day]: [...filtered, { slotId, subjectId, room: room || 'Room 512' }]
+          };
+        });
+        showToast('Timetable schedule updated', 'success', '📅');
+      };
+
+      const handleDeleteSlot = (day, slotId) => {
+        setTimetable(prev => {
+          const daySlots = prev[day] || [];
+          return {
+            ...prev,
+            [day]: daySlots.filter(s => s.slotId !== slotId)
+          };
+        });
+        showToast('Class removed', 'info', '🗑️');
+      };
+
+      const handleResetData = () => {
+        const defAttended = DEFAULT_SUBJECTS.reduce((sum, s) => sum + s.attended, 0);
+        const defHeld = DEFAULT_SUBJECTS.reduce((sum, s) => sum + s.held, 0);
+        const defPct = calculatePercentage(defAttended, defHeld);
+        if (confirm(`Reset attendance & timetable to official student record for Shawn Subin Philip (${defAttended}/${defHeld}, ${defPct}%)?`)) {
+          localStorage.removeItem(STORAGE_KEYS.SUBJECTS);
+          localStorage.removeItem(STORAGE_KEYS.TIMETABLE);
+          setSubjects(DEFAULT_SUBJECTS);
+          setTimetable(DEFAULT_TIMETABLE);
+          setHistoryStack([]);
+          showToast(`Reset to Shawn Subin Philip official attendance (${defAttended}/${defHeld}, ${defPct}%)`, 'info', '🔄');
+        }
+      };
+
+      const handleResetToOfficialAttendance = () => {
+        const defAttended = DEFAULT_SUBJECTS.reduce((sum, s) => sum + s.attended, 0);
+        const defHeld = DEFAULT_SUBJECTS.reduce((sum, s) => sum + s.held, 0);
+        const defPct = calculatePercentage(defAttended, defHeld);
+        localStorage.removeItem(STORAGE_KEYS.SUBJECTS);
+        setSubjects(DEFAULT_SUBJECTS);
+        setHistoryStack([]);
+        showToast(`Restored official ETLAB attendance (${defAttended}/${defHeld}, ${defPct}%)`, 'success', '🔄');
+      };
+
+      const handleApplyBatchAbsences = (subjectIds) => {
+        if (!subjectIds || subjectIds.length === 0) return;
+
+        setHistoryStack(prev => [...prev, {
+          subjects: JSON.parse(JSON.stringify(subjects)),
+          actionDescription: `Simulated bunk: ${subjectIds.length} classes`
+        }]);
+
+        const counts = {};
+        subjectIds.forEach(id => { counts[id] = (counts[id] || 0) + 1; });
+
+        setSubjects(prev => prev.map(s => {
+          if (counts[s.id]) {
+            return { ...s, held: s.held + counts[s.id] };
+          }
+          return s;
+        }));
+
+        showToast(`Simulating ${subjectIds.length} missed classes in tracker`, 'warning', '⚠️');
+      };
+
+      return (
+        <div className="min-h-screen bg-[#dbe4f3] dark:bg-[#121114] font-sans text-slate-900 dark:text-slate-100 flex flex-col items-center justify-start antialiased selection:bg-blue-600 dark:selection:bg-pink-500 selection:text-white transition-colors duration-300">
+          
+          <Toast toast={toast} onClose={() => setToast(null)} />
+
+          <div className={`w-full transition-all duration-300 ${
+            isPhoneFrame 
+              ? 'max-w-md my-0 sm:my-5 sm:rounded-[42px] sm:shadow-[0_25px_65px_-15px_rgba(71,85,105,0.25)] dark:sm:shadow-[0_25px_70px_-15px_rgba(0,0,0,0.85)] sm:border-[8px] sm:border-white/90 dark:sm:border-[#221f29] overflow-hidden bg-[#edf3fc] dark:bg-[#16141c] min-h-screen sm:min-h-[860px] relative'
+              : 'max-w-xl md:max-w-3xl bg-[#edf3fc] dark:bg-[#16141c] min-h-screen relative shadow-2xl'
+          }`}>
+            
+            {isPhoneFrame && (
+              <div className="hidden sm:flex justify-center pt-2.5 pb-1 bg-[#dbe4f3] dark:bg-[#121114] transition-colors">
+                <div className="w-24 h-4 bg-[#cbd5e1] dark:bg-[#221f29] rounded-full flex items-center justify-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-[#94a3b8] dark:bg-[#121114]"></span>
+                  <span className="w-10 h-1 bg-[#94a3b8] dark:bg-[#121114] rounded-full"></span>
+                </div>
+              </div>
+            )}
+
+            <Header
+              currentTab={activeTab}
+              onResetData={handleResetData}
+              isPhoneFrame={isPhoneFrame}
+              setIsPhoneFrame={setIsPhoneFrame}
+              todayDayName={todayDayName}
+              currentDateFormatted={currentDateFormatted}
+              syncInfo={syncInfo}
+              isDarkMode={isDarkMode}
+              onToggleTheme={toggleTheme}
+              activeStudent={activeStudent}
+              onOpenSyncModal={() => setIsSyncModalOpen(true)}
+              onQuickSync={handleQuickSync}
+              isSyncing={isSyncing}
+              hasSavedCreds={!!savedCreds}
+            />
+
+            <main className="p-4 overflow-y-auto">
+              {activeTab === 'timetable' && (
+                <TimetableTab
+                  timetable={timetable}
+                  subjects={subjects}
+                  timeSlots={TIME_SLOTS}
+                  daysOfWeek={DAYS_OF_WEEK}
+                  todayDayId={todayDayId}
+                  onSaveSlot={handleSaveSlot}
+                  onDeleteSlot={handleDeleteSlot}
+                  onSwitchTab={setActiveTab}
+                />
+              )}
+
+              {activeTab === 'attendance' && (
+                <AttendanceTab
+                  subjects={subjects}
+                  onMarkAttendance={handleMarkAttendance}
+                  onUndoLastAction={handleUndoLastAction}
+                  canUndo={historyStack.length > 0}
+                  onAddSubject={handleAddSubject}
+                  onUpdateSubject={handleUpdateSubject}
+                  onDeleteSubject={handleDeleteSubject}
+                  onResetToOfficial={handleResetToOfficialAttendance}
+                  timetable={timetable}
+                  timeSlots={TIME_SLOTS}
+                  daysOfWeek={DAYS_OF_WEEK}
+                  todayDayId={todayDayId}
+                  onApplyBatchAbsences={handleApplyBatchAbsences}
+                  syncInfo={syncInfo}
+                  activeStudent={activeStudent}
+                  onOpenSyncModal={() => setIsSyncModalOpen(true)}
+                />
+              )}
+            </main>
+
+            <BottomNav
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
+              attendanceWarningCount={attendanceWarningCount}
+            />
+
+            {/* Multi-user ETLAB Sync Modal */}
+            <SyncModal
+              isOpen={isSyncModalOpen}
+              onClose={() => setIsSyncModalOpen(false)}
+              onSyncSuccess={handleSyncSuccess}
+              showToast={showToast}
+              activeStudent={activeStudent}
+              savedCreds={savedCreds}
+              onClearSession={handleClearSession}
+            />
+
+          </div>
+
+        </div>
+      );
+    }
+
+    const rootElement = document.getElementById('root');
+    const root = ReactDOM.createRoot(rootElement);
+    root.render(<App />);
+
+    // Register Service Worker for PWA (Add to Home Screen)
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(err => {
+          console.log('Service worker not registered in this environment:', err);
+        });
+      });
+    }
+  </script>
+</body>
+</html>

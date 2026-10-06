@@ -3,6 +3,8 @@
  * Stateless API service for live ETLAB attendance synchronization
  */
 
+const path = require('path');
+const fs = require('fs');
 const express = require('express');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
@@ -20,6 +22,16 @@ app.use(cors({
 
 app.use(express.json());
 
+// Serve static frontend assets from public/ or parent directory
+const publicDir = path.join(__dirname, 'public');
+if (fs.existsSync(publicDir)) {
+  app.use(express.static(publicDir));
+}
+const parentDir = path.join(__dirname, '..');
+if (fs.existsSync(path.join(parentDir, 'index.html'))) {
+  app.use(express.static(parentDir));
+}
+
 // Rate Limiting: Max 20 requests per 5-minute window per IP to avoid overloading ETLAB
 const limiter = rateLimit({
   windowMs: 5 * 60 * 1000,
@@ -32,8 +44,8 @@ const limiter = rateLimit({
   }
 });
 
-// Health check endpoint
-app.get(['/', '/api/health'], (req, res) => {
+// Health check endpoint (moved from '/' so root can serve the web app)
+app.get('/api/health', (req, res) => {
   res.status(200).json({
     status: 'online',
     service: 'MITS Campus Hub ETLAB Scraper API',
@@ -69,6 +81,20 @@ app.post('/api/scrape-attendance', limiter, async (req, res) => {
       details: err.details || undefined
     });
   }
+});
+
+// Catch-all: serve index.html for frontend navigation
+app.get('*', (req, res, next) => {
+  if (req.path.startsWith('/api')) return next();
+  const publicIndex = path.join(__dirname, 'public', 'index.html');
+  if (fs.existsSync(publicIndex)) {
+    return res.sendFile(publicIndex);
+  }
+  const parentIndex = path.join(__dirname, '..', 'index.html');
+  if (fs.existsSync(parentIndex)) {
+    return res.sendFile(parentIndex);
+  }
+  next();
 });
 
 app.listen(PORT, () => {

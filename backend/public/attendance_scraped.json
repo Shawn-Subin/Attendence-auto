@@ -1,0 +1,105 @@
+{
+  "Timestamp": "2026-10-06 07:48:55",
+  "Student": {
+    "Name": "SHAWN SUBIN PHILIP",
+    "RollNo": "65",
+    "RegNo": "MITS25UCA065"
+  },
+  "Overall": {
+    "TotalAttended": 290,
+    "TotalHeld": 310,
+    "Percentage": 94,
+    "BunkTill90": 12.0,
+    "BunkTill75": 76.0
+  },
+  "Subjects": [
+    {
+      "CourseId": "B250904/MA300A",
+      "Code": "MA300A",
+      "Attended": 45,
+      "Held": 50,
+      "Percentage": 90,
+      "BunkTill90": 0,
+      "BunkTill75": 10,
+      "NeededFor90": 1,
+      "NeededFor75": 1
+    },
+    {
+      "CourseId": "B250802/CN320D",
+      "Code": "CN320D",
+      "Attended": 36,
+      "Held": 40,
+      "Percentage": 90,
+      "BunkTill90": 0,
+      "BunkTill75": 8,
+      "NeededFor90": 1,
+      "NeededFor75": 1
+    },
+    {
+      "CourseId": "B250006/AI300E",
+      "Code": "AI300E",
+      "Attended": 41,
+      "Held": 43,
+      "Percentage": 95,
+      "BunkTill90": 2,
+      "BunkTill75": 11,
+      "NeededFor90": 1,
+      "NeededFor75": 1
+    },
+    {
+      "CourseId": "B250908/HU900F",
+      "Code": "HU900F",
+      "Attended": 31,
+      "Held": 34,
+      "Percentage": 91,
+      "BunkTill90": 0,
+      "BunkTill75": 7,
+      "NeededFor90": 1,
+      "NeededFor75": 1
+    },
+    {
+      "CourseId": "B250802/CN310B",
+      "Code": "CN310B",
+      "Attended": 61,
+      "Held": 65,
+      "Percentage": 94,
+      "BunkTill90": 2,
+      "BunkTill75": 16,
+      "NeededFor90": 1,
+      "NeededFor75": 1
+    },
+    {
+      "CourseId": "B250802/CN310C",
+      "Code": "CN310C",
+      "Attended": 60,
+      "Held": 62,
+      "Percentage": 97,
+      "BunkTill90": 4,
+      "BunkTill75": 18,
+      "NeededFor90": 1,
+      "NeededFor75": 1
+    },
+    {
+      "CourseId": "AMH",
+      "Code": "AMH",
+      "Attended": 9,
+      "Held": 9,
+      "Percentage": 100,
+      "BunkTill90": 1,
+      "BunkTill75": 3,
+      "NeededFor90": 1,
+      "NeededFor75": 1
+    },
+    {
+      "CourseId": "AD_H",
+      "Code": "AD_H",
+      "Attended": 7,
+      "Held": 7,
+      "Percentage": 100,
+      "BunkTill90": 0,
+      "BunkTill75": 2,
+      "NeededFor90": 1,
+      "NeededFor75": 1
+    }
+  ]
+}
