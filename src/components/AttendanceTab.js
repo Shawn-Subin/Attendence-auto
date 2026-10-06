@@ -71,7 +71,9 @@ export function AttendanceTab({
   todayDayId,
   onApplyBatchAbsences,
   isSimulated,
-  syncInfo
+  syncInfo,
+  activeStudent,
+  onOpenSyncModal
 }) {
   const [isManageModalOpen, setIsManageModalOpen] = useState(false);
   const [filter, setFilter] = useState('all'); // 'all' | 'full-marks' | 'below-90'
@@ -146,33 +148,61 @@ export function AttendanceTab({
       )}
 
       {/* STUDENT PROFILE CARD */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl p-3.5 border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3 min-w-0">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-500 to-orange-600 text-slate-950 font-black flex items-center justify-center text-sm flex-shrink-0 shadow-md">
-            SP
-          </div>
-          <div className="min-w-0">
-            <div className="flex items-center gap-1.5 flex-wrap">
-              <h3 className="font-bold text-slate-900 dark:text-white text-sm truncate">
-                {STUDENT_PROFILE.name}
-              </h3>
-              <span className="px-1.5 py-0.2 rounded text-[10px] font-extrabold bg-amber-100 text-amber-900 dark:bg-amber-950/60 dark:text-amber-300">
-                Roll #{STUDENT_PROFILE.rollNo}
-              </span>
-            </div>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">
-              Reg: <span className="font-semibold text-slate-700 dark:text-slate-300">{STUDENT_PROFILE.regNo}</span> • S3 CS AI
-            </p>
-          </div>
-        </div>
+      {(() => {
+        const student = activeStudent || STUDENT_PROFILE;
+        const initials = (student.name || 'Student')
+          .split(/\s+/)
+          .filter(Boolean)
+          .map(w => w[0])
+          .slice(0, 2)
+          .join('')
+          .toUpperCase() || 'ST';
 
-        <div className="text-right flex-shrink-0">
-          <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Internal Marks</span>
-          <span className="text-xs font-black text-amber-600 dark:text-amber-400 flex items-center gap-1 justify-end">
-            <span>⭐</span>
-            <span>{overallStats.overallStatus?.marks ?? (overallStats.overallPct >= 90 ? 5 : overallStats.overallPct >= 85 ? 4 : overallStats.overallPct >= 80 ? 3 : overallStats.overallPct >= 75 ? 2 : 0)} / 5 Marks</span>
-          </span>
-        </div>
+        return (
+          <div className="bg-white dark:bg-slate-900 rounded-2xl p-3.5 border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-500 to-orange-600 text-slate-950 font-black flex items-center justify-center text-sm flex-shrink-0 shadow-md">
+                {initials}
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <h3 className="font-bold text-slate-900 dark:text-white text-sm truncate">
+                    {student.name}
+                  </h3>
+                  {student.rollNo && (
+                    <span className="px-1.5 py-0.2 rounded text-[10px] font-extrabold bg-amber-100 text-amber-900 dark:bg-amber-950/60 dark:text-amber-300">
+                      Roll #{student.rollNo}
+                    </span>
+                  )}
+                </div>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-0.5 truncate">
+                  Reg: <span className="font-semibold text-slate-700 dark:text-slate-300">{student.regNo || 'MITS25UCA...'}</span> • S3 CS AI
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <button
+                onClick={onOpenSyncModal}
+                title="Switch account or re-sync ETLAB credentials"
+                className="p-1.5 text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                </svg>
+              </button>
+
+              <div className="text-right">
+                <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Internal Marks</span>
+                <span className="text-xs font-black text-amber-600 dark:text-amber-400 flex items-center gap-1 justify-end">
+                  <span>⭐</span>
+                  <span>{overallStats.overallStatus?.marks ?? (overallStats.overallPct >= 90 ? 5 : overallStats.overallPct >= 85 ? 4 : overallStats.overallPct >= 80 ? 3 : overallStats.overallPct >= 75 ? 2 : 0)} / 5 Marks</span>
+                </span>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
       </div>
 
       {/* OVERALL SEMESTER SUMMARY CARD */}

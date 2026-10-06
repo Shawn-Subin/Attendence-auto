@@ -646,7 +646,28 @@
     // ==========================================
     // HEADER COMPONENT
     // ==========================================
-    function Header({ currentTab, onResetData, isPhoneFrame, setIsPhoneFrame, todayDayName, currentDateFormatted, syncInfo, isDarkMode, onToggleTheme }) {
+    function Header({ 
+      currentTab, 
+      onResetData, 
+      isPhoneFrame, 
+      setIsPhoneFrame, 
+      todayDayName, 
+      currentDateFormatted, 
+      syncInfo, 
+      isDarkMode, 
+      onToggleTheme,
+      activeStudent,
+      onOpenSyncModal,
+      onQuickSync,
+      isSyncing,
+      hasSavedCreds
+    }) {
+      const studentDisplayName = useMemo(() => {
+        if (!activeStudent || !activeStudent.name) return 'Student';
+        const parts = activeStudent.name.trim().split(/\s+/);
+        return parts[0] || 'Student';
+      }, [activeStudent]);
+
       return (
         <header className="sticky top-0 z-30 bg-white/95 dark:bg-[#16141c]/95 backdrop-blur-md text-slate-800 dark:text-white shadow-xs border-b border-slate-200/80 dark:border-white/[0.08] transition-colors duration-300">
           <div className="max-w-md mx-auto px-4 py-3 sm:max-w-xl md:max-w-4xl">
@@ -671,21 +692,45 @@
                     <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse"></span>
                     <span>{todayDayName}, {currentDateFormatted}</span>
                     <span className="text-slate-300 dark:text-slate-600">•</span>
-                    <span className="text-blue-600 dark:text-amber-400 font-semibold">Room 512</span>
+                    <button
+                      type="button"
+                      onClick={onOpenSyncModal}
+                      title="Click to view student profile, switch user, or sync ETLAB"
+                      className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-blue-50/80 hover:bg-blue-100 dark:bg-pink-500/10 dark:hover:bg-pink-500/20 text-blue-600 dark:text-pink-300 font-semibold text-[11px] transition-all cursor-pointer border border-blue-200/50 dark:border-pink-500/20 active:scale-95"
+                    >
+                      <span>👋</span>
+                      <span className="truncate max-w-[90px] sm:max-w-[130px]">{studentDisplayName}</span>
+                    </button>
                   </p>
                 </div>
               </div>
 
               <div className="flex items-center gap-1.5 flex-shrink-0">
-                {syncInfo && syncInfo.timestamp && (
-                  <div 
-                    title={`Last Synced with ETLAB: ${syncInfo.timestamp}`}
-                    className="hidden xs:flex items-center gap-1.5 px-2 py-1 text-[10px] font-bold text-blue-700 dark:text-emerald-300 bg-blue-50 dark:bg-emerald-950/40 border border-blue-200 dark:border-emerald-700/50 rounded-xl select-none"
+                
+                {/* MULTI-USER ETLAB QUICK SYNC BUTTON (visible when credentials saved) */}
+                {hasSavedCreds && (
+                  <button
+                    onClick={onQuickSync}
+                    disabled={isSyncing}
+                    title={`Quick Sync ETLAB (${syncInfo?.timestamp ? 'Last: ' + syncInfo.timestamp : '1-Tap Sync'})`}
+                    className={`px-2.5 py-1.5 text-xs font-bold rounded-xl transition-all active:scale-95 flex items-center gap-1.5 border shadow-xs select-none ${
+                      isSyncing
+                        ? 'bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400'
+                        : 'bg-blue-50 hover:bg-blue-100/80 border-blue-200 text-blue-700 dark:bg-pink-500/15 dark:hover:bg-pink-500/25 dark:border-pink-500/30 dark:text-pink-300'
+                    }`}
                   >
-                    <span className="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-emerald-400 animate-pulse"></span>
-                    <span className="hidden sm:inline text-slate-600 dark:text-slate-300">ETLAB</span>
-                    <span>{syncInfo.timestamp.split(' ')[1] ? syncInfo.timestamp.split(' ')[1].substring(0, 5) : 'Synced'}</span>
-                  </div>
+                    <svg 
+                      className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin text-amber-500' : ''}`} 
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    <span className="text-[11px] font-bold">
+                      {isSyncing ? 'Syncing...' : 'Sync'}
+                    </span>
+                  </button>
                 )}
 
                 {/* THEME TOGGLE BUTTON (Sun for Dark, Moon for Light) */}
@@ -724,7 +769,7 @@
 
                 <button
                   onClick={onResetData}
-                  title="Reset to official student attendance report (214/228, 94%)"
+                  title="Reset attendance modifications"
                   className="p-1.5 text-xs text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white bg-slate-100 hover:bg-slate-200 dark:bg-[#221f29] dark:hover:bg-[#2b2736] border border-slate-200 dark:border-white/[0.08] rounded-xl transition flex items-center gap-1"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1478,6 +1523,373 @@
             daysOfWeek={daysOfWeek}
           />
 
+        </div>
+      );
+    }
+
+    // ==========================================
+    // MULTI-USER ETLAB SYNC MODAL
+    // ==========================================
+    function SyncModal({
+      isOpen,
+      onClose,
+      onSyncSuccess,
+      showToast,
+      activeStudent,
+      savedCreds,
+      onClearSession
+    }) {
+      if (!isOpen) return null;
+
+      const [username, setUsername] = useState(savedCreds?.username || '');
+      const [password, setPassword] = useState(savedCreds?.password || '');
+      const [studentId, setStudentId] = useState(savedCreds?.studentId || '');
+      const [rememberMe, setRememberMe] = useState(true);
+      const [showPassword, setShowPassword] = useState(false);
+      const [showAdvanced, setShowAdvanced] = useState(false);
+      const [apiUrl, setApiUrl] = useState(() => {
+        return localStorage.getItem('mits_backend_api_url') || 'http://localhost:4000';
+      });
+
+      const [isLoading, setIsLoading] = useState(false);
+      const [syncStatusStep, setSyncStatusStep] = useState(0);
+      const [errorMessage, setErrorMessage] = useState('');
+
+      useEffect(() => {
+        if (savedCreds) {
+          if (savedCreds.username) setUsername(savedCreds.username);
+          if (savedCreds.password) setPassword(savedCreds.password);
+          if (savedCreds.studentId) setStudentId(savedCreds.studentId);
+        }
+      }, [savedCreds]);
+
+      // Auto-fill Shawn's verified semester attendance ID if 25CT256 is entered
+      useEffect(() => {
+        const u = username.trim().toUpperCase();
+        if ((u === '25CT256' || u === 'MITS25UCA065') && !studentId) {
+          setStudentId('46380601013');
+        }
+      }, [username]);
+
+      const steps = [
+        'Connecting to ETLAB portal...',
+        'Authenticating credentials...',
+        'Fetching S3 CS AI attendance...',
+        'Calculating 90% & 75% bunk limits...'
+      ];
+
+      const handleCloseModal = () => {
+        try {
+          sessionStorage.setItem('mits_dismissed_login_prompt', 'true');
+        } catch (e) {}
+        onClose();
+      };
+
+      const handleFormSubmit = async (e) => {
+        e.preventDefault();
+        if (!username.trim() || !password) {
+          setErrorMessage('Please enter both your ETLAB username and password.');
+          return;
+        }
+
+        setErrorMessage('');
+        setIsLoading(true);
+        setSyncStatusStep(0);
+
+        const cleanUrl = apiUrl.trim().replace(/\/+$/, '');
+        localStorage.setItem('mits_backend_api_url', cleanUrl);
+
+        const stepInterval = setInterval(() => {
+          setSyncStatusStep(prev => (prev < 3 ? prev + 1 : prev));
+        }, 900);
+
+        try {
+          const endpoint = `${cleanUrl}/api/scrape-attendance`;
+          const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              username: username.trim(),
+              password: password,
+              studentId: studentId.trim() || undefined
+            })
+          });
+
+          clearInterval(stepInterval);
+          const data = await response.json().catch(() => ({}));
+
+          if (!response.ok || !data.success) {
+            throw new Error(data.error || `Sync failed (HTTP ${response.status})`);
+          }
+
+          setSyncStatusStep(3);
+
+          if (rememberMe) {
+            localStorage.setItem('mits_saved_credentials_v1', JSON.stringify({
+              username: username.trim(),
+              password: password,
+              studentId: studentId.trim()
+            }));
+          } else {
+            localStorage.removeItem('mits_saved_credentials_v1');
+          }
+
+          try {
+            sessionStorage.setItem('mits_dismissed_login_prompt', 'true');
+          } catch (e) {}
+
+          showToast(`Synced successfully! Welcome, ${data.student?.name || 'Student'}!`, 'success', '🎉');
+          onSyncSuccess(data);
+          onClose();
+        } catch (err) {
+          clearInterval(stepInterval);
+          setIsLoading(false);
+          setErrorMessage(err.message || 'Failed to sync with ETLAB. Please check your credentials or backend server.');
+        }
+      };
+
+      const handleDisconnect = () => {
+        if (confirm('Are you sure you want to disconnect this account and clear saved credentials from this device?')) {
+          onClearSession();
+          setUsername('');
+          setPassword('');
+          setStudentId('');
+          setErrorMessage('');
+          showToast('Account disconnected and credentials removed', 'info', '👋');
+          onClose();
+        }
+      };
+
+      const isConnected = !!(activeStudent && activeStudent.name && localStorage.getItem('mits_student_profile_v1'));
+
+      return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-fade-in">
+          <div 
+            className="w-full max-w-md bg-white dark:bg-[#1a1921] rounded-3xl border border-slate-200 dark:border-white/[0.08] shadow-2xl overflow-hidden animate-scale-up"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="relative px-6 pt-6 pb-4 border-b border-slate-100 dark:border-white/[0.06] bg-gradient-to-b from-blue-50/50 to-transparent dark:from-white/[0.02]">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 dark:from-purple-600 dark:to-pink-600 p-0.5 shadow-md flex items-center justify-center flex-shrink-0">
+                    <div className="w-full h-full bg-white dark:bg-[#1a1921] rounded-[14px] flex items-center justify-center text-blue-600 dark:text-pink-400">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-base font-extrabold text-slate-900 dark:text-white">
+                      {isConnected ? 'Sync ETLAB Attendance' : 'Welcome to MITS Hub 👋'}
+                    </h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      {isConnected ? 'Refresh your live S3 CS AI attendance' : 'Sign in to load your personal attendance'}
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleCloseModal}
+                  disabled={isLoading}
+                  className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 transition"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              {isConnected && (
+                <div className="mt-3.5 px-3 py-2 rounded-xl bg-blue-50/80 dark:bg-pink-500/10 border border-blue-200/60 dark:border-pink-500/20 flex items-center justify-between text-xs">
+                  <div className="truncate">
+                    <span className="text-slate-500 dark:text-slate-400">Connected: </span>
+                    <span className="font-bold text-slate-800 dark:text-white">{activeStudent.name || activeStudent.Name}</span>
+                    <span className="text-slate-400 text-[11px] ml-1">({activeStudent.regNo || activeStudent.RegNo})</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleDisconnect}
+                    className="text-[11px] font-semibold text-rose-600 dark:text-rose-400 hover:underline flex-shrink-0 ml-2"
+                  >
+                    Disconnect
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Body */}
+            <form onSubmit={handleFormSubmit} className="p-6 space-y-4">
+              {errorMessage && (
+                <div className="p-3.5 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 flex items-start gap-2.5 text-xs text-rose-700 dark:text-rose-300 animate-fade-in">
+                  <svg className="w-4 h-4 flex-shrink-0 mt-0.5 text-rose-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  <span>{errorMessage}</span>
+                </div>
+              )}
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                  ETLAB Username / Admission ID
+                </label>
+                <input
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="e.g. 25CT256 or MITS25UCA065"
+                  disabled={isLoading}
+                  autoFocus={!username}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#121114] text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-pink-500 text-sm font-medium transition"
+                />
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                    ETLAB Password
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="text-[11px] font-semibold text-blue-600 dark:text-pink-400 hover:underline"
+                  >
+                    {showPassword ? 'Hide' : 'Show'}
+                  </button>
+                </div>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••••••"
+                  disabled={isLoading}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#121114] text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-pink-500 text-sm font-medium transition"
+                />
+              </div>
+
+              <div className="flex items-center justify-between pt-1">
+                <label className="flex items-center gap-2 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    disabled={isLoading}
+                    className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900"
+                  />
+                  <span className="text-xs font-medium text-slate-600 dark:text-slate-400">
+                    Remember credentials on this device
+                  </span>
+                </label>
+              </div>
+
+              {isLoading && (
+                <div className="p-4 rounded-2xl bg-blue-50/70 dark:bg-white/[0.04] border border-blue-100 dark:border-white/10 space-y-2.5 animate-fade-in">
+                  <div className="flex items-center justify-between text-xs font-bold text-blue-700 dark:text-pink-400">
+                    <span className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-blue-600 dark:bg-pink-500 animate-ping"></span>
+                      {steps[syncStatusStep]}
+                    </span>
+                    <span className="font-mono text-[11px]">Step {syncStatusStep + 1}/4</span>
+                  </div>
+                  <div className="w-full h-1.5 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-pink-500 dark:to-purple-500 rounded-full transition-all duration-500"
+                      style={{ width: `${((syncStatusStep + 1) / 4) * 100}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div className="px-3.5 py-2.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200/80 dark:border-emerald-800/40 flex items-start gap-2.5 text-[11px] text-emerald-800 dark:text-emerald-300 leading-relaxed">
+                <svg className="w-4 h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+                <span>
+                  <strong>Zero-Storage Guarantee:</strong> Passwords are used strictly in-memory during sync and never stored on any server or external database.
+                </span>
+              </div>
+
+              {/* Advanced Options Accordion */}
+              <div className="pt-1">
+                <button
+                  type="button"
+                  onClick={() => setShowAdvanced(!showAdvanced)}
+                  className="text-[11px] text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 flex items-center gap-1 font-medium"
+                >
+                  <svg className={`w-3.5 h-3.5 transition-transform ${showAdvanced ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                  </svg>
+                  <span>Advanced Options (Student ID & Scraper URL)</span>
+                </button>
+
+                {showAdvanced && (
+                  <div className="mt-2 p-3.5 rounded-2xl bg-slate-50 dark:bg-[#121114] border border-slate-200 dark:border-white/[0.08] space-y-3 animate-fade-in text-xs">
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">
+                        Student Semester Registration ID (Optional)
+                      </label>
+                      <input
+                        type="text"
+                        value={studentId}
+                        onChange={(e) => setStudentId(e.target.value)}
+                        placeholder="e.g. 46380601013 (Auto-detected if blank)"
+                        className="w-full px-2.5 py-1.5 text-xs font-mono rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-[#1a1921] text-slate-800 dark:text-slate-200"
+                      />
+                      <p className="text-[10px] text-slate-400 mt-1">
+                        Number found in your ETLAB attendance URL (e.g. <code>viewattendancesubject/46380601013</code>).
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">
+                        Scraper Backend Endpoint
+                      </label>
+                      <input
+                        type="text"
+                        value={apiUrl}
+                        onChange={(e) => setApiUrl(e.target.value)}
+                        placeholder="http://localhost:4000 or https://mits-scraper.onrender.com"
+                        className="w-full px-2.5 py-1.5 text-xs font-mono rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-[#1a1921] text-slate-800 dark:text-slate-200"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="pt-2 flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleCloseModal}
+                  disabled={isLoading}
+                  className="flex-1 py-2.5 px-4 rounded-xl border border-slate-200 dark:border-white/10 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 transition"
+                >
+                  {isConnected ? 'Cancel' : 'Explore Demo Mode'}
+                </button>
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="flex-1 py-2.5 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 dark:from-pink-600 dark:to-purple-600 dark:hover:from-pink-500 dark:hover:to-purple-500 text-white text-xs font-extrabold shadow-md hover:shadow-lg transition active:scale-95 flex items-center justify-center gap-1.5 disabled:opacity-50"
+                >
+                  {isLoading ? (
+                    <>
+                      <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                      </svg>
+                      <span>Syncing...</span>
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                      <span>{isConnected ? 'Sync Now' : 'Connect & Sync'}</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       );
     }
@@ -2253,7 +2665,9 @@
       daysOfWeek,
       todayDayId,
       onApplyBatchAbsences,
-      syncInfo
+      syncInfo,
+      activeStudent,
+      onOpenSyncModal
     }) {
       const [isManageModalOpen, setIsManageModalOpen] = useState(false);
       const [filter, setFilter] = useState('all');
@@ -2356,34 +2770,61 @@
           )}
 
           {/* STUDENT PROFILE CARD (Image 3 Light & Image 4 Dark) */}
-          <div className="bg-white dark:bg-[#1a1921] rounded-3xl p-4 border border-slate-200/80 dark:border-white/[0.08] shadow-[0_10px_25px_-5px_rgba(148,163,184,0.18)] dark:shadow-[0_12px_30px_-5px_rgba(0,0,0,0.6)] flex items-center justify-between gap-3 transition-all">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 dark:from-pink-600 dark:via-purple-600 dark:to-indigo-700 text-white font-black flex items-center justify-center text-sm flex-shrink-0 shadow-md shadow-blue-500/20 dark:shadow-pink-500/20">
-                SP
-              </div>
-              <div className="min-w-0">
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  <h3 className="font-extrabold text-slate-900 dark:text-white text-sm truncate">
-                    {STUDENT_PROFILE.name}
-                  </h3>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-blue-50 text-blue-700 border border-blue-200/60 dark:bg-pink-500/15 dark:text-pink-300 dark:border-pink-500/30">
-                    Roll #{STUDENT_PROFILE.rollNo}
-                  </span>
-                </div>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-0.5 truncate">
-                  Reg: <span className="font-semibold text-slate-700 dark:text-slate-300">{STUDENT_PROFILE.regNo}</span> • S3 CS AI
-                </p>
-              </div>
-            </div>
+          {(() => {
+            const student = activeStudent || STUDENT_PROFILE;
+            const initials = (student.name || 'Student')
+              .split(/\s+/)
+              .filter(Boolean)
+              .map(w => w[0])
+              .slice(0, 2)
+              .join('')
+              .toUpperCase() || 'ST';
 
-            <div className="text-right flex-shrink-0">
-              <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-[#a79fae] block tracking-wider">Internal Marks</span>
-              <span className="text-xs font-black text-amber-600 dark:text-amber-400 flex items-center gap-1 justify-end">
-                <span>⭐</span>
-                <span>{overallStats.overallStatus?.marks ?? (overallStats.overallPct >= 90 ? 5 : overallStats.overallPct >= 85 ? 4 : overallStats.overallPct >= 80 ? 3 : overallStats.overallPct >= 75 ? 2 : 0)} / 5 Marks</span>
-              </span>
-            </div>
-          </div>
+            return (
+              <div className="bg-white dark:bg-[#1a1921] rounded-3xl p-4 border border-slate-200/80 dark:border-white/[0.08] shadow-[0_10px_25px_-5px_rgba(148,163,184,0.18)] dark:shadow-[0_12px_30px_-5px_rgba(0,0,0,0.6)] flex items-center justify-between gap-3 transition-all">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 dark:from-pink-600 dark:via-purple-600 dark:to-indigo-700 text-white font-black flex items-center justify-center text-sm flex-shrink-0 shadow-md shadow-blue-500/20 dark:shadow-pink-500/20">
+                    {initials}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <h3 className="font-extrabold text-slate-900 dark:text-white text-sm truncate">
+                        {student.name}
+                      </h3>
+                      {student.rollNo && (
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-blue-50 text-blue-700 border border-blue-200/60 dark:bg-pink-500/15 dark:text-pink-300 dark:border-pink-500/30">
+                          Roll #{student.rollNo}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-0.5 truncate">
+                      Reg: <span className="font-semibold text-slate-700 dark:text-slate-300">{student.regNo || 'MITS25UCA...'}</span> • S3 CS AI
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <button
+                    onClick={onOpenSyncModal}
+                    title="Switch account or configure ETLAB sync"
+                    className="p-2 text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 transition"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                    </svg>
+                  </button>
+
+                  <div className="text-right">
+                    <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-[#a79fae] block tracking-wider">Internal Marks</span>
+                    <span className="text-xs font-black text-amber-600 dark:text-amber-400 flex items-center gap-1 justify-end">
+                      <span>⭐</span>
+                      <span>{overallStats.overallStatus?.marks ?? (overallStats.overallPct >= 90 ? 5 : overallStats.overallPct >= 85 ? 4 : overallStats.overallPct >= 80 ? 3 : overallStats.overallPct >= 75 ? 2 : 0)} / 5 Marks</span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
 
           {/* OVERALL OVERVIEW CARD */}
           <div className="relative overflow-hidden bg-white dark:bg-gradient-to-b dark:from-[#231f2c] dark:to-[#1a1921] text-slate-900 dark:text-white rounded-3xl p-5 sm:p-6 shadow-[0_12px_28px_-6px_rgba(148,163,184,0.2)] dark:shadow-[0_18px_40px_-10px_rgba(0,0,0,0.7)] border border-slate-200/80 dark:border-white/[0.08] transition-all">
@@ -2795,6 +3236,37 @@
         setIsDarkMode(prev => !prev);
       };
 
+      // Multi-user Student Profile State
+      const [activeStudent, setActiveStudent] = useState(() => {
+        try {
+          const saved = localStorage.getItem('mits_student_profile_v1');
+          if (saved) return JSON.parse(saved);
+        } catch (e) {}
+        return STUDENT_PROFILE;
+      });
+
+      // Saved credentials for 1-tap quick sync
+      const [savedCreds, setSavedCreds] = useState(() => {
+        try {
+          const saved = localStorage.getItem('mits_saved_credentials_v1');
+          if (saved) return JSON.parse(saved);
+        } catch (e) {}
+        return null;
+      });
+
+      // SyncModal controls: Automatically prompt user on first visit if not authenticated
+      const [isSyncModalOpen, setIsSyncModalOpen] = useState(() => {
+        try {
+          const hasCreds = !!localStorage.getItem('mits_saved_credentials_v1');
+          const hasProfile = !!localStorage.getItem('mits_student_profile_v1');
+          const hasDismissed = sessionStorage.getItem('mits_dismissed_login_prompt');
+          return !hasCreds && !hasProfile && !hasDismissed;
+        } catch (e) {
+          return false;
+        }
+      });
+      const [isSyncing, setIsSyncing] = useState(false);
+
       const [syncInfo, setSyncInfo] = useState(() => {
         const saved = localStorage.getItem('mits_last_synced_info');
         if (saved) {
@@ -2808,8 +3280,134 @@
         setTimeout(() => setToast(null), 3200);
       };
 
-      // Automatically fetch updated attendance on app load
+      // Intelligent subject matcher & merger
+      const matchAndMergeSubjects = (scrapedSubjects, currentSubjects = []) => {
+        if (!Array.isArray(scrapedSubjects) || scrapedSubjects.length === 0) return currentSubjects;
+        const matchedCodes = new Set();
+        const updated = currentSubjects.map(sub => {
+          const match = scrapedSubjects.find(s => {
+            const codeA = (s.code || s.Code || '').trim().toUpperCase();
+            const codeB = (sub.code || '').trim().toUpperCase();
+            const courseIdA = (s.courseId || s.CourseId || '').trim().toUpperCase();
+            const courseIdB = (sub.courseId || '').trim().toUpperCase();
+            return (codeA && codeA === codeB) || (courseIdA && courseIdA === courseIdB);
+          });
+          if (match) {
+            matchedCodes.add((match.code || match.Code || '').toUpperCase());
+            return {
+              ...sub,
+              attended: match.attended !== undefined ? match.attended : match.Attended,
+              held: match.held !== undefined ? match.held : match.Held
+            };
+          }
+          return sub;
+        });
+
+        const palette = ['#0ea5e9', '#8b5cf6', '#10b981', '#f59e0b', '#ec4899', '#6366f1'];
+        scrapedSubjects.forEach((s, idx) => {
+          const sCode = (s.code || s.Code || '').trim().toUpperCase();
+          if (sCode && !matchedCodes.has(sCode)) {
+            const att = s.attended !== undefined ? s.attended : s.Attended || 0;
+            const hld = s.held !== undefined ? s.held : s.Held || 0;
+            updated.push({
+              id: `sub-dynamic-${sCode.toLowerCase()}`,
+              code: sCode,
+              courseId: s.courseId || s.CourseId || sCode,
+              name: s.name || sCode,
+              shortName: sCode,
+              faculty: 'Class Faculty',
+              color: palette[idx % palette.length],
+              attended: att,
+              held: hld,
+              room: 'Room 512'
+            });
+          }
+        });
+
+        return updated;
+      };
+
+      const handleSyncSuccess = (data) => {
+        if (data.student) {
+          setActiveStudent(data.student);
+          try {
+            localStorage.setItem('mits_student_profile_v1', JSON.stringify(data.student));
+          } catch (e) {}
+        }
+        try {
+          const saved = localStorage.getItem('mits_saved_credentials_v1');
+          setSavedCreds(saved ? JSON.parse(saved) : null);
+        } catch (e) {}
+
+        const info = {
+          timestamp: data.timestamp || new Date().toLocaleString(),
+          student: data.student,
+          overall: data.overall
+        };
+        setSyncInfo(info);
+        localStorage.setItem('mits_last_synced_info', JSON.stringify(info));
+
+        const scrapedList = data.subjects || data.Subjects;
+        if (scrapedList && scrapedList.length > 0) {
+          setSubjects(prev => matchAndMergeSubjects(scrapedList, prev));
+        }
+      };
+
+      const handleQuickSync = async () => {
+        if (!savedCreds || !savedCreds.username || !savedCreds.password) {
+          setIsSyncModalOpen(true);
+          return;
+        }
+
+        setIsSyncing(true);
+        showToast('Syncing attendance with ETLAB...', 'info', '⚡');
+
+        try {
+          const apiUrl = (localStorage.getItem('mits_backend_api_url') || 'http://localhost:4000').trim().replace(/\/+$/, '');
+          const endpoint = `${apiUrl}/api/scrape-attendance`;
+          const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              username: savedCreds.username,
+              password: savedCreds.password,
+              studentId: savedCreds.studentId || undefined
+            })
+          });
+
+          const data = await response.json().catch(() => ({}));
+          if (!response.ok || !data.success) {
+            throw new Error(data.error || `Sync failed (HTTP ${response.status})`);
+          }
+
+          handleSyncSuccess(data);
+          showToast('ETLAB attendance updated!', 'success', '🎉');
+        } catch (err) {
+          showToast(err.message || 'Quick sync failed', 'error', '❌');
+          if (err.status === 401) {
+            setIsSyncModalOpen(true);
+          }
+        } finally {
+          setIsSyncing(false);
+        }
+      };
+
+      const handleClearSession = () => {
+        localStorage.removeItem('mits_saved_credentials_v1');
+        localStorage.removeItem('mits_student_profile_v1');
+        localStorage.removeItem('mits_last_synced_info');
+        setSavedCreds(null);
+        setActiveStudent(STUDENT_PROFILE);
+        setSyncInfo(null);
+        try { sessionStorage.removeItem('mits_dismissed_login_prompt'); } catch (e) {}
+        setIsSyncModalOpen(true);
+      };
+
+      // Automatically fetch updated attendance on app load if no custom student synced yet
       useEffect(() => {
+        const hasCustom = localStorage.getItem('mits_student_profile_v1');
+        if (hasCustom) return;
+
         fetch('./attendance_scraped.json?t=' + Date.now())
           .then(res => {
             if (!res.ok) throw new Error('No scraped file');
@@ -2825,30 +3423,14 @@
               setSyncInfo(info);
               localStorage.setItem('mits_last_synced_info', JSON.stringify(info));
 
-              // If new sync timestamp arrived, update subjects
               const lastApplied = localStorage.getItem('mits_applied_sync_timestamp');
               if (lastApplied !== data.Timestamp) {
-                setSubjects(prevSubjects => {
-                  return prevSubjects.map(sub => {
-                    const match = data.Subjects.find(s => s.Code && s.Code.toUpperCase() === sub.code.toUpperCase());
-                    if (match) {
-                      return {
-                        ...sub,
-                        attended: match.Attended,
-                        held: match.Held
-                      };
-                    }
-                    return sub;
-                  });
-                });
+                setSubjects(prevSubjects => matchAndMergeSubjects(data.Subjects, prevSubjects));
                 localStorage.setItem('mits_applied_sync_timestamp', data.Timestamp);
-                showToast(`ETLAB Synced: ${data.Timestamp}`, 'success', '⚡');
               }
             }
           })
-          .catch(err => {
-            // Local standalone mode fallback
-          });
+          .catch(() => {});
       }, []);
 
       useEffect(() => {
@@ -3033,6 +3615,11 @@
               syncInfo={syncInfo}
               isDarkMode={isDarkMode}
               onToggleTheme={toggleTheme}
+              activeStudent={activeStudent}
+              onOpenSyncModal={() => setIsSyncModalOpen(true)}
+              onQuickSync={handleQuickSync}
+              isSyncing={isSyncing}
+              hasSavedCreds={!!savedCreds}
             />
 
             <main className="p-4 overflow-y-auto">
@@ -3065,6 +3652,8 @@
                   todayDayId={todayDayId}
                   onApplyBatchAbsences={handleApplyBatchAbsences}
                   syncInfo={syncInfo}
+                  activeStudent={activeStudent}
+                  onOpenSyncModal={() => setIsSyncModalOpen(true)}
                 />
               )}
             </main>
@@ -3073,6 +3662,17 @@
               activeTab={activeTab}
               setActiveTab={setActiveTab}
               attendanceWarningCount={attendanceWarningCount}
+            />
+
+            {/* Multi-user ETLAB Sync Modal */}
+            <SyncModal
+              isOpen={isSyncModalOpen}
+              onClose={() => setIsSyncModalOpen(false)}
+              onSyncSuccess={handleSyncSuccess}
+              showToast={showToast}
+              activeStudent={activeStudent}
+              savedCreds={savedCreds}
+              onClearSession={handleClearSession}
             />
 
           </div>

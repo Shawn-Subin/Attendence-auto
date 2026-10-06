@@ -12,3 +12,4 @@ desktop.ini
 # Antigravity Brain / Temp
 .gemini/
 *.tmp
+node_modules/

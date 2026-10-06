@@ -1,4 +1,5 @@
 // Header component for MITS Campus Hub with Light & Helios Dark theme support
+// and multi-user ETLAB sync controls
 
 export function Header({ 
   currentTab, 
@@ -9,14 +10,28 @@ export function Header({
   currentDateFormatted,
   syncInfo,
   isDarkMode,
-  onToggleTheme
+  onToggleTheme,
+  activeStudent,
+  onOpenSyncModal,
+  onQuickSync,
+  isSyncing,
+  hasSavedCreds
 }) {
+  const [showProfileMenu, setShowProfileMenu] = React.useState(false);
+
+  const studentDisplayName = React.useMemo(() => {
+    if (!activeStudent || !activeStudent.name) return 'Student';
+    // Use first name or short name for compact header
+    const parts = activeStudent.name.trim().split(/\s+/);
+    return parts[0] || 'Student';
+  }, [activeStudent]);
+
   return (
     <header className="sticky top-0 z-30 bg-white/95 dark:bg-[#16141c]/95 backdrop-blur-md text-slate-800 dark:text-white shadow-xs border-b border-slate-200/80 dark:border-white/[0.08] transition-colors duration-300">
       <div className="max-w-md mx-auto px-4 py-3 sm:max-w-xl md:max-w-4xl">
         <div className="flex items-center justify-between gap-2.5">
           
-          {/* Logo & Title */}
+          {/* Logo & Student Info */}
           <div className="flex items-center gap-2.5 min-w-0">
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 dark:from-purple-700 dark:via-pink-600 dark:to-amber-500 p-0.5 shadow-md flex items-center justify-center flex-shrink-0">
               <div className="w-full h-full bg-white dark:bg-[#16141c] rounded-[14px] flex items-center justify-center font-black text-blue-600 dark:text-amber-400 text-xs tracking-tighter">
@@ -36,22 +51,46 @@ export function Header({
                 <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse"></span>
                 <span>{todayDayName}, {currentDateFormatted}</span>
                 <span className="text-slate-300 dark:text-slate-600">•</span>
-                <span className="text-blue-600 dark:text-amber-400 font-semibold">Room 512</span>
+                <button
+                  type="button"
+                  onClick={onOpenSyncModal}
+                  title="Click to view student profile, switch user, or sync ETLAB"
+                  className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-blue-50/80 hover:bg-blue-100 dark:bg-pink-500/10 dark:hover:bg-pink-500/20 text-blue-600 dark:text-pink-300 font-semibold text-[11px] transition-all cursor-pointer border border-blue-200/50 dark:border-pink-500/20 active:scale-95"
+                >
+                  <span>👋</span>
+                  <span className="truncate max-w-[90px] sm:max-w-[130px]">{studentDisplayName}</span>
+                </button>
               </p>
             </div>
           </div>
 
           {/* Action buttons */}
           <div className="flex items-center gap-1.5 flex-shrink-0">
-            {syncInfo && syncInfo.timestamp && (
-              <div 
-                title={`Last Synced with ETLAB: ${syncInfo.timestamp}`}
-                className="hidden xs:flex items-center gap-1.5 px-2 py-1 text-[10px] font-bold text-blue-700 dark:text-emerald-300 bg-blue-50 dark:bg-emerald-950/40 border border-blue-200 dark:border-emerald-700/50 rounded-xl select-none"
+            
+            {/* MULTI-USER ETLAB SYNC BUTTON */}
+            {hasSavedCreds && (
+              <button
+                onClick={onQuickSync}
+                disabled={isSyncing}
+                title={`Quick Sync ETLAB (${syncInfo?.timestamp ? 'Last: ' + syncInfo.timestamp : '1-Tap Sync'})`}
+                className={`px-2.5 py-1.5 text-xs font-bold rounded-xl transition-all active:scale-95 flex items-center gap-1.5 border shadow-xs select-none ${
+                  isSyncing
+                    ? 'bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400'
+                    : 'bg-blue-50 hover:bg-blue-100/80 border-blue-200 text-blue-700 dark:bg-pink-500/15 dark:hover:bg-pink-500/25 dark:border-pink-500/30 dark:text-pink-300'
+                }`}
               >
-                <span className="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-emerald-400 animate-pulse"></span>
-                <span className="hidden sm:inline text-slate-600 dark:text-slate-300">ETLAB</span>
-                <span>{syncInfo.timestamp.split(' ')[1] ? syncInfo.timestamp.split(' ')[1].substring(0, 5) : 'Synced'}</span>
-              </div>
+                <svg 
+                  className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin text-amber-500' : ''}`} 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                <span className="text-[11px] font-bold">
+                  {isSyncing ? 'Syncing...' : 'Sync'}
+                </span>
+              </button>
             )}
 
             {/* THEME TOGGLE BUTTON */}
@@ -76,6 +115,7 @@ export function Header({
               </span>
             </button>
 
+            {/* Desktop Simulator Frame Toggle */}
             <button
               onClick={() => setIsPhoneFrame(!isPhoneFrame)}
               title={isPhoneFrame ? "Expand to Full Width" : "Switch to Mobile Phone Frame"}
@@ -88,9 +128,10 @@ export function Header({
               <span>{isPhoneFrame ? "Full" : "Frame"}</span>
             </button>
 
+            {/* Reset Data Button */}
             <button
               onClick={onResetData}
-              title="Reset to official student attendance report (214/228, 94%)"
+              title="Reset attendance modifications"
               className="p-1.5 text-xs text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white bg-slate-100 hover:bg-slate-200 dark:bg-[#221f29] dark:hover:bg-[#2b2736] border border-slate-200 dark:border-white/[0.08] rounded-xl transition flex items-center gap-1"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -98,6 +139,7 @@ export function Header({
               </svg>
               <span className="hidden sm:inline text-[11px]">Reset</span>
             </button>
+
           </div>
 
         </div>

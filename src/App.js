@@ -4,16 +4,26 @@ import { BottomNav } from './components/BottomNav.js';
 import { TimetableTab } from './components/TimetableTab.js';
 import { AttendanceTab } from './components/AttendanceTab.js';
 import { Toast } from './components/Toast.js';
+import { SyncModal } from './components/SyncModal.js';
 
 import {
   DEFAULT_SUBJECTS,
   DEFAULT_TIMETABLE,
   TIME_SLOTS,
   DAYS_OF_WEEK,
-  ATTENDANCE_STORAGE_KEY
+  ATTENDANCE_STORAGE_KEY,
+  STUDENT_PROFILE
 } from './data/defaultData.js';
 
 import { calculatePercentage } from './utils/attendanceMath.js';
+import {
+  getStoredCredentials,
+  getStoredStudentProfile,
+  saveStudentProfile,
+  clearCredentials,
+  fetchLiveAttendance,
+  matchAndMergeSubjects
+} from './services/etlabService.js';
 
 const STORAGE_KEYS = {
   SUBJECTS: ATTENDANCE_STORAGE_KEY || 'mits_s3_cs_ai_shawn_v1789446779',
@@ -99,6 +109,25 @@ export function App() {
     setIsDarkMode(prev => !prev);
   };
 
+  // Multi-user Student Profile State
+  const [activeStudent, setActiveStudent] = React.useState(() => {
+    return getStoredStudentProfile() || STUDENT_PROFILE;
+  });
+
+  // Saved credentials for 1-tap quick sync
+  const [savedCreds, setSavedCreds] = React.useState(() => {
+    return getStoredCredentials();
+  });
+
+  // SyncModal controls: Automatically prompt user with login on entry if not authenticated
+  const [isSyncModalOpen, setIsSyncModalOpen] = React.useState(() => {
+    const hasCreds = !!getStoredCredentials();
+    const hasProfile = !!getStoredStudentProfile();
+    const hasDismissed = sessionStorage.getItem('mits_dismissed_login_prompt');
+    return !hasCreds && !hasProfile && !hasDismissed;
+  });
+  const [isSyncing, setIsSyncing] = React.useState(false);
+
   const [syncInfo, setSyncInfo] = React.useState(() => {
     const saved = localStorage.getItem('mits_last_synced_info');
     if (saved) {
@@ -114,8 +143,65 @@ export function App() {
     }, 3200);
   };
 
-  // Automatically fetch updated attendance on app load
+  const handleSyncSuccess = (data) => {
+    if (data.student) {
+      setActiveStudent(data.student);
+      saveStudentProfile(data.student);
+    }
+    const creds = getStoredCredentials();
+    setSavedCreds(creds);
+
+    const info = {
+      timestamp: data.timestamp || new Date().toLocaleString(),
+      student: data.student,
+      overall: data.overall
+    };
+    setSyncInfo(info);
+    localStorage.setItem('mits_last_synced_info', JSON.stringify(info));
+
+    const scrapedList = data.subjects || data.Subjects;
+    if (scrapedList && scrapedList.length > 0) {
+      setSubjects(prev => matchAndMergeSubjects(scrapedList, prev));
+    }
+  };
+
+  const handleQuickSync = async () => {
+    const creds = getStoredCredentials();
+    if (!creds) {
+      setIsSyncModalOpen(true);
+      return;
+    }
+
+    setIsSyncing(true);
+    showToast('Syncing attendance with ETLAB...', 'info', '⚡');
+
+    try {
+      const data = await fetchLiveAttendance(creds.username, creds.password, creds.studentId);
+      handleSyncSuccess(data);
+      showToast('ETLAB attendance updated!', 'success', '🎉');
+    } catch (err) {
+      showToast(err.message || 'Quick sync failed', 'error', '❌');
+      if (err.status === 401) {
+        setIsSyncModalOpen(true);
+      }
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  const handleClearSession = () => {
+    clearCredentials();
+    setSavedCreds(null);
+    setActiveStudent(STUDENT_PROFILE);
+    localStorage.removeItem('mits_last_synced_info');
+    setSyncInfo(null);
+  };
+
+  // Automatically fetch local static backup if no live student profile synced yet
   React.useEffect(() => {
+    const hasCustomStudent = localStorage.getItem('mits_student_profile_v1');
+    if (hasCustomStudent) return; // Don't overwrite dynamic student data with static file
+
     fetch('./attendance_scraped.json?t=' + Date.now())
       .then(res => {
         if (!res.ok) throw new Error('No scraped file');
@@ -133,27 +219,12 @@ export function App() {
 
           const lastApplied = localStorage.getItem('mits_applied_sync_timestamp');
           if (lastApplied !== data.Timestamp) {
-            setSubjects(prevSubjects => {
-              return prevSubjects.map(sub => {
-                const match = data.Subjects.find(s => s.Code && s.Code.toUpperCase() === sub.code.toUpperCase());
-                if (match) {
-                  return {
-                    ...sub,
-                    attended: match.Attended,
-                    held: match.Held
-                  };
-                }
-                return sub;
-              });
-            });
+            setSubjects(prevSubjects => matchAndMergeSubjects(data.Subjects, prevSubjects));
             localStorage.setItem('mits_applied_sync_timestamp', data.Timestamp);
-            showToast(`ETLAB Synced: ${data.Timestamp}`, 'success', '⚡');
           }
         }
       })
-      .catch(err => {
-        // Standalone fallback
-      });
+      .catch(() => {});
   }, []);
 
   // Sync to localStorage
@@ -366,6 +437,11 @@ export function App() {
           syncInfo={syncInfo}
           isDarkMode={isDarkMode}
           onToggleTheme={toggleTheme}
+          activeStudent={activeStudent}
+          onOpenSyncModal={() => setIsSyncModalOpen(true)}
+          onQuickSync={handleQuickSync}
+          isSyncing={isSyncing}
+          hasSavedCreds={!!savedCreds}
         />
 
         {/* Dynamic Tab Content */}
@@ -400,6 +476,8 @@ export function App() {
               onApplyBatchAbsences={handleApplyBatchAbsences}
               isSimulated={isSimulated}
               syncInfo={syncInfo}
+              activeStudent={activeStudent}
+              onOpenSyncModal={() => setIsSyncModalOpen(true)}
             />
           )}
         </main>
@@ -409,6 +487,17 @@ export function App() {
           activeTab={activeTab}
           setActiveTab={setActiveTab}
           attendanceWarningCount={attendanceWarningCount}
+        />
+
+        {/* Multi-user ETLAB Sync Modal */}
+        <SyncModal
+          isOpen={isSyncModalOpen}
+          onClose={() => setIsSyncModalOpen(false)}
+          onSyncSuccess={handleSyncSuccess}
+          showToast={showToast}
+          activeStudent={activeStudent}
+          savedCreds={savedCreds}
+          onClearSession={handleClearSession}
         />
 
       </div>

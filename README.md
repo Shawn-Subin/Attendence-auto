@@ -49,32 +49,89 @@ A clean, modern, mobile-first utility app tailored for **S3 Computer Science & A
 - **Subject Management**: Add new semester courses or adjust base counts anytime via the **"Manage"** modal.
 ---
 
-## 📂 Project Architecture
+## 👥 Multi-User ETLAB Live Sync Architecture
+
+MITS Campus Hub is architected with a **Stateless, Zero-Database Architecture** tailored for the S3 CS AI class:
+- **Zero Server Password Storage**: Student passwords are never saved to any database. They exist in server memory solely for the 2–3 seconds required to perform the ETLAB session handshake and are immediately discarded.
+- **Client-Side Persistence**: Scraped attendance records and student profiles are cached in the user's browser `localStorage`, providing 0ms instant loading and complete offline functionality.
+- **1-Tap Quick Sync**: Once connected, students can tap the header **"🔄 Sync"** button anytime to refresh attendance numbers from ETLAB in real time.
 
 ```
-MITS/
-├── index.html                    # Standalone single-page app (React 18 + Tailwind CDN + Babel)
-├── README.md                     # Documentation & usage guide
-└── src/                          # Modular source files for future backend integration
-    ├── App.js                    # Core App component and state synchronization
-    ├── components/
-    │   ├── Header.js             # MITS branding, date, and frame toggle
-    │   ├── BottomNav.js          # Bottom navigation with active indicators
-    │   ├── TimetableTab.js       # Today list & Weekly grid views
-    │   ├── AttendanceTab.js      # Circular rings, bunk math, quick actions
-    │   ├── EditTimetableModal.js # Add/Edit schedule slot modal
-    │   ├── ManageSubjectsModal.js# Add/Edit subjects & counts
-    │   └── Toast.js              # Feedback toasts
-    ├── data/
-    │   └── defaultData.js        # MITS S3 CS AI schedule & faculty data
-    └── utils/
-        └── attendanceMath.js     # Exact 75% attendance and bunk formulas
+[ Classmate's Phone / Laptop ]
+       │
+       │ 1. Enter ETLAB Login (or tap "Sync")
+       ▼
+[ Scraper Backend API (Node.js on Render) ]
+       │
+       │ 2. Authenticates with ETLAB & discovers dynamic URL
+       ▼
+[ https://mits.etlab.app ]
+       │
+       │ 3. Returns HTML table with subject attendance
+       ▼
+[ Backend API parses JSON & discards credentials ]
+       │
+       ▼
+[ Classmate's Phone / Laptop updates localStorage & dashboard ]
 ```
 
 ---
 
+## 📂 Project Architecture
+
+```
+MITS/
+├── backend/                      # Stateless Node.js ETLAB Scraper Microservice
+│   ├── package.json              # Express, Cheerio, Axios, Tough-Cookie
+│   ├── server.js                 # API server with rate-limiting & CORS
+│   ├── scraper.js                # Dynamic CSRF, session, and table parser
+│   ├── render.yaml               # 1-Click Render.com deployment blueprint
+│   ├── Dockerfile                # Container deployment definition
+│   └── README.md                 # Backend documentation
+├── index.html                    # Standalone single-page app (React 18 + Tailwind + Babel)
+├── vercel.json                   # Vercel deployment configuration
+├── attendance_scraped.json       # Local fallback attendance cache
+├── scrape_attendance.ps1         # Standalone PowerShell scraper utility
+├── run.bat                       # 1-click local launch script
+└── src/                          # Modular React components
+    ├── App.js                    # Multi-user state orchestration
+    ├── components/
+    │   ├── Header.js             # Student greeting & 1-tap Sync button
+    │   ├── SyncModal.js          # Interactive ETLAB connection modal
+    │   ├── AttendanceTab.js      # Dynamic student profile, rings, bunk math
+    │   ├── TimetableTab.js       # Today list & Weekly grid views
+    │   ├── BottomNav.js          # Responsive bottom navigation bar
+    │   └── Toast.js              # Toast notifications
+    ├── services/
+    │   └── etlabService.js       # Live API client & subject merger
+    ├── data/
+    │   └── defaultData.js        # S3 CS AI master timetable & course list
+    └── utils/
+        └── attendanceMath.js     # 90% (Internal marks) & 75% (Eligibility) formulas
+```
+
+---
+
+## ☁️ Free Cloud Deployment
+
+### 1. Backend Scraper (Render.com - 100% Free)
+1. Push this repository to GitHub.
+2. Go to [Render.com](https://render.com) and create a **New Web Service**.
+3. Select your repository, set **Root Directory** to `backend`.
+4. Render automatically detects `npm install` and `node server.js`.
+5. Deploy and copy your HTTPS service URL (e.g., `https://mits-scraper.onrender.com`).
+
+### 2. Frontend Web App (Vercel / GitHub Pages - 100% Free)
+1. Go to [Vercel.com](https://vercel.com) and import the repository.
+2. Set root directory to `MITS`.
+3. Deploy! Vercel automatically deploys the frontend with SSL and fast CDN routing.
+4. Open the deployed app, open the **Sync Modal** $\rightarrow$ **Advanced Settings**, and set your Render API URL. All classmates can now connect and sync their attendance anytime!
+
+---
+
 ## 🎨 Design System
-- **Primary Color**: Academic Navy (`#0b1e3d` / `#1e3a8a`)
-- **Accent Color**: Warm Amber Gold (`#f59e0b` / `#fbbf24`)
+- **Light Theme**: Soft Dashboard Canvas (`#dbe4f3` / `#ffffff`)
+- **Dark Theme**: Helios Deep Surface (`#121114` / `#1a1921`) with fuchsia & violet ambient glows
 - **Typography**: Plus Jakarta Sans & Inter
-- **Storage**: Browser `localStorage` for offline persistence across page reloads.
+- **Offline First**: Instant startup with Service Worker PWA caching (`sw.js`).
+
