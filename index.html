@@ -1603,18 +1603,33 @@
           setSyncStatusStep(prev => (prev < 3 ? prev + 1 : prev));
         }, 900);
 
-        try {
-          const endpoint = `${cleanUrl}/api/scrape-attendance`;
-          const response = await fetch(endpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              username: username.trim(),
-              password: password,
-              studentId: studentId.trim() || undefined
-            })
-          });
+        // Smart endpoint selection: on HTTPS (Vercel/GitHub Pages), use relative /api first
+        const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:';
+        const endpointsToTry = isHttps
+          ? ['/api/scrape-attendance', `${cleanUrl}/api/scrape-attendance`]
+          : [`${cleanUrl}/api/scrape-attendance`];
 
+        let response = null;
+        let lastError = null;
+        for (const endpoint of endpointsToTry) {
+          try {
+            response = await fetch(endpoint, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                username: username.trim(),
+                password: password,
+                studentId: studentId.trim() || undefined
+              })
+            });
+            if (response.ok || response.status < 500) break; // stop if good/auth error
+          } catch (fetchErr) {
+            lastError = fetchErr;
+            response = null; // try next
+          }
+        }
+        try {
+          if (!response) throw lastError || new Error('Failed to fetch');
           clearInterval(stepInterval);
           const data = await response.json().catch(() => ({}));
 
@@ -1701,9 +1716,9 @@
           setIsLoading(false);
           const isMixedContent = typeof window !== 'undefined' && window.location.protocol === 'https:' && cleanUrl.startsWith('http://');
           if (isMixedContent) {
-            setErrorMessage('Browser Security Notice: This web app is on HTTPS, but the scraper URL is HTTP (localhost). Browsers block HTTP requests from HTTPS sites. To sync live on mobile, host the scraper backend on HTTPS or explore Demo Mode.');
-          } else if (err.message && err.message.toLowerCase().includes('failed to fetch')) {
-            setErrorMessage(`Cannot reach scraper microservice at "${cleanUrl}". Please ensure backend/ is running (npm start) or enter your HTTPS cloud URL in Advanced Options.`);
+            setErrorMessage('⚠️ Mixed Content Blocked: This app is on HTTPS but your scraper URL is HTTP (localhost). The browser blocks this for security. The Vercel cloud scraper (/api/scrape-attendance) was tried automatically but may need deployment. Run locally at http://localhost for full sync, or use Explore Demo Mode.');
+          } else if (err.message && (err.message.toLowerCase().includes('failed to fetch') || err.message.toLowerCase().includes('networkerror'))) {
+            setErrorMessage(`🌐 Cannot connect to scraper. If you are on the web (Vercel/GitHub Pages), the serverless /api/scrape-attendance was tried first. Ensure the repo is deployed on Vercel (not GitHub Pages) for live sync to work. Alternatively, run the backend locally and access via http://localhost.`);
           } else {
             setErrorMessage(err.message || 'Failed to sync with ETLAB. Please check your credentials or backend server.');
           }
@@ -1723,6 +1738,11 @@
       };
 
       const isConnected = !!(activeStudent && activeStudent.name && localStorage.getItem('mits_student_profile_v1'));
+
+      // Has a real saved student (not just the default Shawn profile)
+      const hasSavedProfile = !!(activeStudent && activeStudent.name && localStorage.getItem('mits_student_profile_v1'));
+      const savedStudentName = hasSavedProfile ? (activeStudent.name || activeStudent.Name || 'Student') : null;
+      const savedStudentReg = hasSavedProfile ? (activeStudent.regNo || activeStudent.RegNo || '') : null;
 
       return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-fade-in">
@@ -1746,7 +1766,7 @@
                       {isConnected ? 'Sync ETLAB Attendance' : 'Welcome to MITS Hub 👋'}
                     </h3>
                     <p className="text-xs text-slate-500 dark:text-slate-400">
-                      {isConnected ? 'Refresh your live S3 CS AI attendance' : 'Sign in to load your personal attendance'}
+                      {isConnected ? 'Refresh your live S3 CS AI attendance' : 'Sign in to load your personal ETLAB attendance'}
                     </p>
                   </div>
                 </div>
@@ -1762,7 +1782,36 @@
                 </button>
               </div>
 
-              {isConnected && (
+              {/* Saved profile: Continue with existing data banner */}
+              {hasSavedProfile && (
+                <div className="mt-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/40 overflow-hidden">
+                  <div className="px-3.5 py-2.5 flex items-center justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-400">💾 Saved data found</p>
+                      <p className="text-xs font-bold text-slate-800 dark:text-white truncate">{savedStudentName} <span className="text-slate-400 font-normal text-[11px]">({savedStudentReg})</span></p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleCloseModal}
+                      className="flex-shrink-0 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white text-[11px] font-extrabold transition active:scale-95 shadow-sm whitespace-nowrap"
+                    >
+                      Continue →
+                    </button>
+                  </div>
+                  <div className="px-3.5 pb-2.5">
+                    <button
+                      type="button"
+                      onClick={handleDisconnect}
+                      className="text-[10px] font-medium text-rose-500 dark:text-rose-400 hover:underline"
+                    >
+                      Switch account / Disconnect
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Not connected: no banner */}
+              {!hasSavedProfile && isConnected && (
                 <div className="mt-3.5 px-3 py-2 rounded-xl bg-blue-50/80 dark:bg-pink-500/10 border border-blue-200/60 dark:border-pink-500/20 flex items-center justify-between text-xs">
                   <div className="truncate">
                     <span className="text-slate-500 dark:text-slate-400">Connected: </span>
@@ -3316,8 +3365,15 @@
         return null;
       });
 
-      // SyncModal controls: Triggered via header greeting or sync button
-      const [isSyncModalOpen, setIsSyncModalOpen] = useState(false);
+      // SyncModal controls: Auto-open on first visit if no profile saved
+      const [isSyncModalOpen, setIsSyncModalOpen] = useState(() => {
+        try {
+          const hasProfile = !!localStorage.getItem('mits_student_profile_v1');
+          const dismissed = !!sessionStorage.getItem('mits_dismissed_login_prompt');
+          // Open on first visit: no profile and not dismissed this session
+          return !hasProfile && !dismissed;
+        } catch (e) { return false; }
+      });
       const [isSyncing, setIsSyncing] = useState(false);
 
       const [syncInfo, setSyncInfo] = useState(() => {
@@ -3417,16 +3473,29 @@
 
         try {
           const apiUrl = (localStorage.getItem('mits_backend_api_url') || 'http://localhost:4000').trim().replace(/\/+$/, '');
-          const endpoint = `${apiUrl}/api/scrape-attendance`;
-          const response = await fetch(endpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              username: savedCreds.username,
-              password: savedCreds.password,
-              studentId: savedCreds.studentId || undefined
-            })
-          });
+          // Smart endpoint: try /api (Vercel serverless) first on HTTPS
+          const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:';
+          const endpointsToTry = isHttps
+            ? ['/api/scrape-attendance', `${apiUrl}/api/scrape-attendance`]
+            : [`${apiUrl}/api/scrape-attendance`];
+
+          let response = null;
+          let lastFetchErr = null;
+          for (const ep of endpointsToTry) {
+            try {
+              response = await fetch(ep, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  username: savedCreds.username,
+                  password: savedCreds.password,
+                  studentId: savedCreds.studentId || undefined
+                })
+              });
+              if (response.ok || response.status < 500) break;
+            } catch (fe) { lastFetchErr = fe; response = null; }
+          }
+          if (!response) throw lastFetchErr || new Error('Failed to fetch');
 
           const data = await response.json().catch(() => ({}));
           if (!response.ok || !data.success) {
