@@ -1,0 +1,19 @@
+{
+  "name": "mits-campus-hub",
+  "version": "1.0.0",
+  "description": "MITS Campus Hub - S3 CS AI Attendance & Timetable",
+  "main": "index.html",
+  "scripts": {
+    "start": "node backend/server.js",
+    "scraper": "node backend/server.js"
+  },
+  "dependencies": {
+    "axios": "^1.7.2",
+    "axios-cookiejar-support": "^5.0.4",
+    "cheerio": "^1.0.0-rc.12",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.3.1",
+    "tough-cookie": "^4.1.4"
+  }
+}

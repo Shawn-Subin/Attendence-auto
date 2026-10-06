@@ -1,5 +1,5 @@
 // MITS Campus Hub - PWA Service Worker
-const CACHE_NAME = 'mits-campus-hub-v3';
+const CACHE_NAME = 'mits-campus-hub-v4';
 const STATIC_ASSETS = [
   './',
   './index.html',
