@@ -15,5 +15,8 @@
     "express": "^4.19.2",
     "express-rate-limit": "^7.3.1",
     "tough-cookie": "^4.1.4"
+  },
+  "engines": {
+    "node": "20.x"
   }
 }
