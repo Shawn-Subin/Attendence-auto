@@ -1,7 +1,9 @@
-# The Express backend is for local/Render use only.
+# The Express backend server is for local/Render use only.
 # Vercel uses api/scrape-attendance.js (serverless) instead.
+# backend/scraper.js is still required by the serverless function via require('../backend/scraper')
 backend/node_modules
 backend/.env
 run.bat
 scrape_attendance.ps1
 src/
+node_modules
