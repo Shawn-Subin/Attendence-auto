@@ -46,11 +46,6 @@ export function Header({
                 <span className="text-[10px] uppercase font-extrabold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200/60 dark:bg-pink-500/15 dark:text-pink-300 dark:border-pink-500/30">
                   S3 CS AI
                 </span>
-              </div>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5 truncate">
-                <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse"></span>
-                <span>{todayDayName}, {currentDateFormatted}</span>
-                <span className="text-slate-300 dark:text-slate-600">•</span>
                 <button
                   type="button"
                   onClick={onOpenSyncModal}
@@ -60,6 +55,10 @@ export function Header({
                   <span>👋</span>
                   <span className="truncate max-w-[90px] sm:max-w-[130px]">{studentDisplayName}</span>
                 </button>
+              </div>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5 truncate">
+                <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse"></span>
+                <span>{todayDayName}, {currentDateFormatted}</span>
               </p>
             </div>
           </div>

@@ -687,11 +687,6 @@
                     <span className="text-[10px] uppercase font-extrabold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 dark:bg-pink-500/15 dark:text-pink-300 dark:border-pink-500/30">
                       S3 CS AI
                     </span>
-                  </div>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5 truncate">
-                    <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse"></span>
-                    <span>{todayDayName}, {currentDateFormatted}</span>
-                    <span className="text-slate-300 dark:text-slate-600">•</span>
                     <button
                       type="button"
                       onClick={onOpenSyncModal}
@@ -701,6 +696,10 @@
                       <span>👋</span>
                       <span className="truncate max-w-[90px] sm:max-w-[130px]">{studentDisplayName}</span>
                     </button>
+                  </div>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5 truncate">
+                    <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse"></span>
+                    <span>{todayDayName}, {currentDateFormatted}</span>
                   </p>
                 </div>
               </div>
@@ -3458,6 +3457,8 @@
 
         const scrapedList = data.subjects || data.Subjects;
         if (scrapedList && scrapedList.length > 0) {
+          // Persist latest synced subjects so Reset can restore them
+          try { localStorage.setItem('mits_last_synced_subjects', JSON.stringify(scrapedList)); } catch (e) {}
           setSubjects(prev => matchAndMergeSubjects(scrapedList, prev));
         }
       };
@@ -3688,28 +3689,70 @@
         showToast('Class removed', 'info', '🗑️');
       };
 
+      const getLatestSyncedSubjects = () => {
+        // Try to get the most recent synced subjects from localStorage
+        try {
+          const raw = localStorage.getItem('mits_last_synced_subjects');
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+          }
+        } catch (e) {}
+        return null;
+      };
+
       const handleResetData = () => {
-        const defAttended = DEFAULT_SUBJECTS.reduce((sum, s) => sum + s.attended, 0);
-        const defHeld = DEFAULT_SUBJECTS.reduce((sum, s) => sum + s.held, 0);
-        const defPct = calculatePercentage(defAttended, defHeld);
-        if (confirm(`Reset attendance & timetable to official student record for Shawn Subin Philip (${defAttended}/${defHeld}, ${defPct}%)?`)) {
-          localStorage.removeItem(STORAGE_KEYS.SUBJECTS);
-          localStorage.removeItem(STORAGE_KEYS.TIMETABLE);
-          setSubjects(DEFAULT_SUBJECTS);
-          setTimetable(DEFAULT_TIMETABLE);
-          setHistoryStack([]);
-          showToast(`Reset to Shawn Subin Philip official attendance (${defAttended}/${defHeld}, ${defPct}%)`, 'info', '🔄');
+        const syncedRaw = getLatestSyncedSubjects();
+        if (syncedRaw) {
+          // Restore from latest ETLAB sync
+          const restoredSubjects = matchAndMergeSubjects(syncedRaw, DEFAULT_SUBJECTS);
+          const att = restoredSubjects.reduce((sum, s) => sum + (s.attended || 0), 0);
+          const hld = restoredSubjects.reduce((sum, s) => sum + (s.held || 0), 0);
+          const pct = calculatePercentage(att, hld);
+          if (confirm(`Reset to latest synced ETLAB attendance (${att}/${hld}, ${pct}%)?`)) {
+            localStorage.removeItem(STORAGE_KEYS.SUBJECTS);
+            localStorage.removeItem(STORAGE_KEYS.TIMETABLE);
+            setSubjects(restoredSubjects);
+            setTimetable(DEFAULT_TIMETABLE);
+            setHistoryStack([]);
+            showToast(`Restored latest ETLAB attendance (${att}/${hld}, ${pct}%)`, 'success', '🔄');
+          }
+        } else {
+          // No sync yet — fall back to DEFAULT_SUBJECTS
+          const defAttended = DEFAULT_SUBJECTS.reduce((sum, s) => sum + s.attended, 0);
+          const defHeld = DEFAULT_SUBJECTS.reduce((sum, s) => sum + s.held, 0);
+          const defPct = calculatePercentage(defAttended, defHeld);
+          if (confirm(`Reset timetable modifications? No synced data found, will use built-in defaults (${defAttended}/${defHeld}, ${defPct}%).`)) {
+            localStorage.removeItem(STORAGE_KEYS.SUBJECTS);
+            localStorage.removeItem(STORAGE_KEYS.TIMETABLE);
+            setSubjects(DEFAULT_SUBJECTS);
+            setTimetable(DEFAULT_TIMETABLE);
+            setHistoryStack([]);
+            showToast(`Reset to default attendance (${defAttended}/${defHeld}, ${defPct}%)`, 'info', '🔄');
+          }
         }
       };
 
       const handleResetToOfficialAttendance = () => {
-        const defAttended = DEFAULT_SUBJECTS.reduce((sum, s) => sum + s.attended, 0);
-        const defHeld = DEFAULT_SUBJECTS.reduce((sum, s) => sum + s.held, 0);
-        const defPct = calculatePercentage(defAttended, defHeld);
-        localStorage.removeItem(STORAGE_KEYS.SUBJECTS);
-        setSubjects(DEFAULT_SUBJECTS);
-        setHistoryStack([]);
-        showToast(`Restored official ETLAB attendance (${defAttended}/${defHeld}, ${defPct}%)`, 'success', '🔄');
+        const syncedRaw = getLatestSyncedSubjects();
+        if (syncedRaw) {
+          const restoredSubjects = matchAndMergeSubjects(syncedRaw, DEFAULT_SUBJECTS);
+          const att = restoredSubjects.reduce((sum, s) => sum + (s.attended || 0), 0);
+          const hld = restoredSubjects.reduce((sum, s) => sum + (s.held || 0), 0);
+          const pct = calculatePercentage(att, hld);
+          localStorage.removeItem(STORAGE_KEYS.SUBJECTS);
+          setSubjects(restoredSubjects);
+          setHistoryStack([]);
+          showToast(`Restored latest ETLAB attendance (${att}/${hld}, ${pct}%)`, 'success', '🔄');
+        } else {
+          const defAttended = DEFAULT_SUBJECTS.reduce((sum, s) => sum + s.attended, 0);
+          const defHeld = DEFAULT_SUBJECTS.reduce((sum, s) => sum + s.held, 0);
+          const defPct = calculatePercentage(defAttended, defHeld);
+          localStorage.removeItem(STORAGE_KEYS.SUBJECTS);
+          setSubjects(DEFAULT_SUBJECTS);
+          setHistoryStack([]);
+          showToast(`Restored official ETLAB attendance (${defAttended}/${defHeld}, ${defPct}%)`, 'success', '🔄');
+        }
       };
 
       const handleApplyBatchAbsences = (subjectIds) => {
