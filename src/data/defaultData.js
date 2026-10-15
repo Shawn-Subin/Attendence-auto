@@ -44,7 +44,7 @@ export const DEFAULT_SUBJECTS = [
     faculty: 'Dr. S. Babu / Dr. J. Thomas',
     color: '#8b5cf6',
     attended: 48,
-    held: 53, // 91.9% -> 92% (Bunk till 90%: 0 classes - on edge!)
+    held: 54, // 91.9% -> 92% (Bunk till 90%: 0 classes - on edge!)
     room: 'Room 512'
   },
   {
@@ -56,7 +56,7 @@ export const DEFAULT_SUBJECTS = [
     faculty: 'Anitha S (AS)',
     color: '#10b981',
     attended: 42,
-    held: 44, // 93.9% -> 94% (Bunk till 90%: 1 class)
+    held: 45, // 93.9% -> 94% (Bunk till 90%: 1 class)
     room: 'Room 512'
   },
   {
@@ -68,7 +68,7 @@ export const DEFAULT_SUBJECTS = [
     faculty: 'Remya V (RV)',
     color: '#f59e0b',
     attended: 38,
-    held: 43, // 89.7% -> 90% (<90%, bunks till 75%: 5 classes)
+    held: 44, // 89.7% -> 90% (<90%, bunks till 75%: 5 classes)
     room: 'Room 512'
   },
   {
@@ -180,5 +180,5 @@ export const DEFAULT_TIMETABLE = {
   ]
 };
 
-export const ATTENDANCE_STORAGE_KEY = 'mits_s3_cs_ai_shawn_v1792044475';
+export const ATTENDANCE_STORAGE_KEY = 'mits_s3_cs_ai_shawn_v1792073815';
 export const TIMETABLE_STORAGE_KEY = 'mits_s3_timetable_cs_ai_v15';
