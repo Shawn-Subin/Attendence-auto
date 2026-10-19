@@ -1,16 +1,16 @@
 {
-  "Timestamp": "2026-10-19 06:28:59",
+  "Timestamp": "2026-10-19 16:34:16",
   "Student": {
     "Name": "SHAWN SUBIN PHILIP",
     "RollNo": "65",
     "RegNo": "MITS25UCA065"
   },
   "Overall": {
-    "TotalAttended": 312,
-    "TotalHeld": 338,
+    "TotalAttended": 318,
+    "TotalHeld": 344,
     "Percentage": 92,
-    "BunkTill90": 8.0,
-    "BunkTill75": 78.0
+    "BunkTill90": 9.0,
+    "BunkTill75": 80.0
   },
   "Subjects": [
     {
@@ -49,11 +49,11 @@
     {
       "CourseId": "B250908/HU900F",
       "Code": "HU900F",
-      "Attended": 31,
-      "Held": 34,
-      "Percentage": 91,
+      "Attended": 33,
+      "Held": 36,
+      "Percentage": 92,
       "BunkTill90": 0,
-      "BunkTill75": 7,
+      "BunkTill75": 8,
       "NeededFor90": 1,
       "NeededFor75": 1
     },
@@ -71,11 +71,11 @@
     {
       "CourseId": "B250802/CN310C",
       "Code": "CN310C",
-      "Attended": 68,
-      "Held": 71,
+      "Attended": 72,
+      "Held": 75,
       "Percentage": 96,
-      "BunkTill90": 4,
-      "BunkTill75": 19,
+      "BunkTill90": 5,
+      "BunkTill75": 21,
       "NeededFor90": 1,
       "NeededFor75": 1
     },
