@@ -31,8 +31,8 @@ export const DEFAULT_SUBJECTS = [
     shortName: 'FoDS',
     faculty: 'Dr. Parvathy Jyothi (Dr PJ) / Sheena Y',
     color: '#06b6d4',
-    attended: 74,
-    held: 81, // 97.7% -> 98% (Bunk till 90%: 3 classes)
+    attended: 76,
+    held: 83, // 97.7% -> 98% (Bunk till 90%: 3 classes)
     room: 'Room 512'
   },
   {
@@ -180,5 +180,5 @@ export const DEFAULT_TIMETABLE = {
   ]
 };
 
-export const ATTENDANCE_STORAGE_KEY = 'mits_s3_cs_ai_shawn_v1792953057';
+export const ATTENDANCE_STORAGE_KEY = 'mits_s3_cs_ai_shawn_v1792996740';
 export const TIMETABLE_STORAGE_KEY = 'mits_s3_timetable_cs_ai_v15';
