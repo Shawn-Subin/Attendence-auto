@@ -19,8 +19,8 @@ export const DEFAULT_SUBJECTS = [
     shortName: 'LSD',
     faculty: 'Angel B John (ABJ)',
     color: '#3b82f6',
-    attended: 70,
-    held: 75, // 93.6% -> 94% (Bunk till 90%: 1 class)
+    attended: 71,
+    held: 76, // 93.6% -> 94% (Bunk till 90%: 1 class)
     room: 'Room 512'
   },
   {
@@ -180,5 +180,5 @@ export const DEFAULT_TIMETABLE = {
   ]
 };
 
-export const ATTENDANCE_STORAGE_KEY = 'mits_s3_cs_ai_shawn_v1793290710';
+export const ATTENDANCE_STORAGE_KEY = 'mits_s3_cs_ai_shawn_v1793345294';
 export const TIMETABLE_STORAGE_KEY = 'mits_s3_timetable_cs_ai_v15';
