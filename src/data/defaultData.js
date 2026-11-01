@@ -55,8 +55,8 @@ export const DEFAULT_SUBJECTS = [
     shortName: 'FoR',
     faculty: 'Anitha S (AS)',
     color: '#10b981',
-    attended: 46,
-    held: 49, // 93.9% -> 94% (Bunk till 90%: 1 class)
+    attended: 48,
+    held: 51, // 93.9% -> 94% (Bunk till 90%: 1 class)
     room: 'Room 512'
   },
   {
@@ -180,5 +180,5 @@ export const DEFAULT_TIMETABLE = {
   ]
 };
 
-export const ATTENDANCE_STORAGE_KEY = 'mits_s3_cs_ai_shawn_v1793519325';
+export const ATTENDANCE_STORAGE_KEY = 'mits_s3_cs_ai_shawn_v1793549550';
 export const TIMETABLE_STORAGE_KEY = 'mits_s3_timetable_cs_ai_v15';
